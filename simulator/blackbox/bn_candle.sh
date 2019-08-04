@@ -12,6 +12,7 @@ select concat(symbol
 ) as result
 from CT.BINANCE_CANDLE
 where symbol='$1'
+and \`interval\` = '1m'
 and closeTime >= unix_timestamp('$2')*1000
 and closeTime < unix_timestamp('$3' + interval 1 day)*1000;
 "
