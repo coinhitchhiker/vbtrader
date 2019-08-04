@@ -8,7 +8,7 @@ select concat(symbol
   ,'|',highPrice
   ,'|',lowPrice
   ,'|',closePrice
-  ,'|',`volume`
+  ,'|',volume
 ) as result
 from CT.BINANCE_CANDLE
 where symbol='$1'
