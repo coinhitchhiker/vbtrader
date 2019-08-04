@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 mysql -B -N -u CT --password=wewillretire@2019 -h cryptotraderdb -D CT -e "
-select concat(symbol,',',
-    `interval`,',',
-    openTime,',',
-    closeTime,',',
-    openPrice,',',
-    highPrice,',',
-    lowPrice,',',
-    closePrice,',',
-    `volume`
+select cconcat(symbol
+  ,'|',`interval`
+  ,'|',openTime
+  ,'|',closeTime
+  ,'|',openPrice
+  ,'|',highPrice
+  ,'|',lowPrice
+  ,'|',closePrice
+  ,'|',`volume`
 ) as result
 from CT.BINANCE_CANDLE
 where symbol='$1'
