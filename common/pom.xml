@@ -12,6 +12,12 @@
     <artifactId>common</artifactId>
     <packaging>jar</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+        </dependency>
+    </dependencies>
     <build>
         <finalName>common</finalName>
         <plugins>
