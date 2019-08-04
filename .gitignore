@@ -26,5 +26,7 @@ hs_err_pid*
 *.iml
 target/
 ./common/target/
-./simulator/target/
+./com.coinhitchhiker.vbtrader.simulator/target/
 ./trader/target/
+./simulator/blackbox/*.txt
+./simulator/src/test/resources/com/coinhitchhiker/vbtrader/simulator/*.txt
