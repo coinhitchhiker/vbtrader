@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 mysql -B -N -u CT --password=wewillretire@2019 -h cryptotraderdb -D CT -e "
-select cconcat(symbol
+select concat(symbol
   ,'|',`interval`
   ,'|',openTime
   ,'|',closeTime
