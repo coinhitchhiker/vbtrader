@@ -23,6 +23,7 @@ public class SimulatorRepositoryImplTest {
     private Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImplTest.class);
 
     private Repository repo = null;
+    private static final int tradingWindowSizeInMinutes = 43;
 
     @BeforeAll
     public void init() throws IOException {
@@ -31,9 +32,9 @@ public class SimulatorRepositoryImplTest {
         String path = file.getAbsolutePath();
         System.out.println(path);
 
-        this.repo = new SimulatorRepositoryImpl(path, 1440);
+        this.repo = new SimulatorRepositoryImpl(path, tradingWindowSizeInMinutes);
 
-        ((SimulatorRepositoryImpl)this.repo).getTradingWindows().forEach(tw -> LOGGER.info("{}", tw.prettyFormat()));
+        ((SimulatorRepositoryImpl)this.repo).getTradingWindows().forEach(tw -> LOGGER.info("{}", tw));
     }
 
     @Test
@@ -45,10 +46,10 @@ public class SimulatorRepositoryImplTest {
         LOGGER.info("curTime {}", dt);
 
         long curTimestamp = DateTime.parse(dt, formatter).getMillis();
-        List<TradingWindow> result = repo.getLastNTradingWindow(20, 1440, curTimestamp);
+        List<TradingWindow> result = repo.getLastNTradingWindow(20, tradingWindowSizeInMinutes, curTimestamp);
         assertEquals(result.size(), 20);
 
-        result.forEach(tw -> LOGGER.info(tw.prettyFormat()));
+        result.forEach(tw -> LOGGER.info("{}", tw));
 
     }
 }

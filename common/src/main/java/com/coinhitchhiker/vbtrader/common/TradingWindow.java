@@ -13,8 +13,9 @@ public class TradingWindow {
     private double highPrice;
     private double closePrice;
     private double lowPrice;
+    private double volume;
 
-    public TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice) {
+    public TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
         this.symbol = symbol;
         this.startTimeStamp = startTimeStamp;
         this.endTimeStamp = endTimeStamp;
@@ -22,6 +23,7 @@ public class TradingWindow {
         this.highPrice = highPrice;
         this.closePrice = closePrice;
         this.lowPrice = lowPrice;
+        this.volume = volume;
     }
 
     public double getNoiseRatio() {
@@ -52,6 +54,7 @@ public class TradingWindow {
                 ", highPrice=" + highPrice +
                 ", closePrice=" + closePrice +
                 ", lowPrice=" + lowPrice +
+                ", volume=" + volume +
                 '}';
     }
 
@@ -99,5 +102,9 @@ public class TradingWindow {
 
     public void setLowPrice(double lowPrice) {
         this.lowPrice = lowPrice;
+    }
+
+    public double getVolume() {
+        return volume;
     }
 }
