@@ -2,6 +2,8 @@ package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -18,24 +20,30 @@ public class SimulatorRepositoryImpl implements Repository {
         try(BufferedReader br = Files.newBufferedReader(Paths.get(dataFile))) {
             //symbol interval openTime closeTime openPrice highPrice lowPrice closePrice volume
             //BTCUSDT|1m|1551398400000|1551398459999|3814.2600000000|3814.5000000000|3813.5500000000|3814.3300000000|9.3097660000
-            int idx = 0;
+
             List<Candle> tempList = new ArrayList<>();
+            DateTime tradingWindowCloseTime = null, candleCloseTime = null;
+            Candle candle = null;
             while(true) {
                 String s = br.readLine();
 
                 if(s != null) {
-                    Candle candle = parseCandleDataLine(s);
+                    candle = parseCandleDataLine(s);
+                    candleCloseTime = new DateTime(candle.getCloseTime(), DateTimeZone.UTC);
                     // we only expect 1m interval data from binance candle
                     if(!candle.getInterval().equals("1m")) continue;
+                    if(tradingWindowCloseTime == null) {
+                        tradingWindowCloseTime = new DateTime(candle.getOpenTime(), DateTimeZone.UTC).plusMinutes(tradingWindowSizeInMinutes).minusSeconds(1);
+                    }
                     tempList.add(candle);
-                    idx++;
                 } else {
                     break;
                 }
 
-                if(idx % tradingWindowSizeInMinutes == 0) {
+                if(tradingWindowCloseTime.isBefore(candleCloseTime)) {
                     tradingWindows.add(aggregateCandlesToTradingWindow(tempList));
                     tempList = new ArrayList<>();
+                    tradingWindowCloseTime = null;
                 }
             }
         }
@@ -53,7 +61,7 @@ public class SimulatorRepositoryImpl implements Repository {
         double closePrice = candles.get(tempListSize-1).getClosePrice();
         double volume = candles.stream().mapToDouble(Candle::getVolume).sum();
 
-        return new TradingWindow(symbol, openTime, closeTime, openPrice, highPrice, closePrice, lowPrice);
+        return new TradingWindow(symbol, openTime, closeTime, openPrice, highPrice, closePrice, lowPrice, volume);
     }
 
     private Candle parseCandleDataLine(String s) {

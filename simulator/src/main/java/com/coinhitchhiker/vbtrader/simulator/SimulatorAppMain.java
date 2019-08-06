@@ -2,6 +2,7 @@ package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
+import com.coinhitchhiker.vbtrader.common.VolatilityBreakoutRules;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -14,14 +15,16 @@ public class SimulatorAppMain {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulatorAppMain.class);
 
-    private static final int TRADING_WINDOW_SIZE_IN_MIN = 1440;
+    private static final int TRADING_WINDOW_SIZE_IN_MIN = 61;
     private static final int TRADING_WINDOW_LOOK_BEHIND = 20;
     private static final int MA_MIN = 3;
-    private static final long SIMUL_START = new DateTime(2019,3,1,0,1, DateTimeZone.UTC).getMillis();
+    private static final long SIMUL_START = new DateTime(2019,5,1,0,1, DateTimeZone.UTC).getMillis();
     private static final long SIMUL_END = new DateTime(2019,8,1,23,55,DateTimeZone.UTC).getMillis();
     private static final String testDataFile = "./BTCUSDT-0301-0801.txt";
     private static double USD_BALANCE = 10000.0D;
     private static final double SLIPPAGE = 0.1/100.0D;
+    private static final double PRICE_MA_WEIGHT = 0.3D;
+    private static final double VOLUME_MA_WEIGHT= 0.7D;
 
     private Repository repository;
 
@@ -50,22 +53,24 @@ public class SimulatorAppMain {
 
             TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
             if(curTradingWindow == null) {
+                LOGGER.info("curTradingWindow is null. curTimeStampe {}", new DateTime(curTimestamp, DateTimeZone.UTC));
                 outputSimulationResult();
                 return;
             }
             double k = lookbehindTradingWindows.stream().mapToDouble(TradingWindow::getNoiseRatio).average().getAsDouble();
 
             double hypotheticalCurPrice = curTradingWindow.getHighPrice();
+            // assume that volume at the hypotheticalCurPrice is 2/3 of total vol of curwindow
+            double hypotheticalVolume = curTradingWindow.getVolume() * 2.0 / 3;
             double hypotheticalBuyPrice = (curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange()) * (1+SLIPPAGE);
 
             // buy signal!
             if(curTradingWindow.isBuySignal(hypotheticalCurPrice, k, lookbehindTradingWindows.get(0))) {
-                double maScore = this.maScore(lookbehindTradingWindows, hypotheticalCurPrice);
-                double bettingSize = USD_BALANCE * maScore;
+                double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, hypotheticalCurPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore(lookbehindTradingWindows, hypotheticalVolume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+                double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore);
 
-                LOGGER.info("curTime {}, hypotheticalCurPrice {}, hypotheticalBreakoutPrice {}, closePrice {}, k {}, maScore {}, bettingSize {}"
-                        , new DateTime(curTimestamp).withZone(DateTimeZone.UTC).toString()
-                        , hypotheticalCurPrice , hypotheticalBuyPrice, curTradingWindow.getClosePrice(), k , maScore, bettingSize);
+                double bettingSize = USD_BALANCE * weightedMAScore;
 
                 if(bettingSize > 0) {
                     double amount = bettingSize / hypotheticalBuyPrice;
@@ -79,7 +84,12 @@ public class SimulatorAppMain {
                     } else {
                         loss += diff; lose++;
                     }
-                    LOGGER.info("Balance {} P/L {}/{}, Win(%) {}", USD_BALANCE, profit, loss, (win*1.0 / (win+lose)) * 100.0);
+
+                    LOGGER.info("curTime {}, h-CurPrice {}, h-BuyPrice {}, h-SellPrice {}, k {}, weightedMAScore {}, bettingSize {}"
+                            , new DateTime(curTimestamp).withZone(DateTimeZone.UTC).toString()
+                            , hypotheticalCurPrice , hypotheticalBuyPrice, curTradingWindow.getClosePrice(), k , weightedMAScore, bettingSize);
+
+                    LOGGER.info("Balance {} P/L {}/{}, Win-Lose {}/{}/{}%", USD_BALANCE, profit, loss, win, lose, (win*1.0 / (win+lose)) * 100.0);
 
                     // advance to the next trading window
                     curTimestamp = curTradingWindow.getEndTimeStamp() + 60_000L;
@@ -90,20 +100,5 @@ public class SimulatorAppMain {
 
     private void outputSimulationResult() {
         LOGGER.info("Simulation has ended");
-    }
-
-    private double maScore(List<TradingWindow> lookbehindTradingWindows, double curPrice) {
-        int aboveMaCnt = 0;
-        for(int i = MA_MIN; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
-            double closePriceSum = 0.0D;
-            for(int j = 0; j < i; j++) {
-                double closePrice = lookbehindTradingWindows.get(j).getClosePrice();
-                closePriceSum += closePrice;
-            }
-            if(curPrice > (closePriceSum / i)) {
-                aboveMaCnt++;
-            }
-        }
-        return (aboveMaCnt * 1.0) / (TRADING_WINDOW_LOOK_BEHIND - MA_MIN + 1);
     }
 }
