@@ -2,11 +2,16 @@ package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
+import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
+import org.springframework.web.client.RestTemplate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -14,7 +19,94 @@ import java.util.List;
 
 public class SimulatorRepositoryImpl implements Repository {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImpl.class);
     private List<TradingWindow> tradingWindows = new ArrayList<>();
+
+    public SimulatorRepositoryImpl(String symbol, long simulStart, long simulEnd, int tradingWindowSizeInMinites) {
+
+        List<Candle> result = deserCandles(makeFileName(symbol, simulStart, simulEnd));
+        if(result != null && result.size() > 0) {
+            convertCandleListToTradingWindows(result, tradingWindowSizeInMinites);
+        } else {
+            result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
+            serCandles(result, makeFileName(symbol, simulStart, simulEnd));
+            convertCandleListToTradingWindows(result, tradingWindowSizeInMinites);
+        }
+    }
+
+    private List<Candle> loadCandlesFromBinance(String symbol, long simulStart, long simulEnd) {
+        RestTemplate restTemplate = new RestTemplate();
+        Gson gson = new Gson();
+        List<Candle> candles = new ArrayList<>();
+        long startTime = simulStart;
+        while(true) {
+            String url = "https://api.binance.com//api/v1/klines?symbol="+symbol+"&interval=1m&limit=1000&startTime="+startTime+"&endTime="+simulEnd;
+            LOGGER.info(url);
+            String response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(null, null), String.class).getBody();
+            List<List<Object>> list = gson.fromJson(response, List.class);
+            for(List<Object> data : list) {
+                long openTime = ((Double)data.get(0)).longValue();
+                double open = Double.valueOf((String)data.get(1));
+                double high = Double.valueOf((String)data.get(2));
+                double low = Double.valueOf((String)data.get(3));
+                double close = Double.valueOf((String)data.get(4));
+                double volume = Double.valueOf((String)data.get(5));
+                long closeTime = ((Double)data.get(6)).longValue();
+                Candle candle = new Candle(symbol, "1m", openTime, closeTime, open, high, low, close, volume);
+                candles.add(candle);
+            }
+            startTime = candles.get(candles.size()-1).getCloseTime() + 1;
+            if(list.size() < 1000) break;
+            try {Thread.sleep(500);} catch(Exception e){}
+        }
+        return candles;
+    }
+
+    private String makeFileName(String symbol, long simulStart, long simulEnd) {
+        return symbol + "-" + simulStart + "-" + simulEnd;
+    }
+
+    private void serCandles(List<Candle> candles, String filename) {
+        try{
+            FileOutputStream fos= new FileOutputStream(filename);
+            ObjectOutputStream oos= new ObjectOutputStream(fos);
+            oos.writeObject(candles);
+            oos.close();
+            fos.close();
+        }catch(Exception e){
+            LOGGER.info("serCandles Exception", e);
+        }
+    }
+
+    private List<Candle> deserCandles(String filename) {
+        ArrayList<Candle> arraylist= new ArrayList<>();
+        try
+        {
+            FileInputStream fis = new FileInputStream(filename);
+            ObjectInputStream ois = new ObjectInputStream(fis);
+            arraylist = (ArrayList) ois.readObject();
+            ois.close();
+            fis.close();
+        }catch(Exception e){
+            LOGGER.info("deserCandles Exception", e);
+        }
+        return arraylist;
+    }
+
+    private void convertCandleListToTradingWindows(List<Candle> candles, int tradingWindowSizeInMin) {
+        List<Candle> tempList = new ArrayList<>();
+        for(int i = 1; i <= candles.size(); i++) {
+            tempList.add(candles.get(i-1));
+            if(i % tradingWindowSizeInMin == 0) {
+                this.tradingWindows.add(this.aggregateCandlesToTradingWindow(tempList));
+                tempList = new ArrayList<>();
+            }
+        }
+
+        if(tempList.size() > 0) {
+            this.tradingWindows.add(this.aggregateCandlesToTradingWindow(tempList));
+        }
+    }
 
     public SimulatorRepositoryImpl(String dataFile, int tradingWindowSizeInMinutes) throws IOException {
         try(BufferedReader br = Files.newBufferedReader(Paths.get(dataFile))) {

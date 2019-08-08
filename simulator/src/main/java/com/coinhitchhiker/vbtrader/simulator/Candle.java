@@ -1,6 +1,8 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-public class Candle {
+import java.io.Serializable;
+
+public class Candle implements Serializable {
     //symbol interval openTime closeTime openPrice highPrice lowPrice closePrice volume
     private final String symbol;
     private final String interval;
