@@ -1,4 +1,4 @@
-package com.coinhitchhiker.vbtrader.common;
+package com.coinhitchhiker.vbtrader.simulator.db;
 
 import org.apache.ibatis.type.JdbcType;
 import org.apache.ibatis.type.MappedTypes;
