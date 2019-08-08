@@ -1,5 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
+import com.coinhitchhiker.vbtrader.common.Candle;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.google.gson.Gson;

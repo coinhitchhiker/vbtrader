@@ -1,4 +1,4 @@
-package com.coinhitchhiker.vbtrader.simulator;
+package com.coinhitchhiker.vbtrader.common;
 
 import java.io.Serializable;
 
