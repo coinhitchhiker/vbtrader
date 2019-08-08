@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO">
+
+    <select id="validateConnection" resultType="_int">
+        select 1 from dual
+    </select>
+
+    <select id="getPeriodId" resultType="java.lang.Integer">
+        select periodId
+        from VB.SIMUL_PERIOD
+        where exchange = #{exchange}
+        and symbol = #{symbol}
+        and startDate = #{startDate}
+        and endDate = #{endDate}
+    </select>
+
+    <select id="getBestResult" resultType="java.lang.Double">
+        select simulResult->'$.END_USD_BALANCE' as balance
+        from VB.SIMUL_RESULT
+        where periodId = #{periodId}
+        order by simulResult->'$.END_USD_BALANCE' desc
+        limit 0,1
+    </select>
+
+    <insert id="insertSimulResult">
+        insert into VB.SIMUL_RESULT (periodId, simulResult) values (#{periodId}, #{simulResult})
+    </insert>
+
+</mapper>
