@@ -160,8 +160,12 @@ public class TradeEngine {
     @PreDestroy
     public void cancelAllOutstandingOrders() {
         OrderInfo outstandingBuyOrder = repository.getCurrentTradingWindow(DateTime.now(UTC).getMillis()).getBuyOrder();
-        LOGGER.info("[CANCEL] {}", outstandingBuyOrder.toString());
-        exchange.cancelOrder(outstandingBuyOrder);
+        if(outstandingBuyOrder.getOrderStatus() != OrderStatus.COMPLETE) {
+            LOGGER.info("[CANCEL] {}", outstandingBuyOrder.toString());
+            exchange.cancelOrder(outstandingBuyOrder);
+        } else {
+            LOGGER.info("[OPEN ORDER] {}", outstandingBuyOrder.toString());
+        }
     }
 
 }
