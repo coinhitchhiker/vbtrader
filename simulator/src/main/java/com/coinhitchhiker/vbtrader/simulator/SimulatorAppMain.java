@@ -59,7 +59,7 @@ public class SimulatorAppMain implements CommandLineRunner {
     private Repository repository;
 
     public static void main(String[] args) {
-        SpringApplication app = new SpringApplication((SimulatorAppMain.class));
+        SpringApplication app = new SpringApplication(SimulatorAppMain.class);
         app.setBannerMode(Banner.Mode.OFF);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.run(args);
@@ -163,7 +163,7 @@ public class SimulatorAppMain implements CommandLineRunner {
         // advance by minute
         long curTimeStamp = 0;
         for(curTimeStamp = SIMUL_START; curTimeStamp < SIMUL_END; curTimeStamp+=60_000) {
-            List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE_IN_MIN, curTimeStamp);
+            List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimeStamp);
             if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND) {
                 continue;
             }

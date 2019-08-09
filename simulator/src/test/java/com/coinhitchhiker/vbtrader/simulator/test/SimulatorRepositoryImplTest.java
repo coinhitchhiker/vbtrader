@@ -47,7 +47,7 @@ public class SimulatorRepositoryImplTest {
         LOGGER.info("curTime {}", dt);
 
         long curTimestamp = DateTime.parse(dt, formatter).getMillis();
-        List<TradingWindow> result = SimulatorRepositoryImplTest.repo.getLastNTradingWindow(20, tradingWindowSizeInMinutes, curTimestamp);
+        List<TradingWindow> result = SimulatorRepositoryImplTest.repo.getLastNTradingWindow(20, curTimestamp);
         assertThat(result.size()).isEqualTo(20);
 
 //        result.forEach(tw -> LOGGER.info("{}", tw));
