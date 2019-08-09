@@ -134,6 +134,7 @@ public class Binance implements Exchange, Repository {
             pastTradingWindows.add(tw);
             windowEnd -= TRADING_WINDOW_SIZE * 60 * 1000;
             windowStart -= TRADING_WINDOW_SIZE * 60 * 1000;
+            try {Thread.sleep(300L);} catch(Exception e) {}
         }
         this.refreshingTradingWindows = false;
         LOGGER.debug("refreshingTradingWindows is set to FALSE");
@@ -157,12 +158,11 @@ public class Binance implements Exchange, Repository {
         String interval = "1m";
         while(true) {
             String url = "https://api.binance.com//api/v1/klines?symbol="+symbol+"&interval="+interval+"&limit=1000&startTime="+startTime+"&endTime="+endTime;
-//            LOGGER.debug(url);
             String response;
             try {
                 response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(null, null), String.class).getBody();
             } catch (Exception e) {
-                LOGGER.error("Error reading binance candles. retrying...", e);
+                LOGGER.error("Error reading binance candles. Retrying...", e);
                 continue;
             }
 
@@ -171,10 +171,10 @@ public class Binance implements Exchange, Repository {
                 candles.add(Candle.fromBinanceCandle(symbol, interval, data));
             }
             if(list.size() < 1000) {
-                LOGGER.debug("Exiting while loop...");
                 break;
             }
             startTime = candles.get(candles.size()-1).getCloseTime() + 1;
+            try {Thread.sleep(300L);} catch(Exception e) {}
         }
         return candles;
     }
