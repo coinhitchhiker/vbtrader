@@ -33,6 +33,11 @@
         <mybatis.spring.boot.version>2.1.0</mybatis.spring.boot.version>
         <mysql.connector.version>8.0.11</mysql.connector.version>
         <spring.framework.version>5.1.9.RELEASE</spring.framework.version>
+        <nv-websocket-client.version>2.6</nv-websocket-client.version>
+        <org.jasypt.version>1.9.2</org.jasypt.version>
+        <commons-lang3.version>3.7</commons-lang3.version>
+        <commons.codec.version>1.10</commons.codec.version>
+        <retrofit.version>2.4.0</retrofit.version>
     </properties>
 
     <dependencyManagement>
@@ -82,6 +87,31 @@
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
                 <version>${spring.framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.neovisionaries</groupId>
+                <artifactId>nv-websocket-client</artifactId>
+                <version>${nv-websocket-client.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jasypt</groupId>
+                <artifactId>jasypt</artifactId>
+                <version>${org.jasypt.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons-lang3.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>${commons.codec.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.squareup.retrofit2</groupId>
+                <artifactId>converter-jackson</artifactId>
+                <version>${retrofit.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -3,6 +3,8 @@ package com.coinhitchhiker.vbtrader.common;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.util.List;
+
 public class TradingWindow {
 
     private final String symbol;
@@ -15,6 +17,9 @@ public class TradingWindow {
     private double lowPrice;
     private double volume;
 
+    private long curTimeStamp;
+    private OrderInfo buyOrder;
+
     public TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
         this.symbol = symbol;
         this.startTimeStamp = startTimeStamp;
@@ -24,6 +29,16 @@ public class TradingWindow {
         this.closePrice = closePrice;
         this.lowPrice = lowPrice;
         this.volume = volume;
+    }
+
+    public TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice) {
+        this.symbol = symbol;
+        this.startTimeStamp = startTimeStamp;
+        this.endTimeStamp = endTimeStamp;
+        this.openPrice = openPrice;
+        this.lowPrice = openPrice;
+        this.highPrice = openPrice;
+        this.closePrice = openPrice;
     }
 
     public double getNoiseRatio() {
@@ -44,10 +59,45 @@ public class TradingWindow {
         return  curPrice > openPrice + k * prevTradingWindow.getRange();
     }
 
+    public void updateWindowData(TradeEvent e) {
+
+        if(this.highPrice < e.getPrice()) this.highPrice = e.getPrice();
+        if(this.lowPrice > e.getPrice()) this.lowPrice = e.getPrice();
+        this.closePrice = e.getPrice();
+
+        this.volume += e.getAmount();
+        this.curTimeStamp = e.getTradeTime();
+
+    }
+
+    public void setBuyOrder(OrderInfo orderInfo) {
+        this.buyOrder = orderInfo;
+    }
+
+    public OrderInfo getBuyOrder() {
+        return this.buyOrder;
+    }
+
+    public static TradingWindow of(List<Candle> candles) {
+        int tempListSize = candles.size();
+
+        String symbol = candles.get(0).getSymbol();
+        long openTime = candles.get(0).getOpenTime();
+        long closeTime = candles.get(tempListSize-1).getCloseTime();
+        double openPrice = candles.get(0).getOpenPrice();
+        double highPrice = candles.stream().mapToDouble(Candle::getHighPrice).max().getAsDouble();
+        double lowPrice = candles.stream().mapToDouble(Candle::getLowPrice).min().getAsDouble();
+        double closePrice = candles.get(tempListSize-1).getClosePrice();
+        double volume = candles.stream().mapToDouble(Candle::getVolume).sum();
+
+        return new TradingWindow(symbol, openTime, closeTime, openPrice, highPrice, closePrice, lowPrice, volume);
+    }
+
     @Override
     public String toString() {
         return "TradingWindow{" +
                 "symbol='" + symbol + '\'' +
+                ", curTimestamp=" + new DateTime(curTimeStamp).withZone(DateTimeZone.UTC).toString() +
                 ", start=" + new DateTime(startTimeStamp).withZone(DateTimeZone.UTC).toString() +
                 ", end=" + new DateTime(endTimeStamp).withZone(DateTimeZone.UTC).toString() +
                 ", openPrice=" + openPrice +

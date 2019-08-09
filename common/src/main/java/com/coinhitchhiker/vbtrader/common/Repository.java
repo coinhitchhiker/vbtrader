@@ -4,8 +4,10 @@ import java.util.List;
 
 public interface Repository {
 
-    List<TradingWindow> getLastNTradingWindow(int n, int tradingWindowSizeInMinutes, long curTimestamp);
+    List<TradingWindow> getLastNTradingWindow(int n, long curTimestamp);
 
     TradingWindow getCurrentTradingWindow(long curTimestamp);
+
+    void recordOrder(TradingWindow tradingWindow, OrderInfo orderInfo);
 
 }

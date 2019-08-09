@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.Candle;
+import com.coinhitchhiker.vbtrader.common.OrderInfo;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.google.gson.Gson;
@@ -40,21 +41,14 @@ public class SimulatorRepositoryImpl implements Repository {
         Gson gson = new Gson();
         List<Candle> candles = new ArrayList<>();
         long startTime = simulStart;
+        String interval = "1m";
         while(true) {
-            String url = "https://api.binance.com//api/v1/klines?symbol="+symbol+"&interval=1m&limit=1000&startTime="+startTime+"&endTime="+simulEnd;
+            String url = "https://api.binance.com//api/v1/klines?symbol="+symbol+"&interval="+interval+"&limit=1000&startTime="+startTime+"&endTime="+simulEnd;
             LOGGER.info(url);
             String response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(null, null), String.class).getBody();
             List<List<Object>> list = gson.fromJson(response, List.class);
             for(List<Object> data : list) {
-                long openTime = ((Double)data.get(0)).longValue();
-                double open = Double.valueOf((String)data.get(1));
-                double high = Double.valueOf((String)data.get(2));
-                double low = Double.valueOf((String)data.get(3));
-                double close = Double.valueOf((String)data.get(4));
-                double volume = Double.valueOf((String)data.get(5));
-                long closeTime = ((Double)data.get(6)).longValue();
-                Candle candle = new Candle(symbol, "1m", openTime, closeTime, open, high, low, close, volume);
-                candles.add(candle);
+                candles.add(Candle.fromBinanceCandle(symbol, interval, data));
             }
             startTime = candles.get(candles.size()-1).getCloseTime() + 1;
             if(list.size() < 1000) break;
@@ -99,13 +93,13 @@ public class SimulatorRepositoryImpl implements Repository {
         for(int i = 1; i <= candles.size(); i++) {
             tempList.add(candles.get(i-1));
             if(i % tradingWindowSizeInMin == 0) {
-                this.tradingWindows.add(this.aggregateCandlesToTradingWindow(tempList));
+                this.tradingWindows.add(TradingWindow.of(tempList));
                 tempList = new ArrayList<>();
             }
         }
 
         if(tempList.size() > 0) {
-            this.tradingWindows.add(this.aggregateCandlesToTradingWindow(tempList));
+            this.tradingWindows.add(TradingWindow.of(tempList));
         }
     }
 
@@ -134,27 +128,12 @@ public class SimulatorRepositoryImpl implements Repository {
                 }
 
                 if(tradingWindowCloseTime.isBefore(candleCloseTime)) {
-                    tradingWindows.add(aggregateCandlesToTradingWindow(tempList));
+                    tradingWindows.add(TradingWindow.of(tempList));
                     tempList = new ArrayList<>();
                     tradingWindowCloseTime = null;
                 }
             }
         }
-    }
-
-    private TradingWindow aggregateCandlesToTradingWindow(List<Candle> candles) {
-        int tempListSize = candles.size();
-
-        String symbol = candles.get(0).getSymbol();
-        long openTime = candles.get(0).getOpenTime();
-        long closeTime = candles.get(tempListSize-1).getCloseTime();
-        double openPrice = candles.get(0).getOpenPrice();
-        double highPrice = candles.stream().mapToDouble(Candle::getHighPrice).max().getAsDouble();
-        double lowPrice = candles.stream().mapToDouble(Candle::getLowPrice).min().getAsDouble();
-        double closePrice = candles.get(tempListSize-1).getClosePrice();
-        double volume = candles.stream().mapToDouble(Candle::getVolume).sum();
-
-        return new TradingWindow(symbol, openTime, closeTime, openPrice, highPrice, closePrice, lowPrice, volume);
     }
 
     private Candle parseCandleDataLine(String s) {
@@ -178,7 +157,7 @@ public class SimulatorRepositoryImpl implements Repository {
     }
 
     @Override
-    public List<TradingWindow> getLastNTradingWindow(int n, int tradingWindowSizeInMinutes, long curTimestamp) {
+    public List<TradingWindow> getLastNTradingWindow(int n, long curTimestamp) {
         List<TradingWindow> result = new ArrayList();
         for(int i = this.tradingWindows.size()-1; i >= 0; i--) {
             TradingWindow curTw = this.tradingWindows.get(i);
@@ -199,5 +178,10 @@ public class SimulatorRepositoryImpl implements Repository {
             }
         }
         return null;
+    }
+
+    @Override
+    public void recordOrder(TradingWindow tradingWindow, OrderInfo orderInfo) {
+
     }
 }

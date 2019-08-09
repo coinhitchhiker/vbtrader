@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.common;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class Candle implements Serializable {
     //symbol interval openTime closeTime openPrice highPrice lowPrice closePrice volume
@@ -25,6 +26,19 @@ public class Candle implements Serializable {
         this.closePrice = closePrice;
         this.volume = volume;
     }
+
+    public static Candle fromBinanceCandle(String symbol, String interval, List<Object> data) {
+        long openTime = ((Double) data.get(0)).longValue();
+        double open = Double.valueOf((String) data.get(1));
+        double high = Double.valueOf((String) data.get(2));
+        double low = Double.valueOf((String) data.get(3));
+        double close = Double.valueOf((String) data.get(4));
+        double volume = Double.valueOf((String) data.get(5));
+        long closeTime = ((Double) data.get(6)).longValue();
+        return new Candle(symbol, interval, openTime, closeTime, open, high, low, close, volume);
+    }
+
+    //-----------------------------------------------------
 
     public String getSymbol() {
         return symbol;
