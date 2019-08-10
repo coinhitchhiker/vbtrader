@@ -158,7 +158,7 @@ public class TradeEngine {
                         placedBuyOrder.getPriceExecuted(),
                         placedBuyOrder.getAmountExecuted());
                 LOGGER.info("-----------------------------------------------------------------------------------------");
-                traderDAO.logCompleteTransaction(new Gson().toJson(curTimeStamp));
+                traderDAO.logCompleteTransaction(new Gson().toJson(curTradingWindow));
             } catch(Exception e) {
                 LOGGER.error("Placing sell order error", e);
             }
