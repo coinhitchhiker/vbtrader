@@ -64,7 +64,7 @@ public class TradeEngine {
             return;
         }
 
-        double k = lookbehindTradingWindows.stream().mapToDouble(TradingWindow::getNoiseRatio).average().getAsDouble();
+        double k = VolatilityBreakoutRules.getKValue(lookbehindTradingWindows);
         double curPrice = exchange.getCurrentPrice(SYMBOL);
 
         if(!curTradingWindow.isBuySignal(curPrice, k, lookbehindTradingWindows.get(0))) {
