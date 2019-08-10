@@ -4,7 +4,9 @@ import org.joda.time.DateTime;
 
 public class SimulResult {
 
-    private final double version = 1.0D;
+    private final double version = 1.1D;
+
+    private Integer periodId;
 
     private String SIMUL_START;
     private String SIMUL_END;
@@ -20,6 +22,14 @@ public class SimulResult {
 
     public double getVersion() {
         return version;
+    }
+
+    public Integer getPeriodId() {
+        return periodId;
+    }
+
+    public void setPeriodId(Integer periodId) {
+        this.periodId = periodId;
     }
 
     public String getSIMUL_START() {
