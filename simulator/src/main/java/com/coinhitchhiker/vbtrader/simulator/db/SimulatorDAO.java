@@ -1,7 +1,10 @@
 package com.coinhitchhiker.vbtrader.simulator.db;
 
+import com.coinhitchhiker.vbtrader.simulator.TopSimulResult;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 @Mapper
 public interface SimulatorDAO {
@@ -16,5 +19,9 @@ public interface SimulatorDAO {
     Double getBestResult(@Param("periodId") int periodId);
 
     void insertSimulResult(@Param("periodId") int periodId, @Param("simulResult") String simulResult);
+
+    List<TopSimulResult> getTopSimulResults();
+
+    void insertValidationResult(@Param("periodId") int periodId, @Param("simulResultId") int simulResultId, @Param("validationResult") String validationResult);
 
 }

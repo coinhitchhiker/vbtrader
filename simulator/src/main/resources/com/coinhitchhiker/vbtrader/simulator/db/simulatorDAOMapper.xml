@@ -5,6 +5,12 @@
 
 <mapper namespace="com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO">
 
+    <resultMap id="topSimulResults" type="com.coinhitchhiker.vbtrader.simulator.TopSimulResult">
+        <id column="simulResultId" property="simulResultId" javaType="java.lang.Integer"/>
+        <result column="periodId" property="periodId" javaType="java.lang.Integer"/>
+        <result column="simulResult" property="simulResult" javaType="java.lang.String"/>
+    </resultMap>
+
     <select id="validateConnection" resultType="_int">
         select 1 from dual
     </select>
@@ -28,6 +34,23 @@
 
     <insert id="insertSimulResult">
         insert into VB.SIMUL_RESULT (periodId, simulResult) values (#{periodId}, #{simulResult})
+    </insert>
+
+    <select id="getTopSimulResults" resultMap="topSimulResults">
+        with a as (
+        select *,  row_number() over (partition by periodId order by simulResultId desc) as rn
+        from VB.SIMUL_RESULT
+        )
+        select simulResultId, periodId, simulResult
+        from a
+        where rn &lt;= 10
+    </select>
+
+    <insert id="insertValidationResult">
+        insert into VB.TOP_RESULT_VALIDATION
+            (periodId, simulResultId, validationResult)
+        values
+            (#{periodId}, #{simulResultId}, #{validationResult})
     </insert>
 
 </mapper>
