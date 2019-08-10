@@ -1,10 +1,9 @@
 package com.coinhitchhiker.vbtrader.trader.test;
 
-import com.coinhitchhiker.vbtrader.common.Exchange;
-import com.coinhitchhiker.vbtrader.common.Repository;
-import com.coinhitchhiker.vbtrader.common.TradingWindow;
+import com.coinhitchhiker.vbtrader.common.*;
 import com.coinhitchhiker.vbtrader.trader.db.TraderDAO;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.Binance;
+import com.google.gson.Gson;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -21,15 +20,6 @@ public class ITBinance extends BaseIT {
 
     @Resource(name = Binance.BEAN_NAME_BINANCE)
     private Exchange exchange;
-
-    @Autowired
-    private TraderDAO traderDAO;
-
-    @Test
-    public void validateDBConnection() {
-        int i = traderDAO.validateConnection();
-        assertThat(i).isEqualTo(1);
-    }
 
     @Test
     public void testGetLastNTradingWindow() {

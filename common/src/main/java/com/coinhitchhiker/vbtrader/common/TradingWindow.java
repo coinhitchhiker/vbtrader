@@ -18,7 +18,13 @@ public class TradingWindow {
     private double volume;
 
     private long curTimeStamp;
+
     private OrderInfo buyOrder;
+    private OrderInfo sellOrder;
+    private double buyFee;
+    private double sellFee;
+    private double profit;
+    private double netProfit;
 
     public TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
         this.symbol = symbol;
@@ -76,6 +82,46 @@ public class TradingWindow {
 
     public OrderInfo getBuyOrder() {
         return this.buyOrder;
+    }
+
+    public OrderInfo getSellOrder() {
+        return sellOrder;
+    }
+
+    public void setSellOrder(OrderInfo sellOrder) {
+        this.sellOrder = sellOrder;
+    }
+
+    public double getBuyFee() {
+        return buyFee;
+    }
+
+    public void setBuyFee(double buyFee) {
+        this.buyFee = buyFee;
+    }
+
+    public double getSellFee() {
+        return sellFee;
+    }
+
+    public void setSellFee(double sellFee) {
+        this.sellFee = sellFee;
+    }
+
+    public double getProfit() {
+        return profit;
+    }
+
+    public void setProfit(double profit) {
+        this.profit = profit;
+    }
+
+    public double getNetProfit() {
+        return netProfit;
+    }
+
+    public void setNetProfit(double netProfit) {
+        this.netProfit = netProfit;
     }
 
     public static TradingWindow of(List<Candle> candles) {
