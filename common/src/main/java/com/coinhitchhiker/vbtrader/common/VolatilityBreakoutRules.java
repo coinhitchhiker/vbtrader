@@ -44,4 +44,8 @@ public class VolatilityBreakoutRules {
 
     }
 
+    public static double getKValue(List<TradingWindow> lookbehindTradingWindows) {
+        return lookbehindTradingWindows.stream().mapToDouble(TradingWindow::getNoiseRatio).average().getAsDouble();
+    }
+
 }
