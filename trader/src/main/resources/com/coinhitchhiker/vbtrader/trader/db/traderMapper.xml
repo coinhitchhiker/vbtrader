@@ -9,4 +9,8 @@
         select 1 from dual
     </select>
 
+    <insert id="logCompleteTransaction">
+        insert into VB.LOG_COMPLETE_TRANSACTION (completeTransaction) values (#{completeTransaction})
+    </insert>
+
 </mapper>

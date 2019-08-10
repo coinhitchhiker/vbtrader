@@ -36,9 +36,6 @@ import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.locks.ReadWriteLock;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.stream.Collectors;
 
 @Component(value = Binance.BEAN_NAME_BINANCE)
@@ -80,7 +77,7 @@ public class Binance implements Exchange, Repository {
     @Autowired private PropertyMapHandler propertyMapHandler;
 
     private boolean refreshingTradingWindows = false;
-    private ReadWriteLock rwlock = new ReentrantReadWriteLock();
+    private double pendingTradeVol = 0.0D;
 
     @PostConstruct
     public void init() {
@@ -207,10 +204,11 @@ public class Binance implements Exchange, Repository {
         this.ws.addListener(new BinanceWebSocketAdapter(this.callback));
     }
 
-    private void onTraderEvent(Map<String, Object> trade) {
+    private void onTradeEvent(Map<String, Object> trade) {
 
         if(this.refreshingTradingWindows) {
-            LOGGER.debug("refreshingTradingWindows is ongoing... returning");
+            pendingTradeVol += Double.parseDouble((String)trade.get("q"));
+            LOGGER.debug("RefreshingTradingWindows is ongoing. PendingTradeVol {}", pendingTradeVol);
             return;
         }
 
@@ -220,6 +218,12 @@ public class Binance implements Exchange, Repository {
         String tradeId = String.valueOf(((Double)trade.get("t")).longValue());
         String buyOrderId = String.valueOf(((Double)trade.get("b")).longValue());
         String sellOrderId = String.valueOf(((Double)trade.get("a")).longValue());
+
+        if(pendingTradeVol > 0) {
+            amount += pendingTradeVol;
+            LOGGER.debug("pendingTradeVol {} was added to the TradeEvent", pendingTradeVol);
+            pendingTradeVol = 0.0D;
+        }
 
         TradeEvent e = new TradeEvent("BINANCE", this.TRADING_SYMBOL, price, tradeTime , amount, tradeId, buyOrderId, sellOrderId);
 
@@ -475,7 +479,7 @@ public class Binance implements Exchange, Repository {
         }
 
         public void onTradeEvent(Map<String, Object> trade) {
-            onTraderEvent(trade);
+            Binance.this.onTradeEvent(trade);
         }
 
         public void onPingFrame() {

@@ -2,12 +2,14 @@ package com.coinhitchhiker.vbtrader.trader;
 
 
 import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.trader.db.TraderDAO;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.Binance;
+import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Scheduled;
 
 import javax.annotation.PreDestroy;
@@ -37,6 +39,9 @@ public class TradeEngine {
 
     @Resource(name = Binance.BEAN_NAME_BINANCE)
     private Repository repository;
+
+    @Autowired
+    private TraderDAO traderDAO;
 
     @Scheduled(fixedDelay = 2_000L)
     protected void trade() {
@@ -97,8 +102,12 @@ public class TradeEngine {
 
         try {
             OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
-            LOGGER.info("[PLACED BUY ORDER] FEE {} PREMIUM {} {}", FEE_RATE, LIMIT_ORDER_PREMIUM, placedBuyOrder.toString());
+            LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
+            LOGGER.info("[PLACED BUY ORDER] window_size {} lookbehind {} price_w {} vol_w {}", TRADING_WINDOW_SIZE, TRADING_WINDOW_LOOK_BEHIND, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
+            LOGGER.info("[PLACED BUY ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
             curTradingWindow.setBuyOrder(placedBuyOrder);
+            double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+            curTradingWindow.setBuyFee(buyFee);
         } catch(Exception e) {
             LOGGER.error("Placing buy order failed", e);
         }
@@ -129,12 +138,16 @@ public class TradeEngine {
 
             try {
                 placedSellOrder = exchange.placeOrder(sellOrder);
-                LOGGER.info("[PLACED SELL ORDER] FEE {} PREMIUM {} {}", FEE_RATE, LIMIT_ORDER_PREMIUM, placedSellOrder.toString());
+                LOGGER.info("[PLACED SELL ORDER] {}", FEE_RATE, LIMIT_ORDER_PREMIUM, placedSellOrder.toString());
 
-                double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+                double buyFee = curTradingWindow.getBuyFee();
                 double sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
                 double profit = (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * sellAmount;
                 double netProfit =  profit - (buyFee + sellFee);
+
+                curTradingWindow.setSellFee(sellFee);
+                curTradingWindow.setProfit(profit);
+                curTradingWindow.setNetProfit(netProfit);
 
                 LOGGER.info("[{}] netProfit={}, profit={}, fee={}, sellPrice={} buyPrice={}, amount={},  ",
                         netProfit >= 0 ? "PROFIT" : "LOSS",
@@ -145,6 +158,7 @@ public class TradeEngine {
                         placedBuyOrder.getPriceExecuted(),
                         placedBuyOrder.getAmountExecuted());
                 LOGGER.info("-----------------------------------------------------------------------------------------");
+                traderDAO.logCompleteTransaction(new Gson().toJson(curTimeStamp));
             } catch(Exception e) {
                 LOGGER.error("Placing sell order error", e);
             }
