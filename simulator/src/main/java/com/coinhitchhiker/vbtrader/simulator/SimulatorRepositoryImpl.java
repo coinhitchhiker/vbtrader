@@ -1,7 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.Candle;
-import com.coinhitchhiker.vbtrader.common.OrderInfo;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.google.gson.Gson;
@@ -14,8 +13,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,17 +20,25 @@ public class SimulatorRepositoryImpl implements Repository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImpl.class);
     private List<TradingWindow> tradingWindows = new ArrayList<>();
+    private TradingWindow currentTradingWindow = null;
+    private long currentTimestamp;
 
-    public SimulatorRepositoryImpl(String symbol, long simulStart, long simulEnd, int tradingWindowSizeInMinites) {
+    public SimulatorRepositoryImpl(String symbol,
+                                   long simulStart,
+                                   long simulEnd,
+                                   int tradingWindowSizeInMinutes) {
 
         List<Candle> result = deserCandles(makeFileName(symbol, simulStart, simulEnd));
         if(result != null && result.size() > 0) {
-            convertCandleListToTradingWindows(result, tradingWindowSizeInMinites);
+            convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
         } else {
             result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
             serCandles(result, makeFileName(symbol, simulStart, simulEnd));
-            convertCandleListToTradingWindows(result, tradingWindowSizeInMinites);
+            convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
         }
+
+        this.currentTimestamp = simulStart;
+        this.refreshTradingWindows();
     }
 
     private List<Candle> loadCandlesFromBinance(String symbol, long simulStart, long simulEnd) {
@@ -47,6 +52,7 @@ public class SimulatorRepositoryImpl implements Repository {
             LOGGER.info(url);
             String response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(null, null), String.class).getBody();
             List<List<Object>> list = gson.fromJson(response, List.class);
+            LOGGER.info("data cnt {}", list.size());
             for(List<Object> data : list) {
                 candles.add(Candle.fromBinanceCandle(symbol, interval, data));
             }
@@ -103,55 +109,6 @@ public class SimulatorRepositoryImpl implements Repository {
         }
     }
 
-    public SimulatorRepositoryImpl(String dataFile, int tradingWindowSizeInMinutes) throws IOException {
-        try(BufferedReader br = Files.newBufferedReader(Paths.get(dataFile))) {
-            //symbol interval openTime closeTime openPrice highPrice lowPrice closePrice volume
-            //BTCUSDT|1m|1551398400000|1551398459999|3814.2600000000|3814.5000000000|3813.5500000000|3814.3300000000|9.3097660000
-
-            List<Candle> tempList = new ArrayList<>();
-            DateTime tradingWindowCloseTime = null, candleCloseTime = null;
-            Candle candle = null;
-            while(true) {
-                String s = br.readLine();
-
-                if(s != null) {
-                    candle = parseCandleDataLine(s);
-                    candleCloseTime = new DateTime(candle.getCloseTime(), DateTimeZone.UTC);
-                    // we only expect 1m interval data from binance candle
-                    if(!candle.getInterval().equals("1m")) continue;
-                    if(tradingWindowCloseTime == null) {
-                        tradingWindowCloseTime = new DateTime(candle.getOpenTime(), DateTimeZone.UTC).plusMinutes(tradingWindowSizeInMinutes).minusSeconds(1);
-                    }
-                    tempList.add(candle);
-                } else {
-                    break;
-                }
-
-                if(tradingWindowCloseTime.isBefore(candleCloseTime)) {
-                    tradingWindows.add(TradingWindow.of(tempList));
-                    tempList = new ArrayList<>();
-                    tradingWindowCloseTime = null;
-                }
-            }
-        }
-    }
-
-    private Candle parseCandleDataLine(String s) {
-        String[] strs = s.split("\\|");
-        String symbol = strs[0];
-        String interval = strs[1];
-
-        long openTime = Long.valueOf(strs[2]);
-        long closeTime = Long.valueOf(strs[3]);
-        double openPrice = Double.valueOf(strs[4]);
-        double highPrice = Double.valueOf(strs[5]);
-        double lowPrice = Double.valueOf(strs[6]);
-        double closePrice = Double.valueOf(strs[7]);
-        double volume = Double.valueOf(strs[8]);
-
-        return new Candle(symbol, interval, openTime, closeTime, openPrice, highPrice, lowPrice, closePrice, volume);
-    }
-
     public List<TradingWindow> getTradingWindows() {
         return this.tradingWindows;
     }
@@ -171,17 +128,47 @@ public class SimulatorRepositoryImpl implements Repository {
 
     @Override
     public TradingWindow getCurrentTradingWindow(long curTimestamp) {
-        for(int i = this.tradingWindows.size()-1; i >= 0; i--) {
-            TradingWindow curTw = this.tradingWindows.get(i);
-            if(curTw.isBetween(curTimestamp)) {
-                return curTw;
-            }
-        }
-        return null;
+        return this.currentTradingWindow;
     }
 
     @Override
-    public void recordOrder(TradingWindow tradingWindow, OrderInfo orderInfo) {
+    public void refreshTradingWindows() {
+        DateTime now = new DateTime(this.currentTimestamp, DateTimeZone.UTC);
+        DateTime closestMin = getClosestMin(now);
+        long timestamp = closestMin.getMillis();
 
+        for(TradingWindow tradingWindow : tradingWindows) {
+            if(tradingWindow.isBetween(timestamp)) {
+                //TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
+                TradingWindow tw = new TradingWindow(tradingWindow.getSymbol(),
+                        tradingWindow.getStartTimeStamp(),
+                        tradingWindow.getEndTimeStamp(),
+                        tradingWindow.getOpenPrice(),
+                        tradingWindow.getHighPrice(),
+                        tradingWindow.getClosePrice(),
+                        tradingWindow.getLowPrice(),
+                        tradingWindow.getVolume());
+                tw.setCandles(tradingWindow.getCandles());
+                this.currentTradingWindow = tw;
+                return;
+            }
+        }
+
+        throw new RuntimeException("unreacheable code path");
+    }
+
+    private DateTime getClosestMin(DateTime now) {
+        int y = now.getYear();
+        int m = now.getMonthOfYear();
+        int d = now.getDayOfMonth();
+        int h = now.getHourOfDay();
+        int mm = now.getMinuteOfHour();
+
+        DateTime closestMin = new DateTime(y,m,d,h,mm,DateTimeZone.UTC);
+        return closestMin;
+    }
+
+    public void setCurrentTimestamp(long currentTimestamp) {
+        this.currentTimestamp = currentTimestamp;
     }
 }

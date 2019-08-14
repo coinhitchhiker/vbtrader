@@ -1,11 +1,9 @@
 package com.coinhitchhiker.vbtrader.trader.test;
 
 import com.coinhitchhiker.vbtrader.common.*;
-import com.coinhitchhiker.vbtrader.trader.db.TraderDAO;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.Binance;
-import com.google.gson.Gson;
+import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
+import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceRepository;
 import org.junit.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.annotation.Resource;
 
@@ -15,10 +13,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ITBinance extends BaseIT {
 
-    @Resource(name = Binance.BEAN_NAME_BINANCE)
+    @Resource(name = BinanceRepository.BEAN_NAME_REPOSITORY_BINANCE)
     private Repository repository;
 
-    @Resource(name = Binance.BEAN_NAME_BINANCE)
+    @Resource(name = BinanceExchange.BEAN_NAME_EXCHANGE_BINANCE)
     private Exchange exchange;
 
     @Test

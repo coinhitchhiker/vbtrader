@@ -48,7 +48,6 @@ public class SimulatorAppMain implements CommandLineRunner {
             for(TopSimulResult r : topSimulResults) {
                 SimulResult simulResult = gson.fromJson(r.getSimulResult(), SimulResult.class);
                 Simulator simulator = new Simulator(simulatorDAO,
-                        null,
                         simulResult.getTRADING_WINDOW_SIZE_IN_MIN(),
                         simulResult.getTRADING_WINDOW_LOOK_BEHIND(),
                         simulResult.getPRICE_MA_WEIGHT(),
@@ -58,6 +57,7 @@ public class SimulatorAppMain implements CommandLineRunner {
                         opts.getExchange(),
                         opts.getSymbol());
 
+                simulator.init();
                 simulator.runSimul();
                 SimulResult validationResult = simulator.collectSimulResult();
                 simulator.logValidationResult(r, validationResult);
@@ -65,7 +65,6 @@ public class SimulatorAppMain implements CommandLineRunner {
         } else {
             Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput());
             Simulator simulator = new Simulator(this.simulatorDAO,
-                    opts.getDataFile(),
                     parsedBBInput.get("tradingWindowSizeInMin").intValue(),
                     parsedBBInput.get("tradingWindowLookBehind").intValue(),
                     parsedBBInput.get("priceMaWeight"),
@@ -75,6 +74,7 @@ public class SimulatorAppMain implements CommandLineRunner {
                     opts.getExchange(),
                     opts.getSymbol());
 
+            simulator.init();
             simulator.runSimul();
             SimulResult simulResult = simulator.collectSimulResult();
             simulator.logSimulResult(simulResult);

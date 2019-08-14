@@ -14,10 +14,10 @@ import java.util.Map;
 public class BinanceWebSocketAdapter extends WebSocketAdapter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BinanceWebSocketAdapter.class);
-    private final Binance.BinanceWsCallback callback;
+    private final BinanceOrderBookCache.BinanceWsCallback callback;
     private final Gson gson = new Gson();
 
-    public BinanceWebSocketAdapter(Binance.BinanceWsCallback callback) {
+    public BinanceWebSocketAdapter(BinanceOrderBookCache.BinanceWsCallback callback) {
         this.callback = callback;
     }
 

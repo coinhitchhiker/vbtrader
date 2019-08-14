@@ -1,14 +1,9 @@
 package com.coinhitchhiker.vbtrader.common;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Exchange {
-
-    void refreshTradingWindows();
-
-    double getBestAsk();
-
-    double getBestBid();
 
     OrderInfo placeOrder(OrderInfo orderInfo);
 
@@ -22,4 +17,5 @@ public interface Exchange {
 
     double getCurrentPrice(String symbol);
 
+    Map<String, Balance> getBalance();
 }

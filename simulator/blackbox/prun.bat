@@ -1,2 +1,2 @@
 @echo off
-mpiexec -np 6 psdmads.exe param.txt 10 2
+mpiexec -np 14 psdmads.exe param.txt 10 2

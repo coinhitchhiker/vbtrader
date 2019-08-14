@@ -22,20 +22,8 @@ public class SimulatorRepositoryImplTest {
 
     private Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImplTest.class);
 
-    private static Repository repo = null;
+    private Repository repo = new SimulatorRepositoryImpl("BTCUSDT", 1551398400000L, 1564617600000L, 43);
     private static final int tradingWindowSizeInMinutes = 43;
-
-    @BeforeClass
-    public static void init() throws IOException {
-        ClassLoader classLoader = SimulatorRepositoryImplTest.class.getClassLoader();
-        File file = new File(classLoader.getResource("com/coinhitchhiker/vbtrader/simulator/BTCUSDT-0301-0801.txt").getFile());
-        String path = file.getAbsolutePath();
-        System.out.println(path);
-
-        SimulatorRepositoryImplTest.repo = new SimulatorRepositoryImpl(path, tradingWindowSizeInMinutes);
-
-//        ((SimulatorRepositoryImpl)this.repo).getTradingWindows().forEach(tw -> LOGGER.info("{}", tw));
-    }
 
     @Test
 //    @Ignore
@@ -47,7 +35,7 @@ public class SimulatorRepositoryImplTest {
         LOGGER.info("curTime {}", dt);
 
         long curTimestamp = DateTime.parse(dt, formatter).getMillis();
-        List<TradingWindow> result = SimulatorRepositoryImplTest.repo.getLastNTradingWindow(20, curTimestamp);
+        List<TradingWindow> result = this.repo.getLastNTradingWindow(20, curTimestamp);
         assertThat(result.size()).isEqualTo(20);
 
 //        result.forEach(tw -> LOGGER.info("{}", tw));

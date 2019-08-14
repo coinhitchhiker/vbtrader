@@ -1,7 +1,5 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import org.joda.time.DateTime;
-
 public class SimulResult {
 
     private final double version = 1.1D;
@@ -10,15 +8,15 @@ public class SimulResult {
 
     private String SIMUL_START;
     private String SIMUL_END;
-    private int MA_MIN;
-    private int TRADING_WINDOW_SIZE_IN_MIN;
-    private int TRADING_WINDOW_LOOK_BEHIND;
+    private double WINNING_RATE;
     private double START_USD_BALANCE;
     private double END_USD_BALANCE;
+    private int TRADING_WINDOW_SIZE_IN_MIN;
+    private int TRADING_WINDOW_LOOK_BEHIND;
     private double PRICE_MA_WEIGHT;
     private double VOLUME_MA_WEIGHT;
+    private int MA_MIN;
     private double SLIPPAGE;
-    private double H_VOLUME_WEIGHT;
 
     public double getVersion() {
         return version;
@@ -112,11 +110,11 @@ public class SimulResult {
         this.SLIPPAGE = SLIPPAGE;
     }
 
-    public double getH_VOLUME_WEIGHT() {
-        return H_VOLUME_WEIGHT;
+    public double getWINNING_RATE() {
+        return WINNING_RATE;
     }
 
-    public void setH_VOLUME_WEIGHT(double h_VOLUME_WEIGHT) {
-        H_VOLUME_WEIGHT = h_VOLUME_WEIGHT;
+    public void setWINNING_RATE(double WINNING_RATE) {
+        this.WINNING_RATE = WINNING_RATE;
     }
 }
