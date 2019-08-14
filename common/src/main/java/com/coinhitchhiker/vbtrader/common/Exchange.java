@@ -18,4 +18,5 @@ public interface Exchange {
     double getCurrentPrice(String symbol);
 
     Map<String, Balance> getBalance();
+
 }

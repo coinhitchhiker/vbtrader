@@ -25,7 +25,7 @@ public class TradeEngine {
 
     @Value("${trading.exchange}") private String EXCHANGE;
     @Value("${trading.symbol}") private String SYMBOL;
-    @Value("${trading.coin}") private String COIN;
+    @Value("${trading.quote.currency}") private String QUOTE_CURRENCY;
     @Value("${trading.window.size}") private int TRADING_WINDOW_SIZE;
     @Value("${trading.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
     @Value("${trading.price.weight}") private double PRICE_MA_WEIGHT;
@@ -97,7 +97,7 @@ public class TradeEngine {
 //                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
 //                double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 //
-//                double bettingSize = exchange.getBalance().get(COIN).getAvailableForTrade() * weightedMAScore;
+//                double bettingSize = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade() * weightedMAScore;
 //
 //                if(bettingSize > 0) {
 //                    LOGGER.info("[---------------------SELL SIGNAL DETECTED----------------------------]");
@@ -122,7 +122,7 @@ public class TradeEngine {
             double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
             double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
-            double availableBalance = exchange.getBalance().get(COIN).getAvailableForTrade();
+            double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
             double bettingSize = availableBalance * weightedMAScore;
 
             if(bettingSize > 0) {

@@ -253,13 +253,12 @@ public class BinanceExchange implements Exchange {
         Map<String, Balance> balance = new HashMap<>();
 
         try {
-            BinanceApiRestClient client = factory.newRestClient();
 
-            long serverTime = client.getServerTime();
+            long serverTime = this.client.getServerTime();
             long recvWindow = 5000L;
 
             // Get account balances
-            Account account = client.getAccount(recvWindow, serverTime);
+            Account account = this.client.getAccount(recvWindow, serverTime);
             List<AssetBalance> acctBal = account.getBalances();
             for (AssetBalance bal : acctBal) {
                 Balance bal2 = new Balance();
@@ -280,4 +279,5 @@ public class BinanceExchange implements Exchange {
 
         return balance;
     }
+
 }
