@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-//@Ignore
+@Ignore
 public class ITDBTest extends BaseIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ITDBTest.class);
