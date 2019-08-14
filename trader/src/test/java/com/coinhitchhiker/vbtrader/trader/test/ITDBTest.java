@@ -6,11 +6,13 @@ import com.coinhitchhiker.vbtrader.common.OrderStatus;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.coinhitchhiker.vbtrader.trader.db.TraderDAO;
 import com.google.gson.Gson;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Ignore
 public class ITDBTest extends BaseIT {
 
     @Autowired
