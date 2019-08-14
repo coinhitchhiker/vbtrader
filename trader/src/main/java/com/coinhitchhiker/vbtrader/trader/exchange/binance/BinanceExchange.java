@@ -246,7 +246,6 @@ public class BinanceExchange implements Exchange {
         if(balanceMap != null) {
             balanceMap.entrySet().forEach(b -> this.balanceCache.put(b.getKey(), b.getValue()));
         }
-        LOGGER.info(this.balanceCache.toString());
     }
 
     @Override
