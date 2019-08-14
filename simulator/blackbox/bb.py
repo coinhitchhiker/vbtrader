@@ -6,8 +6,8 @@ import os
 java_bin = os.environ['JAVA_HOME'] + "/bin"
 
 cmd = [java_bin + "/java", "-Xmx384m",  "-jar", "simulator.jar"
-      , "--simul-start" , "20170901"
-      , "--simul-end" , "20171001"
+      , "--simul-start" , "20190801"
+      , "--simul-end" , "20190812"
       , "--symbol" , "BTCUSDT"
       , "--exchange" , "BINANCE"
       ,"--bb-input" , sys.argv[1]]

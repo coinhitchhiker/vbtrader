@@ -46,8 +46,7 @@ public class ITDBTest extends BaseIT {
     public void insertSimulResult() {
         SimulResult result = new SimulResult();
 
-        result.setEND_USD_BALANCE(20000);
-        result.setH_VOLUME_WEIGHT(0.7);
+        result.setEND_USD_BALANCE(200000);
         result.setMA_MIN(3);
         result.setPRICE_MA_WEIGHT(0.7);
         result.setSIMUL_END("20190701");
@@ -65,7 +64,7 @@ public class ITDBTest extends BaseIT {
         simulatorDAO.insertSimulResult(id, json);
 
         Double bestResult = simulatorDAO.getBestResult(id);
-        assertThat(bestResult).isEqualTo(20000);
+        assertThat(bestResult).isEqualTo(200000);
 
     }
 

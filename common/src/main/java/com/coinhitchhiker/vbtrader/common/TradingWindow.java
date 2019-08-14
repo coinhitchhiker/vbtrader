@@ -3,9 +3,13 @@ package com.coinhitchhiker.vbtrader.common;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class TradingWindow {
+
+    private static final double TS_TRIGGER_PCT = 0.7/100D; // 1% profit
+    private static final double TS = 0.2/100D; // fire TS when 0.25% loss
 
     private final String symbol;
     private final long startTimeStamp;    // unix epoch in millis
@@ -21,10 +25,15 @@ public class TradingWindow {
 
     private OrderInfo buyOrder;
     private OrderInfo sellOrder;
+    private double trailingStopPrice;
+    private double prevPrice;
+
     private double buyFee;
     private double sellFee;
     private double profit;
     private double netProfit;
+
+    private List<Candle> candles;
 
     public TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
         this.symbol = symbol;
@@ -65,6 +74,12 @@ public class TradingWindow {
         return  curPrice > openPrice + k * prevTradingWindow.getRange();
     }
 
+    public boolean isSellSignal(double curPrice, double k, TradingWindow prevTradingWindow) {
+        if(highPrice == 0 || lowPrice == 0) return false;
+
+        return curPrice < openPrice - k * prevTradingWindow.getRange();
+    }
+
     public void updateWindowData(TradeEvent e) {
 
         if(this.highPrice < e.getPrice()) this.highPrice = e.getPrice();
@@ -74,6 +89,45 @@ public class TradingWindow {
         this.volume += e.getAmount();
         this.curTimeStamp = e.getTradeTime();
 
+    }
+
+    public void priceReceived(double curPrice) {
+        if(this.buyOrder != null) {
+            if(this.trailingStopPrice == 0) {
+                if(curPrice > buyOrder.getPriceExecuted() * (1.0 + TS_TRIGGER_PCT)) {
+                    System.out.println(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS)));
+                    this.trailingStopPrice = curPrice * (1.0 - TS);
+                }
+            } else {
+                if(curPrice > prevPrice) {
+                    System.out.println(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS)));
+                    this.trailingStopPrice = curPrice * (1.0 - TS);
+                }
+            }
+        }
+
+        if(this.sellOrder != null) {
+            if(this.trailingStopPrice == 0) {
+                if(curPrice < sellOrder.getPriceExecuted() * (1.0 - TS_TRIGGER_PCT)) {
+                    System.out.println(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS)));
+                    this.trailingStopPrice = curPrice * (1.0 + TS);
+                }
+            } else {
+                if(curPrice < prevPrice) {
+                    System.out.println(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS)));
+                    this.trailingStopPrice = curPrice * (1.0 + TS);
+                }
+            }
+        }
+        this.prevPrice = curPrice;
+    }
+
+    public double getTrailingStopPrice() {
+        return trailingStopPrice;
+    }
+
+    public double getPrevPrice() {
+        return prevPrice;
     }
 
     public void setBuyOrder(OrderInfo orderInfo) {
@@ -124,6 +178,14 @@ public class TradingWindow {
         this.netProfit = netProfit;
     }
 
+    public List<Candle> getCandles() {
+        return candles;
+    }
+
+    public void setCandles(List<Candle> candles) {
+        this.candles = candles;
+    }
+
     public static TradingWindow of(List<Candle> candles) {
         int tempListSize = candles.size();
 
@@ -136,7 +198,9 @@ public class TradingWindow {
         double closePrice = candles.get(tempListSize-1).getClosePrice();
         double volume = candles.stream().mapToDouble(Candle::getVolume).sum();
 
-        return new TradingWindow(symbol, openTime, closeTime, openPrice, highPrice, closePrice, lowPrice, volume);
+        TradingWindow tw = new TradingWindow(symbol, openTime, closeTime, openPrice, highPrice, closePrice, lowPrice, volume);
+        tw.setCandles(new ArrayList<>(candles));
+        return tw;
     }
 
     @Override

@@ -26,10 +26,6 @@ public class CmdLine {
         blackBoxInput.setRequired(false);
         options.addOption(blackBoxInput);
 
-        Option spreadFile = new Option("f", "data-file", true, "data file");
-        spreadFile.setRequired(false);
-        options.addOption(spreadFile);
-
         Option symbol = new Option("y", "symbol", true, "Binance symbol ex)BTCUSDT");
         symbol.setRequired(true);
         options.addOption(symbol);
@@ -57,7 +53,6 @@ public class CmdLine {
 
         return new CmdLine.CommandLineOptions(
                 cmd.getOptionValue("x"),
-                cmd.getOptionValue("f"),
                 cmd.getOptionValue("s"),
                 cmd.getOptionValue("e"),
                 cmd.getOptionValue("y"),
@@ -69,7 +64,6 @@ public class CmdLine {
     static class CommandLineOptions {
 
         private String blackboxInput;
-        private String dataFile;
         private String simulStart;
         private String simulEnd;
         private String symbol;
@@ -77,14 +71,12 @@ public class CmdLine {
         private boolean validation;
 
         public CommandLineOptions(String blackboxInput
-                , String dataFile
                 , String simulStart
                 , String simulEnd
                 , String symbol
                 , String exchange
                 , boolean validation) {
             this.blackboxInput = blackboxInput;
-            this.dataFile = dataFile;
             this.simulStart = simulStart;
             this.simulEnd = simulEnd;
             this.symbol = symbol;
@@ -94,10 +86,6 @@ public class CmdLine {
 
         public String getBlackboxInput() {
             return blackboxInput;
-        }
-
-        public String getDataFile() {
-            return dataFile;
         }
 
         public String getSimulStart() {

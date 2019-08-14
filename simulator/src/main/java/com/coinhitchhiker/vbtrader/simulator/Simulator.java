@@ -1,8 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.Repository;
-import com.coinhitchhiker.vbtrader.common.TradingWindow;
-import com.coinhitchhiker.vbtrader.common.VolatilityBreakoutRules;
+import com.coinhitchhiker.vbtrader.common.*;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
@@ -14,11 +12,12 @@ import org.slf4j.LoggerFactory;
 import java.io.IOException;
 import java.util.List;
 
+import static org.joda.time.DateTimeZone.UTC;
+
 public class Simulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Simulator.class);
 
-    private String DATA_FILE;
     private int TRADING_WINDOW_SIZE_IN_MIN;
     private int TRADING_WINDOW_LOOK_BEHIND;
     private double PRICE_MA_WEIGHT;
@@ -29,16 +28,21 @@ public class Simulator {
     private String SYMBOL;
 
     private Repository repository;
+    private Exchange exchange;
     private SimulatorDAO simulatorDAO;
 
-    private final double SLIPPAGE = 0.1/100.0D;
-    private final double H_VOLUME_WEIGHT = 0.677D;
+    private final double SLIPPAGE = 0.01/100.0D;
     private static final int MA_MIN = 3;
     private double USD_BALANCE = 10000.0D;
     private double START_USD_BALANCE = 10000.0D;
+    private double FEE_RATE = 0.045;
+
+    private int win = 0;
+    private int lose = 0;
+
+    private double profit = 0.0D, loss = 0.0D;
 
     public Simulator(SimulatorDAO simulatorDAO,
-                     String DATA_FILE,
                      int TRADING_WINDOW_SIZE_IN_MIN,
                      int TRADING_WINDOW_LOOK_BEHIND,
                      double PRICE_MA_WEIGHT,
@@ -49,7 +53,7 @@ public class Simulator {
                      String SYMBOL)  {
 
         this.simulatorDAO = simulatorDAO;
-        this.DATA_FILE = DATA_FILE;
+
         this.TRADING_WINDOW_SIZE_IN_MIN = TRADING_WINDOW_SIZE_IN_MIN;
         this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
         this.PRICE_MA_WEIGHT = PRICE_MA_WEIGHT;
@@ -58,95 +62,228 @@ public class Simulator {
         this.SIMUL_END = SIMUL_END;
         this.EXCHANGE = EXCHANGE;
         this.SYMBOL = SYMBOL;
+    }
 
+    public void init() {
+        this.repository = new SimulatorRepositoryImpl(SYMBOL, SIMUL_START, SIMUL_END, TRADING_WINDOW_SIZE_IN_MIN);
+        this.exchange = new SimulatorExchange(this.repository, SLIPPAGE);
     }
 
     public void runSimul() throws IOException {
 
-        if(this.DATA_FILE == null) {
-            this.repository = new SimulatorRepositoryImpl(SYMBOL, SIMUL_START, SIMUL_END, TRADING_WINDOW_SIZE_IN_MIN);
-        } else {
-            this.repository = new SimulatorRepositoryImpl(DATA_FILE, TRADING_WINDOW_SIZE_IN_MIN);
-        }
+        if(this.repository == null) throw new RuntimeException("call init() first");
+        if(this.exchange == null) throw new RuntimeException("call init() first");
 
-        int win = 0, lose = 0;
-        double profit = 0.0D, loss = 0.0D;
-
-        // advance by minute
         long curTimeStamp = 0;
-        for(curTimeStamp = SIMUL_START; curTimeStamp < SIMUL_END; curTimeStamp+=60_000) {
-            List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimeStamp);
-            if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND) {
-                continue;
-            }
+        for(curTimeStamp = SIMUL_START; curTimeStamp < SIMUL_END; curTimeStamp+=60_000) {  // advance by minute
+            // let the simulExchange know current time
+            ((SimulatorExchange)this.exchange).setCurrentTimestamp(curTimeStamp);
 
             TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimeStamp);
             if(curTradingWindow == null) break;
 
-            double k = lookbehindTradingWindows.stream().mapToDouble(TradingWindow::getNoiseRatio).average().getAsDouble();
-            double hypotheticalCurPrice = curTradingWindow.getHighPrice();
-            // assume that volume at the hypotheticalCurPrice is 2/3 of total vol of curwindow
-            double hypotheticalVolume = curTradingWindow.getVolume() * H_VOLUME_WEIGHT;
-            double hypotheticalBuyPrice = (curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange()) * (1+SLIPPAGE);
+            List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimeStamp);
+            if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND) continue;
+
+            if(curTimeStamp > curTradingWindow.getEndTimeStamp()) {
+                sellAtMarketPrice(curTradingWindow);
+                repository.refreshTradingWindows();
+            }
+
+            double curPrice = exchange.getCurrentPrice(SYMBOL);
+
+            if(curTradingWindow.getBuyOrder() != null && curTradingWindow.getTrailingStopPrice() > curPrice) {
+                // market sell
+                sellAtMarketPrice(curTradingWindow);
+                repository.refreshTradingWindows();
+                continue;
+            }
+
+            if(curTradingWindow.getSellOrder() != null &&
+                    (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
+                // market sell
+                sellAtMarketPrice(curTradingWindow);
+                repository.refreshTradingWindows();
+                continue;
+            }
+
+            curTradingWindow.priceReceived(curPrice);   // will set or update trailing stop price accordingly
+
+            if(curTradingWindow.getBuyOrder() != null || curTradingWindow.getSellOrder() != null) continue;
+
+            double k = VolatilityBreakoutRules.getKValue(lookbehindTradingWindows);
+
+             // sell signal!
+//            if(curTradingWindow.isSellSignal(curPrice, k, lookbehindTradingWindows.get(0))) {
+//                double volume = getCurTradingWindowVol(curTradingWindow.getCandles(), curTimeStamp);
+//                double sellPrice = curPrice;
+//
+//                double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+//                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+//                double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
+//
+//                double bettingSize = USD_BALANCE * weightedMAScore;
+//
+//                if(bettingSize > 0) {
+//                    LOGGER.info("[---------------------SELL SIGNAL DETECTED----------------------------]");
+//                    double amount = bettingSize / sellPrice;
+//                    OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, amount);
+//                    OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
+//
+//                    curTradingWindow.setSellOrder(placedSellOrder);
+//                    LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
+//                    LOGGER.debug("[PLACED SELL ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
+//                    double sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+//                    curTradingWindow.setSellFee(sellFee);
+//                }
+//            }
 
             // buy signal!
-            if(curTradingWindow.isBuySignal(hypotheticalCurPrice, k, lookbehindTradingWindows.get(0))) {
-                double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, hypotheticalCurPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore(lookbehindTradingWindows, hypotheticalVolume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+            if(curTradingWindow.isBuySignal(curPrice, k, lookbehindTradingWindows.get(0))) {
+                double volume = getCurTradingWindowVol(curTradingWindow.getCandles(), curTimeStamp);
+                double buyPrice = curPrice;
+
+                double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
                 double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
                 double bettingSize = USD_BALANCE * weightedMAScore;
 
                 if(bettingSize > 0) {
-                    double amount = bettingSize / hypotheticalBuyPrice;
-                    double hypotheticalSellPrice = curTradingWindow.getClosePrice() * (1-SLIPPAGE);
-                    double diff = (hypotheticalSellPrice - hypotheticalBuyPrice) * amount;
+                    LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
+                    double amount = bettingSize / buyPrice;
+                    OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
+                    OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
 
-                    USD_BALANCE += diff;
-
-                    if(hypotheticalSellPrice > hypotheticalBuyPrice) {
-                        profit += diff; win++;
-                    } else {
-                        loss += diff; lose++;
-                    }
-
-                    LOGGER.info("Balance {} P/L {}/{} Win-Lose {}/{}/{}% curTime {}, h-CurPrice {}, h-BuyPrice {}, h-SellPrice {}, k {}, weightedMAScore {}, bettingSize {}"
-                            , String.format("%.2f", USD_BALANCE)
-                            , String.format("%.2f", profit)
-                            , loss
-                            , win
-                            , lose
-                            , String.format("%.2f", (win*1.0 / (win+lose)) * 100.0)
-                            , new DateTime(curTimeStamp).withZone(DateTimeZone.UTC).toString()
-                            , String.format("%.2f", hypotheticalCurPrice)
-                            , String.format("%.2f", hypotheticalBuyPrice)
-                            , String.format("%.2f", curTradingWindow.getClosePrice())
-                            , String.format("%.2f", k)
-                            , String.format("%.2f", weightedMAScore)
-                            , String.format("%.2f", bettingSize)
-                    );
-
-                    // advance to the next trading window
-                    curTimeStamp = curTradingWindow.getEndTimeStamp() + 60_000L;
+                    curTradingWindow.setBuyOrder(placedBuyOrder);
+                    LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
+                    LOGGER.debug("[PLACED BUY ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
+                    double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+                    curTradingWindow.setBuyFee(buyFee);
                 }
             }
         }
+    }
+
+    private void sellAtMarketPrice(TradingWindow curTradingWindow) {
+
+        if(curTradingWindow.getBuyOrder() == null && curTradingWindow.getSellOrder() == null) return;
+
+        if(curTradingWindow.getBuyOrder() != null) {
+            OrderInfo placedBuyOrder = curTradingWindow.getBuyOrder();
+            double sellPrice = curTradingWindow.getTrailingStopPrice() != 0.0 ? curTradingWindow.getTrailingStopPrice() : curTradingWindow.getClosePrice();
+            double sellAmount = placedBuyOrder.getAmountExecuted();
+            OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, sellAmount);
+            OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
+            LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
+
+            double buyFee = curTradingWindow.getBuyFee();
+            double sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+            double profit = (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * sellAmount;
+            double netProfit =  profit - (buyFee + sellFee);
+
+            curTradingWindow.setSellFee(sellFee);
+            curTradingWindow.setProfit(profit);
+            curTradingWindow.setNetProfit(netProfit);
+            curTradingWindow.setSellOrder(placedSellOrder);
+
+            USD_BALANCE += netProfit;
+
+            if(netProfit > 0) {
+                win++;
+                this.profit += netProfit;
+            } else {
+                lose++;
+                this.loss += netProfit;
+            }
+
+            LOGGER.info("[{}] TotalBalance={} netProfit={}, time={}, profit={}, fee={}, sellPrice={} buyPrice={}, amount={},  ",
+                    netProfit >= 0 ? "PROFIT" : "LOSS",
+                    String.format("%.2f", USD_BALANCE),
+                    String.format("%.2f", netProfit),
+                    new DateTime(placedSellOrder.getExecTimestamp(), UTC),
+                    String.format("%.2f", profit),
+                    String.format("%.2f", buyFee + sellFee),
+                    placedSellOrder.getPriceExecuted(),
+                    placedBuyOrder.getPriceExecuted(),
+                    placedBuyOrder.getAmountExecuted());
+
+            curTradingWindow.setBuyOrder(null);
+            curTradingWindow.setSellOrder(null);
+        }
+
+        if(curTradingWindow.getSellOrder() != null) {
+            OrderInfo placedSellOrder = curTradingWindow.getSellOrder();
+            double buyPrice = curTradingWindow.getTrailingStopPrice() != 0.0 ? curTradingWindow.getTrailingStopPrice() : curTradingWindow.getClosePrice();
+            double buyAmount = placedSellOrder.getAmountExecuted();
+            OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, buyAmount);
+            OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
+            LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
+
+            double sellFee = curTradingWindow.getSellFee();
+            double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+            double profit = (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * buyAmount;
+            double netProfit =  profit - (buyFee + sellFee);
+
+            curTradingWindow.setBuyFee(buyFee);
+            curTradingWindow.setProfit(profit);
+            curTradingWindow.setNetProfit(netProfit);
+            curTradingWindow.setBuyOrder(placedBuyOrder);
+
+            USD_BALANCE += netProfit;
+
+            if(netProfit > 0) {
+                win++;
+                this.profit += netProfit;
+            } else {
+                lose++;
+                this.loss += netProfit;
+            }
+
+            LOGGER.info("[{}] TotalBalance={} netProfit={}, time={}, profit={}, fee={}, sellPrice={} buyPrice={}, amount={},  ",
+                    netProfit >= 0 ? "PROFIT" : "LOSS",
+                    String.format("%.2f", USD_BALANCE),
+                    String.format("%.2f", netProfit),
+                    new DateTime(placedBuyOrder.getExecTimestamp(), UTC),
+                    String.format("%.2f", profit),
+                    String.format("%.2f", buyFee + sellFee),
+                    placedSellOrder.getPriceExecuted(),
+                    placedBuyOrder.getPriceExecuted(),
+                    placedBuyOrder.getAmountExecuted());
+
+            curTradingWindow.setBuyOrder(null);
+            curTradingWindow.setSellOrder(null);
+        }
+
+
+        LOGGER.info("-----------------------------------------------------------------------------------------");
+        repository.logCompleteTradingWindow(curTradingWindow);
+    }
+
+    private double getCurTradingWindowVol(List<Candle> candles, long currentTimestamp) {
+        double volume = 0.0D;
+        for(Candle candle : candles) {
+            if(candle.getCloseTime() > currentTimestamp) {
+                volume += candle.getVolume();
+            }
+        }
+        return volume;
     }
 
     public SimulResult collectSimulResult() {
         LOGGER.info("----------------------------------------------------------------");
         LOGGER.info("SIMUL_START {}", new DateTime(SIMUL_START, DateTimeZone.UTC));
         LOGGER.info("SIMUL_END {}", new DateTime(SIMUL_END, DateTimeZone.UTC));
-        LOGGER.info("MA_MIN {}", MA_MIN);
-        LOGGER.info("TRADING_WINDOW_SIZE_IN_MIN {}", TRADING_WINDOW_SIZE_IN_MIN);
-        LOGGER.info("TRADING_WINDOW_LOOK_BEHIND {}", TRADING_WINDOW_LOOK_BEHIND);
-        LOGGER.info("DATA_FILE {}", DATA_FILE);
         LOGGER.info("START_USD_BALANCE {}", START_USD_BALANCE);
         LOGGER.info("END_USD_BALANCE {}", USD_BALANCE);
+        LOGGER.info("WINNING RATE {} (w {} / l {})", String.format("%.2f", (win*1.0 / (win+lose)) * 100.0), win, lose);
+        LOGGER.info("P/L RATIO {} (P {} / L {})", String.format("%.2f", Math.abs(profit / loss)), String.format("%.2f",profit), String.format("%.2f",loss));
+        LOGGER.info("TRADING_WINDOW_SIZE_IN_MIN {}", TRADING_WINDOW_SIZE_IN_MIN);
+        LOGGER.info("TRADING_WINDOW_LOOK_BEHIND {}", TRADING_WINDOW_LOOK_BEHIND);
         LOGGER.info("PRICE_MA_WEIGHT {}", PRICE_MA_WEIGHT);
         LOGGER.info("VOLUME_MA_WEIGHT {}", VOLUME_MA_WEIGHT);
+        LOGGER.info("MA_MIN {}", MA_MIN);
         LOGGER.info("SLIPPAGE {}", SLIPPAGE);
-        LOGGER.info("H_VOLUME_WEIGHT {}", H_VOLUME_WEIGHT);
         LOGGER.info("----------------------------------------------------------------");
 
         System.out.println((-1)*this.USD_BALANCE);
@@ -168,8 +305,8 @@ public class Simulator {
         result.setSIMUL_END(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, DateTimeZone.UTC)));
         result.setPRICE_MA_WEIGHT(this.PRICE_MA_WEIGHT);
         result.setMA_MIN(this.MA_MIN);
-        result.setH_VOLUME_WEIGHT(this.H_VOLUME_WEIGHT);
         result.setEND_USD_BALANCE(this.USD_BALANCE);
+        result.setWINNING_RATE((win*1.0 / (win+lose)) * 100.0);
 
         return result;
     }

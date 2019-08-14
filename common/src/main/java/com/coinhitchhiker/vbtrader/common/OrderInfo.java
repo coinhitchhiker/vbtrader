@@ -1,6 +1,10 @@
 package com.coinhitchhiker.vbtrader.common;
 
+import org.joda.time.DateTime;
+
 import java.util.Objects;
+
+import static org.joda.time.DateTimeZone.UTC;
 
 public class OrderInfo implements Comparable<OrderInfo> {
 
@@ -144,7 +148,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
             ", price=" + price +
             ", amount=" + amount +
             ", externalOrderId='" + externalOrderId + '\'' +
-            ", execTimestamp=" + execTimestamp +
+            ", execTimestamp=" + new DateTime(execTimestamp).withZone(UTC) +
             ", orderStatus=" + orderStatus +
             ", amountExecuted=" + amountExecuted +
             ", priceExecuted=" + priceExecuted +
