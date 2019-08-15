@@ -61,28 +61,35 @@ public class TradeEngine {
         if(curTimeStamp > curTradingWindow.getEndTimeStamp()) {
             sellAtMarketPrice();
             repository.refreshTradingWindows();
+            return;
         }
 
         double curPrice = exchange.getCurrentPrice(SYMBOL);
 
         if(curTradingWindow.getBuyOrder() != null && curTradingWindow.getTrailingStopPrice() > curPrice) {
+            LOGGER.info("---------------TRAILING STOP HIT------------------------");
+            LOGGER.info("trailingStopPrice {} > curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
             // market sell
             sellAtMarketPrice();
-            repository.refreshTradingWindows();
+            curTradingWindow.clearOutOrders();
             return;
         }
 
-        if(curTradingWindow.getSellOrder() != null &&
-                (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
-            // market sell
-            sellAtMarketPrice();
-            repository.refreshTradingWindows();
-            return;
-        }
+//        if(curTradingWindow.getSellOrder() != null &&
+//                (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
+//            // market sell
+//            sellAtMarketPrice();
+//            curTradingWindow.clearOutOrders();
+//            return;
+//        }
 
         // if a buy/sell order was placed in this trading window and no trailing stop price was broken,
         // we do nothing until this trading window is over
-        if(curTradingWindow.getBuyOrder() != null || curTradingWindow.getSellOrder() != null) return;
+        if(curTradingWindow.getBuyOrder() != null || curTradingWindow.getSellOrder() != null) {
+            LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
+            LOGGER.info(curTradingWindow.toString());
+            return;
+        }
 
         double k = VolatilityBreakoutRules.getKValue(lookbehindTradingWindows);
 
@@ -193,48 +200,52 @@ public class TradeEngine {
                         placedBuyOrder.getAmountExecuted());
                 LOGGER.info("-----------------------------------------------------------------------------------------");
                 repository.logCompleteTradingWindow(curTradingWindow);
+                return;
             } catch(Exception e) {
                 LOGGER.error("Placing sell order error", e);
+                return;
             }
         }
 
-        if(curTradingWindow.getSellOrder() != null) {
-            LOGGER.info("-----------------------------SELL IT!!!!!!----------------------");
-            OrderInfo placedSellOrder = curTradingWindow.getSellOrder();
-            double bestAsk = orderBookCache.getBestAsk();
-            double buyPrice = bestAsk * (1 + LIMIT_ORDER_PREMIUM/100.0D);
-            double buyAmount = placedSellOrder.getAmountExecuted();
-            OrderInfo buyOrder = new OrderInfo("BINANCE", SYMBOL, OrderSide.BUY, buyPrice, buyAmount);
-            OrderInfo placedBuyOrder = null;
-
-            try {
-                placedBuyOrder = exchange.placeOrder(buyOrder);
-                LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
-
-                double sellFee = curTradingWindow.getSellFee();
-                double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
-                double profit = (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * buyAmount;
-                double netProfit =  profit - (buyFee + sellFee);
-
-                curTradingWindow.setSellFee(sellFee);
-                curTradingWindow.setProfit(profit);
-                curTradingWindow.setNetProfit(netProfit);
-                curTradingWindow.setBuyOrder(placedBuyOrder);
-
-                LOGGER.info("[SHORT] [{}] netProfit={}, profit={}, fee={}, sellPrice={} buyPrice={}, amount={},  ",
-                        netProfit >= 0 ? "PROFIT" : "LOSS",
-                        netProfit,
-                        profit,
-                        buyFee + sellFee,
-                        placedSellOrder.getPriceExecuted(),
-                        placedBuyOrder.getPriceExecuted(),
-                        placedBuyOrder.getAmountExecuted());
-                LOGGER.info("-----------------------------------------------------------------------------------------");
-                repository.logCompleteTradingWindow(curTradingWindow);
-            } catch(Exception e) {
-                LOGGER.error("Placing buy order error", e);
-            }
-        }
+//        if(curTradingWindow.getSellOrder() != null) {
+//            LOGGER.info("-----------------------------SELL IT!!!!!!----------------------");
+//            OrderInfo placedSellOrder = curTradingWindow.getSellOrder();
+//            double bestAsk = orderBookCache.getBestAsk();
+//            double buyPrice = bestAsk * (1 + LIMIT_ORDER_PREMIUM/100.0D);
+//            double buyAmount = placedSellOrder.getAmountExecuted();
+//            OrderInfo buyOrder = new OrderInfo("BINANCE", SYMBOL, OrderSide.BUY, buyPrice, buyAmount);
+//            OrderInfo placedBuyOrder = null;
+//
+//            try {
+//                placedBuyOrder = exchange.placeOrder(buyOrder);
+//                LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
+//
+//                double sellFee = curTradingWindow.getSellFee();
+//                double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+//                double profit = (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * buyAmount;
+//                double netProfit =  profit - (buyFee + sellFee);
+//
+//                curTradingWindow.setSellFee(sellFee);
+//                curTradingWindow.setProfit(profit);
+//                curTradingWindow.setNetProfit(netProfit);
+//                curTradingWindow.setBuyOrder(placedBuyOrder);
+//
+//                LOGGER.info("[SHORT] [{}] netProfit={}, profit={}, fee={}, sellPrice={} buyPrice={}, amount={},  ",
+//                        netProfit >= 0 ? "PROFIT" : "LOSS",
+//                        netProfit,
+//                        profit,
+//                        buyFee + sellFee,
+//                        placedSellOrder.getPriceExecuted(),
+//                        placedBuyOrder.getPriceExecuted(),
+//                        placedBuyOrder.getAmountExecuted());
+//                LOGGER.info("-----------------------------------------------------------------------------------------");
+//                repository.logCompleteTradingWindow(curTradingWindow);
+//                return;
+//            } catch(Exception e) {
+//                LOGGER.error("Placing buy order error", e);
+//                return;
+//            }
+//        }
     }
 
     @PreDestroy
