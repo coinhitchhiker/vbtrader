@@ -19,6 +19,7 @@ public class SimulResult {
     private double SLIPPAGE;
     private double TS_TRIGGER_PCT;
     private double TS_PCT;
+    private String MODE;
 
     public double getVersion() {
         return version;
@@ -134,5 +135,13 @@ public class SimulResult {
 
     public void setTS_PCT(double TS_PCT) {
         this.TS_PCT = TS_PCT;
+    }
+
+    public String getMODE() {
+        return MODE;
+    }
+
+    public void setMODE(String MODE) {
+        this.MODE = MODE;
     }
 }

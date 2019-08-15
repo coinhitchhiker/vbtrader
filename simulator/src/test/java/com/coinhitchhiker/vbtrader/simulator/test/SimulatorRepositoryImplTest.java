@@ -3,16 +3,16 @@ package com.coinhitchhiker.vbtrader.simulator.test;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.coinhitchhiker.vbtrader.simulator.SimulatorRepositoryImpl;
+import io.swagger.client.ApiException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.junit.BeforeClass;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -22,11 +22,14 @@ public class SimulatorRepositoryImplTest {
 
     private Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImplTest.class);
 
-    private Repository repo = new SimulatorRepositoryImpl("BTCUSDT", 1551398400000L, 1564617600000L, 43, 0.7, 0.2);
+    private Repository binanceRepo = new SimulatorRepositoryImpl("BINANCE", "BTCUSDT", 1551398400000L, 1564617600000L, 43, 0.7, 0.2);
     private static final int tradingWindowSizeInMinutes = 43;
 
+    public SimulatorRepositoryImplTest() throws ApiException {
+    }
+
     @Test
-//    @Ignore
+    @Ignore
     public void getLastN() throws IOException {
         String pattern = "yyyy-MM-dd HH:mm:ss";
         DateTimeFormatter formatter = DateTimeFormat.forPattern(pattern).withZoneUTC();
@@ -35,15 +38,14 @@ public class SimulatorRepositoryImplTest {
         LOGGER.info("curTime {}", dt);
 
         long curTimestamp = DateTime.parse(dt, formatter).getMillis();
-        List<TradingWindow> result = this.repo.getLastNTradingWindow(20, curTimestamp);
+        List<TradingWindow> result = this.binanceRepo.getLastNTradingWindow(20, curTimestamp);
         assertThat(result.size()).isEqualTo(20);
-
-//        result.forEach(tw -> LOGGER.info("{}", tw));
     }
 
     @Test
+    @Ignore
     public void getBinanceCandle() {
-        SimulatorRepositoryImpl repo = new SimulatorRepositoryImpl("BTCUSDT",
+        SimulatorRepositoryImpl repo = new SimulatorRepositoryImpl("BINANCE", "BTCUSDT",
                 new DateTime(2019,7,14,0,0, DateTimeZone.UTC).getMillis(),
                 new DateTime(2019,8,1,0,0, DateTimeZone.UTC).getMillis(),
                         720,
@@ -52,5 +54,13 @@ public class SimulatorRepositoryImplTest {
         );
 
         assertThat(repo.getTradingWindows().size()).isEqualTo(37);
+    }
+
+    @Test
+    @Ignore
+    public void getBitmexCandle() throws ApiException {
+        Repository bitmexRepo = new SimulatorRepositoryImpl("BITMEX", "XBTUSD", 1564617600000L, 1565740800000L, 43, 0.7, 0.2);
+
+
     }
 }
