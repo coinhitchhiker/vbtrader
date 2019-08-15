@@ -102,15 +102,18 @@ public class Simulator {
 
             double curPrice = exchange.getCurrentPrice(SYMBOL);
 
-            if(curTradingWindow.getBuyOrder() != null && curTradingWindow.getTrailingStopPrice() > curPrice) {
+            if(this.MODE.equals("LONG") &&
+                curTradingWindow.getBuyOrder() != null &&
+                curTradingWindow.getTrailingStopPrice() > curPrice) {
                 // market sell
                 sellAtMarketPrice(curTradingWindow);
                 curTradingWindow.clearOutOrders();
                 continue;
             }
 
-            if(curTradingWindow.getSellOrder() != null &&
-                    (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
+            if(this.MODE.equals("SHORT") &&
+                curTradingWindow.getSellOrder() != null &&
+                (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
                 // market sell
                 sellAtMarketPrice(curTradingWindow);
                 curTradingWindow.clearOutOrders();
