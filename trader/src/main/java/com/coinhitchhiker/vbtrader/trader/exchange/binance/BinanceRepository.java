@@ -43,6 +43,9 @@ public class BinanceRepository implements Repository {
     @Value("${trading.window.size}") private int TRADING_WINDOW_SIZE;
     @Value("${trading.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
     @Value("${trading.iceberg.order}") private boolean doIcebergOrder;
+    @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
+    @Value("${trading.ts.pct}") private double TS_PCT;
+
 
     @Resource(name = BinanceOrderBookCache.BEAN_NAME_ORDERBOOK_CACHE_BINANCE)
     OrderBookCache orderBookCache;
@@ -52,6 +55,11 @@ public class BinanceRepository implements Repository {
 
     @PostConstruct
     public void init() {
+
+        if(TS_TRIGGER_PCT <= TS_PCT) {
+            throw new RuntimeException(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", TS_TRIGGER_PCT, TS_PCT));
+        }
+
         this.refreshTradingWindows();
     }
 
@@ -119,6 +127,9 @@ public class BinanceRepository implements Repository {
         long timestamp = startTime.getMillis();
 
         TradingWindow result =  new TradingWindow(this.TRADING_SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000, orderBookCache.getMidPrice());
+        result.setTS_TRIGGER_PCT(TS_TRIGGER_PCT);
+        result.setTS_PCT(TS_PCT);
+
         List<Candle> binanceCandles = getBinanceCandles(TRADING_SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
         if(binanceCandles.size() > 0) {
             TradingWindow twFromBinanceData = TradingWindow.of(binanceCandles);

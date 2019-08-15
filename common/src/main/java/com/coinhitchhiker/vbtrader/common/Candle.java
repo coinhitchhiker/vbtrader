@@ -1,7 +1,11 @@
 package com.coinhitchhiker.vbtrader.common;
 
+import org.joda.time.DateTime;
+
 import java.io.Serializable;
 import java.util.List;
+
+import static org.joda.time.DateTimeZone.UTC;
 
 public class Candle implements Serializable {
     //symbol interval openTime closeTime openPrice highPrice lowPrice closePrice volume
@@ -74,5 +78,20 @@ public class Candle implements Serializable {
 
     public double getVolume() {
         return volume;
+    }
+
+    @Override
+    public String toString() {
+        return "Candle{" +
+                "symbol='" + symbol + '\'' +
+                ", interval='" + interval + '\'' +
+                ", openTime=" + new DateTime(openTime, UTC).toString() +
+                ", closeTime=" + new DateTime(closeTime, UTC).toString() +
+                ", openPrice=" + openPrice +
+                ", highPrice=" + highPrice +
+                ", lowPrice=" + lowPrice +
+                ", closePrice=" + closePrice +
+                ", volume=" + volume +
+                '}';
     }
 }
