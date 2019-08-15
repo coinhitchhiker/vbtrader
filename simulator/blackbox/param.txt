@@ -29,7 +29,7 @@ X0             ( 40 12 0 1 0.7 0.2)  # starting point
 LOWER_BOUND    ( 3 3 0 0 0.1 0.05 )
 UPPER_BOUND    ( 10080 45 1 1 1 1 )
 
-MAX_BB_EVAL    3000            # the algorithm terminates when
+MAX_BB_EVAL    1500           # the algorithm terminates when
                               # 100 black-box evaluations have
                               # been made
 
