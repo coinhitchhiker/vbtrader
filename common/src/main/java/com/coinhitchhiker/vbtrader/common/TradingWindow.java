@@ -239,19 +239,31 @@ public class TradingWindow {
     @Override
     public String toString() {
         return "TradingWindow{" +
-                "symbol='" + symbol + '\'' +
-                ", curTimestamp=" + new DateTime(curTimeStamp).withZone(DateTimeZone.UTC).toString() +
-                ", start=" + new DateTime(startTimeStamp).withZone(DateTimeZone.UTC).toString() +
-                ", end=" + new DateTime(endTimeStamp).withZone(DateTimeZone.UTC).toString() +
+                "TS_TRIGGER_PCT=" + TS_TRIGGER_PCT +
+                ", TS_PCT=" + TS_PCT +
+                ", symbol='" + symbol + '\'' +
+                ", startTimeStamp=" + startTimeStamp +
+                ", endTimeStamp=" + endTimeStamp +
                 ", openPrice=" + openPrice +
                 ", highPrice=" + highPrice +
                 ", closePrice=" + closePrice +
                 ", lowPrice=" + lowPrice +
                 ", volume=" + volume +
+                ", sellVolume=" + sellVolume +
+                ", buyVolume=" + buyVolume +
+                ", curTimeStamp=" + curTimeStamp +
+                ", buyOrder=" + buyOrder +
+                ", sellOrder=" + sellOrder +
+                ", trailingStopPrice=" + trailingStopPrice +
+                ", prevTradeEvent=" + prevTradeEvent +
+                ", buyFee=" + buyFee +
+                ", sellFee=" + sellFee +
+                ", profit=" + profit +
+                ", netProfit=" + netProfit +
                 '}';
     }
 
-    //-----------------------------------------------------------------------------------
+//-----------------------------------------------------------------------------------
 
     public String getSymbol() {
         return symbol;
