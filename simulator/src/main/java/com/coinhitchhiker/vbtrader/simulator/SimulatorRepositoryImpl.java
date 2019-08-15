@@ -22,11 +22,15 @@ public class SimulatorRepositoryImpl implements Repository {
     private List<TradingWindow> tradingWindows = new ArrayList<>();
     private TradingWindow currentTradingWindow = null;
     private long currentTimestamp;
+    private double tsTriggerPct;
+    private double tsPct;
 
     public SimulatorRepositoryImpl(String symbol,
                                    long simulStart,
                                    long simulEnd,
-                                   int tradingWindowSizeInMinutes) {
+                                   int tradingWindowSizeInMinutes,
+                                   double tsTriggerPct,
+                                   double tsPct) {
 
         List<Candle> result = deserCandles(makeFileName(symbol, simulStart, simulEnd));
         if(result != null && result.size() > 0) {
@@ -38,6 +42,9 @@ public class SimulatorRepositoryImpl implements Repository {
         }
 
         this.currentTimestamp = simulStart;
+        this.tsTriggerPct = tsTriggerPct;
+        this.tsPct = tsPct;
+
         this.refreshTradingWindows();
     }
 
@@ -99,13 +106,20 @@ public class SimulatorRepositoryImpl implements Repository {
         for(int i = 1; i <= candles.size(); i++) {
             tempList.add(candles.get(i-1));
             if(i % tradingWindowSizeInMin == 0) {
-                this.tradingWindows.add(TradingWindow.of(tempList));
+                TradingWindow tw = TradingWindow.of(tempList);
+                tw.setTS_TRIGGER_PCT(tsTriggerPct);
+                tw.setTS_PCT(tsPct);
+
+                this.tradingWindows.add(tw);
                 tempList = new ArrayList<>();
             }
         }
 
         if(tempList.size() > 0) {
-            this.tradingWindows.add(TradingWindow.of(tempList));
+            TradingWindow tw = TradingWindow.of(tempList);
+            tw.setTS_TRIGGER_PCT(this.tsTriggerPct);
+            tw.setTS_PCT(this.tsPct);
+            this.tradingWindows.add(tw);
         }
     }
 
@@ -120,7 +134,9 @@ public class SimulatorRepositoryImpl implements Repository {
             TradingWindow curTw = this.tradingWindows.get(i);
             if(curTw.getEndTimeStamp() < curTimestamp) {
                 result.add(curTw);
-                if(result.size() == n) break;
+                if(result.size() == n) {
+                    break;
+                }
             }
         }
         return result;
@@ -149,6 +165,8 @@ public class SimulatorRepositoryImpl implements Repository {
                         tradingWindow.getLowPrice(),
                         tradingWindow.getVolume());
                 tw.setCandles(tradingWindow.getCandles());
+                tw.setTS_TRIGGER_PCT(tsTriggerPct);
+                tw.setTS_PCT(tsPct);
                 this.currentTradingWindow = tw;
                 return;
             }

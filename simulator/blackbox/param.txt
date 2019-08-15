@@ -2,8 +2,10 @@
 # TRADING_WINDOW_LOOK_BEHIND
 # PRICE_MA_WEIGHT
 # VOLUME_MA_WEIGHT
+# TS_TRIGGER_PCT
+# TS_PCT
 
-DIMENSION      4              # number of variables
+DIMENSION      6              # number of variables
 
 BB_EXE         "$python bb.py"          # 'bb.exe' is a program that
 BB_OUTPUT_TYPE OBJ            # takes in argument the name of
@@ -22,10 +24,10 @@ BB_OUTPUT_TYPE OBJ            # takes in argument the name of
                               #  detailed parameters list)
 
 
-X0             ( 52 12 0 1 )  # starting point
+X0             ( 40 12 0 1 0.7 0.2)  # starting point
 
-LOWER_BOUND    ( 3 3 0 0 )
-UPPER_BOUND    ( 10080 45 1 1 )
+LOWER_BOUND    ( 3 3 0 0 0.1 0.05 )
+UPPER_BOUND    ( 10080 45 1 1 1 1 )
 
 MAX_BB_EVAL    3000            # the algorithm terminates when
                               # 100 black-box evaluations have

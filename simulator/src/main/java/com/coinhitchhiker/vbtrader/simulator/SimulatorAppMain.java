@@ -55,7 +55,9 @@ public class SimulatorAppMain implements CommandLineRunner {
                         DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                         DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                         opts.getExchange(),
-                        opts.getSymbol());
+                        opts.getSymbol(),
+                        simulResult.getTS_TRIGGER_PCT(),
+                        simulResult.getTS_PCT());
 
                 simulator.init();
                 simulator.runSimul();
@@ -64,6 +66,16 @@ public class SimulatorAppMain implements CommandLineRunner {
             }
         } else {
             Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput());
+
+            double tsTriggerPct = parsedBBInput.get("tsTriggerPct");
+            double tsPct = parsedBBInput.get("tsPct");
+
+            if(tsTriggerPct <= tsPct) {
+                LOGGER.error(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", tsTriggerPct, tsPct));
+                System.out.println("0");
+                System.exit(0);
+            }
+
             Simulator simulator = new Simulator(this.simulatorDAO,
                     parsedBBInput.get("tradingWindowSizeInMin").intValue(),
                     parsedBBInput.get("tradingWindowLookBehind").intValue(),
@@ -72,7 +84,9 @@ public class SimulatorAppMain implements CommandLineRunner {
                     DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                     DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                     opts.getExchange(),
-                    opts.getSymbol());
+                    opts.getSymbol(),
+                    tsTriggerPct,
+                    tsPct);
 
             simulator.init();
             simulator.runSimul();

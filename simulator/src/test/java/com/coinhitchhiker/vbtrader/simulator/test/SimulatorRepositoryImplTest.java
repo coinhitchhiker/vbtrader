@@ -22,7 +22,7 @@ public class SimulatorRepositoryImplTest {
 
     private Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImplTest.class);
 
-    private Repository repo = new SimulatorRepositoryImpl("BTCUSDT", 1551398400000L, 1564617600000L, 43);
+    private Repository repo = new SimulatorRepositoryImpl("BTCUSDT", 1551398400000L, 1564617600000L, 43, 0.7, 0.2);
     private static final int tradingWindowSizeInMinutes = 43;
 
     @Test
@@ -46,7 +46,10 @@ public class SimulatorRepositoryImplTest {
         SimulatorRepositoryImpl repo = new SimulatorRepositoryImpl("BTCUSDT",
                 new DateTime(2019,7,14,0,0, DateTimeZone.UTC).getMillis(),
                 new DateTime(2019,8,1,0,0, DateTimeZone.UTC).getMillis(),
-                        720);
+                        720,
+                0.7,
+                0.2
+        );
 
         assertThat(repo.getTradingWindows().size()).isEqualTo(37);
     }
