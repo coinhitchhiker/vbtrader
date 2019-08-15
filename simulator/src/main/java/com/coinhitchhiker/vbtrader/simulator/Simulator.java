@@ -26,6 +26,8 @@ public class Simulator {
     private long SIMUL_END;
     private String EXCHANGE;
     private String SYMBOL;
+    private double TS_TRIGGER_PCT;
+    private double TS_PCT;
 
     private Repository repository;
     private Exchange exchange;
@@ -50,7 +52,9 @@ public class Simulator {
                      long SIMUL_START,
                      long SIMUL_END,
                      String EXCHANGE,
-                     String SYMBOL)  {
+                     String SYMBOL,
+                     double TS_TRIGGER_PCT,
+                     double TS_PCT)  {
 
         this.simulatorDAO = simulatorDAO;
 
@@ -62,10 +66,12 @@ public class Simulator {
         this.SIMUL_END = SIMUL_END;
         this.EXCHANGE = EXCHANGE;
         this.SYMBOL = SYMBOL;
+        this.TS_TRIGGER_PCT = TS_TRIGGER_PCT;
+        this.TS_PCT = TS_PCT;
     }
 
     public void init() {
-        this.repository = new SimulatorRepositoryImpl(SYMBOL, SIMUL_START, SIMUL_END, TRADING_WINDOW_SIZE_IN_MIN);
+        this.repository = new SimulatorRepositoryImpl(SYMBOL, SIMUL_START, SIMUL_END, TRADING_WINDOW_SIZE_IN_MIN, TS_TRIGGER_PCT, TS_PCT);
         this.exchange = new SimulatorExchange(this.repository, SLIPPAGE);
     }
 
@@ -82,12 +88,13 @@ public class Simulator {
             TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimeStamp);
             if(curTradingWindow == null) break;
 
-            List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimeStamp);
-            if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND) continue;
+            List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimeStamp);
+            if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) continue;
 
             if(curTimeStamp > curTradingWindow.getEndTimeStamp()) {
                 sellAtMarketPrice(curTradingWindow);
                 repository.refreshTradingWindows();
+                continue;
             }
 
             double curPrice = exchange.getCurrentPrice(SYMBOL);
@@ -95,7 +102,7 @@ public class Simulator {
             if(curTradingWindow.getBuyOrder() != null && curTradingWindow.getTrailingStopPrice() > curPrice) {
                 // market sell
                 sellAtMarketPrice(curTradingWindow);
-                repository.refreshTradingWindows();
+                curTradingWindow.clearOutOrders();
                 continue;
             }
 
@@ -103,11 +110,9 @@ public class Simulator {
                     (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
                 // market sell
                 sellAtMarketPrice(curTradingWindow);
-                repository.refreshTradingWindows();
+                curTradingWindow.clearOutOrders();
                 continue;
             }
-
-            curTradingWindow.priceReceived(curPrice);   // will set or update trailing stop price accordingly
 
             if(curTradingWindow.getBuyOrder() != null || curTradingWindow.getSellOrder() != null) continue;
 
@@ -140,11 +145,19 @@ public class Simulator {
 
             // buy signal!
             if(curTradingWindow.isBuySignal(curPrice, k, lookbehindTradingWindows.get(0))) {
-                double volume = getCurTradingWindowVol(curTradingWindow.getCandles(), curTimeStamp);
                 double buyPrice = curPrice;
-
                 double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+//                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_aggresive(lookbehindTradingWindows,
+//                        curTradingWindow,
+//                        MA_MIN,
+//                        TRADING_WINDOW_LOOK_BEHIND,
+//                        TRADING_WINDOW_SIZE_IN_MIN,
+//                        curTimeStamp);
+                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows,
+                        getCurTradingWindowVol(curTradingWindow.getCandles(), curTimeStamp),
+                        MA_MIN,
+                        TRADING_WINDOW_LOOK_BEHIND);
+
                 double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
                 double bettingSize = USD_BALANCE * weightedMAScore;
@@ -284,6 +297,8 @@ public class Simulator {
         LOGGER.info("VOLUME_MA_WEIGHT {}", VOLUME_MA_WEIGHT);
         LOGGER.info("MA_MIN {}", MA_MIN);
         LOGGER.info("SLIPPAGE {}", SLIPPAGE);
+        LOGGER.info("TS_TRIGGER_PCT {}", TS_TRIGGER_PCT);
+        LOGGER.info("TS_PCT {}", TS_PCT);
         LOGGER.info("----------------------------------------------------------------");
 
         System.out.println((-1)*this.USD_BALANCE);
@@ -307,6 +322,8 @@ public class Simulator {
         result.setMA_MIN(this.MA_MIN);
         result.setEND_USD_BALANCE(this.USD_BALANCE);
         result.setWINNING_RATE((win*1.0 / (win+lose)) * 100.0);
+        result.setTS_TRIGGER_PCT(TS_TRIGGER_PCT);
+        result.setTS_PCT(TS_PCT);
 
         return result;
     }

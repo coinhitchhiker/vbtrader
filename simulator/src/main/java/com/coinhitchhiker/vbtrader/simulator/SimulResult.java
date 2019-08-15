@@ -2,7 +2,7 @@ package com.coinhitchhiker.vbtrader.simulator;
 
 public class SimulResult {
 
-    private final double version = 1.1D;
+    private final double version = 1.2D;
 
     private Integer periodId;
 
@@ -17,6 +17,8 @@ public class SimulResult {
     private double VOLUME_MA_WEIGHT;
     private int MA_MIN;
     private double SLIPPAGE;
+    private double TS_TRIGGER_PCT;
+    private double TS_PCT;
 
     public double getVersion() {
         return version;
@@ -116,5 +118,21 @@ public class SimulResult {
 
     public void setWINNING_RATE(double WINNING_RATE) {
         this.WINNING_RATE = WINNING_RATE;
+    }
+
+    public double getTS_TRIGGER_PCT() {
+        return TS_TRIGGER_PCT;
+    }
+
+    public void setTS_TRIGGER_PCT(double TS_TRIGGER_PCT) {
+        this.TS_TRIGGER_PCT = TS_TRIGGER_PCT;
+    }
+
+    public double getTS_PCT() {
+        return TS_PCT;
+    }
+
+    public void setTS_PCT(double TS_PCT) {
+        this.TS_PCT = TS_PCT;
     }
 }

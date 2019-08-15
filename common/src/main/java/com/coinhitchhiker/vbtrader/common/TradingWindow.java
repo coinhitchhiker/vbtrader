@@ -8,8 +8,8 @@ import java.util.List;
 
 public class TradingWindow {
 
-    private static final double TS_TRIGGER_PCT = 0.7/100D; // 1% profit
-    private static final double TS = 0.2/100D; // fire TS when 0.25% loss
+    private double TS_TRIGGER_PCT = 0.7/100D; // trailing when 0.7% profit is gained (default)
+    private double TS_PCT = 0.2/100D; // run trailing stop order when 0.2% loss from highest price (default)
 
     private final String symbol;
     private final long startTimeStamp;    // unix epoch in millis
@@ -20,13 +20,15 @@ public class TradingWindow {
     private double closePrice;
     private double lowPrice;
     private double volume;
+    private double sellVolume;
+    private double buyVolume;
 
     private long curTimeStamp;
 
     private OrderInfo buyOrder;
     private OrderInfo sellOrder;
     private double trailingStopPrice;
-    private double prevPrice;
+    private TradeEvent prevTradeEvent;
 
     private double buyFee;
     private double sellFee;
@@ -56,6 +58,23 @@ public class TradingWindow {
         this.closePrice = openPrice;
     }
 
+    public static TradingWindow of(List<Candle> candles) {
+        int tempListSize = candles.size();
+
+        String symbol = candles.get(0).getSymbol();
+        long openTime = candles.get(0).getOpenTime();
+        long closeTime = candles.get(tempListSize-1).getCloseTime();
+        double openPrice = candles.get(0).getOpenPrice();
+        double highPrice = candles.stream().mapToDouble(Candle::getHighPrice).max().getAsDouble();
+        double lowPrice = candles.stream().mapToDouble(Candle::getLowPrice).min().getAsDouble();
+        double closePrice = candles.get(tempListSize-1).getClosePrice();
+        double volume = candles.stream().mapToDouble(Candle::getVolume).sum();
+
+        TradingWindow tw = new TradingWindow(symbol, openTime, closeTime, openPrice, highPrice, closePrice, lowPrice, volume);
+        tw.setCandles(new ArrayList<>(candles));
+        return tw;
+    }
+
     public double getNoiseRatio() {
         return  1 - Math.abs(openPrice - closePrice) / (highPrice - lowPrice);
     }
@@ -81,27 +100,36 @@ public class TradingWindow {
     }
 
     public void updateWindowData(TradeEvent e) {
-
         if(this.highPrice < e.getPrice()) this.highPrice = e.getPrice();
         if(this.lowPrice > e.getPrice()) this.lowPrice = e.getPrice();
         this.closePrice = e.getPrice();
 
         this.volume += e.getAmount();
-        this.curTimeStamp = e.getTradeTime();
+        if(e.getPrice() > this.prevTradeEvent.getPrice()) {
+            this.buyVolume += e.getAmount();
+        } else if(e.getPrice() < this.prevTradeEvent.getPrice()) {
+            this.sellVolume += e.getAmount();
+        }
 
+        this.curTimeStamp = e.getTradeTime();
+        this.updateTrailingStop(e.getPrice());
+
+        this.prevTradeEvent = e;
     }
 
-    public void priceReceived(double curPrice) {
+    private void updateTrailingStop(double curPrice) {
+        double prevPrice = this.prevTradeEvent.getPrice();
+
         if(this.buyOrder != null) {
             if(this.trailingStopPrice == 0) {
                 if(curPrice > buyOrder.getPriceExecuted() * (1.0 + TS_TRIGGER_PCT)) {
-                    System.out.println(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS)));
-                    this.trailingStopPrice = curPrice * (1.0 - TS);
+                    System.out.println(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS_PCT)));
+                    this.trailingStopPrice = curPrice * (1.0 - TS_PCT);
                 }
             } else {
                 if(curPrice > prevPrice) {
-                    System.out.println(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS)));
-                    this.trailingStopPrice = curPrice * (1.0 - TS);
+                    System.out.println(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS_PCT)));
+                    this.trailingStopPrice = curPrice * (1.0 - TS_PCT);
                 }
             }
         }
@@ -109,25 +137,31 @@ public class TradingWindow {
         if(this.sellOrder != null) {
             if(this.trailingStopPrice == 0) {
                 if(curPrice < sellOrder.getPriceExecuted() * (1.0 - TS_TRIGGER_PCT)) {
-                    System.out.println(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS)));
-                    this.trailingStopPrice = curPrice * (1.0 + TS);
+                    System.out.println(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS_PCT)));
+                    this.trailingStopPrice = curPrice * (1.0 + TS_PCT);
                 }
             } else {
                 if(curPrice < prevPrice) {
-                    System.out.println(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS)));
-                    this.trailingStopPrice = curPrice * (1.0 + TS);
+                    System.out.println(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS_PCT)));
+                    this.trailingStopPrice = curPrice * (1.0 + TS_PCT);
                 }
             }
         }
-        this.prevPrice = curPrice;
     }
+
+    public void clearOutOrders() {
+        this.buyFee = 0.0D;
+        this.buyOrder = null;
+        this.netProfit = 0.0D;
+        this.profit = 0.0D;
+        this.sellFee = 0.0D;
+        this.sellOrder = null;
+    }
+
+    //----------------------------------------------------------------------------------------------------------------
 
     public double getTrailingStopPrice() {
         return trailingStopPrice;
-    }
-
-    public double getPrevPrice() {
-        return prevPrice;
     }
 
     public void setBuyOrder(OrderInfo orderInfo) {
@@ -186,21 +220,20 @@ public class TradingWindow {
         this.candles = candles;
     }
 
-    public static TradingWindow of(List<Candle> candles) {
-        int tempListSize = candles.size();
+    public double getTS_TRIGGER_PCT() {
+        return TS_TRIGGER_PCT;
+    }
 
-        String symbol = candles.get(0).getSymbol();
-        long openTime = candles.get(0).getOpenTime();
-        long closeTime = candles.get(tempListSize-1).getCloseTime();
-        double openPrice = candles.get(0).getOpenPrice();
-        double highPrice = candles.stream().mapToDouble(Candle::getHighPrice).max().getAsDouble();
-        double lowPrice = candles.stream().mapToDouble(Candle::getLowPrice).min().getAsDouble();
-        double closePrice = candles.get(tempListSize-1).getClosePrice();
-        double volume = candles.stream().mapToDouble(Candle::getVolume).sum();
+    public void setTS_TRIGGER_PCT(double TS_TRIGGER_PCT) {
+        this.TS_TRIGGER_PCT = TS_TRIGGER_PCT;
+    }
 
-        TradingWindow tw = new TradingWindow(symbol, openTime, closeTime, openPrice, highPrice, closePrice, lowPrice, volume);
-        tw.setCandles(new ArrayList<>(candles));
-        return tw;
+    public double getTS_PCT() {
+        return TS_PCT;
+    }
+
+    public void setTS_PCT(double TS_PCT) {
+        this.TS_PCT = TS_PCT;
     }
 
     @Override

@@ -80,8 +80,6 @@ public class TradeEngine {
             return;
         }
 
-        curTradingWindow.priceReceived(curPrice);   // will set or update trailing stop price accordingly
-
         // if a buy/sell order was placed in this trading window and no trailing stop price was broken,
         // we do nothing until this trading window is over
         if(curTradingWindow.getBuyOrder() != null || curTradingWindow.getSellOrder() != null) return;
@@ -119,7 +117,7 @@ public class TradeEngine {
             double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
 
             double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-            double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+            double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
             double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
             double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
