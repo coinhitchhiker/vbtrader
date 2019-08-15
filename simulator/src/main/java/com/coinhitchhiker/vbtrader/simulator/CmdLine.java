@@ -38,6 +38,10 @@ public class CmdLine {
         validation.setRequired(false);
         options.addOption(validation);
 
+        Option mode = new Option("m", "mode", true, "LONG / SHORT");
+        mode.setRequired(true);
+        options.addOption(mode);
+
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
@@ -57,7 +61,8 @@ public class CmdLine {
                 cmd.getOptionValue("e"),
                 cmd.getOptionValue("y"),
                 cmd.getOptionValue("ex"),
-                cmd.hasOption("v")
+                cmd.hasOption("v"),
+                cmd.getOptionValue("m")
         );
     }
 
@@ -69,19 +74,22 @@ public class CmdLine {
         private String symbol;
         private String exchange;
         private boolean validation;
+        private String mode;
 
         public CommandLineOptions(String blackboxInput
                 , String simulStart
                 , String simulEnd
                 , String symbol
                 , String exchange
-                , boolean validation) {
+                , boolean validation
+                , String mode) {
             this.blackboxInput = blackboxInput;
             this.simulStart = simulStart;
             this.simulEnd = simulEnd;
             this.symbol = symbol;
             this.exchange = exchange;
             this.validation = validation;
+            this.mode = mode;
         }
 
         public String getBlackboxInput() {
@@ -106,6 +114,10 @@ public class CmdLine {
 
         public boolean getValidation() {
             return validation;
+        }
+
+        public String getMode() {
+            return mode;
         }
     }
 

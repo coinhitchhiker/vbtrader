@@ -4,6 +4,10 @@ import com.coinhitchhiker.vbtrader.common.Candle;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.google.gson.Gson;
+import io.swagger.client.ApiClient;
+import io.swagger.client.ApiException;
+import io.swagger.client.api.TradeApi;
+import io.swagger.client.model.TradeBin;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -11,8 +15,12 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
+import org.threeten.bp.LocalDateTime;
+import org.threeten.bp.OffsetDateTime;
+import org.threeten.bp.ZoneOffset;
 
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,19 +33,24 @@ public class SimulatorRepositoryImpl implements Repository {
     private double tsTriggerPct;
     private double tsPct;
 
-    public SimulatorRepositoryImpl(String symbol,
+    public SimulatorRepositoryImpl(String exchange,
+                                   String symbol,
                                    long simulStart,
                                    long simulEnd,
                                    int tradingWindowSizeInMinutes,
                                    double tsTriggerPct,
-                                   double tsPct) {
+                                   double tsPct)  {
 
-        List<Candle> result = deserCandles(makeFileName(symbol, simulStart, simulEnd));
+        List<Candle> result = deserCandles(makeFileName(exchange, symbol, simulStart, simulEnd));
         if(result != null && result.size() > 0) {
             convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
         } else {
-            result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
-            serCandles(result, makeFileName(symbol, simulStart, simulEnd));
+            if(exchange.equals("BINANCE")) {
+                result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
+            } else if(exchange.equals("BITMEX")) {
+                result = loadCandlesFromBitMex(symbol, simulStart, simulEnd);
+            }
+            serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd));
             convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
         }
 
@@ -70,8 +83,48 @@ public class SimulatorRepositoryImpl implements Repository {
         return candles;
     }
 
-    private String makeFileName(String symbol, long simulStart, long simulEnd) {
-        return symbol + "-" + simulStart + "-" + simulEnd;
+    private List<Candle> loadCandlesFromBitMex(String symbol, long simulStart, long SimulEnd) {
+        List<Candle> candles = new ArrayList<>();
+
+        ApiClient apiClient = new ApiClient();
+        apiClient.setBasePath("https://www.bitmex.com/api/v1");
+        TradeApi apiInstance = new TradeApi(apiClient);
+
+        BigDecimal count = new BigDecimal(750L); // BigDecimal | Number of results to fetch.
+        BigDecimal start = new BigDecimal(0L); // BigDecimal | Starting point for results.
+        OffsetDateTime startTime = OffsetDateTime.of(LocalDateTime.ofEpochSecond(simulStart/1000, 0, ZoneOffset.UTC), ZoneOffset.UTC);
+        OffsetDateTime endTime = OffsetDateTime.of(LocalDateTime.ofEpochSecond(SimulEnd/1000, 0, ZoneOffset.UTC), ZoneOffset.UTC);
+        while(true) {
+            List<TradeBin> result = null;
+            try {
+                result = apiInstance.tradeGetBucketed("1m", false, symbol, null, null, count, start, false, startTime, endTime);
+            } catch(ApiException e) {
+                throw new RuntimeException(e);
+            }
+
+            LOGGER.info("data cnt {}", result.size());
+            for(TradeBin data : result) {
+                Candle candle = new Candle(data.getSymbol(),
+                    "1m",
+        (data.getTimestamp().toEpochSecond())*1000L,
+        (data.getTimestamp().toEpochSecond()+59)*1000L,
+                    data.getOpen(),
+                    data.getHigh(),
+                    data.getLow(),
+                    data.getClose(),
+                    data.getVolume().longValue());
+
+                candles.add(candle);
+            }
+            startTime = OffsetDateTime.of(LocalDateTime.ofEpochSecond(candles.get(candles.size()-1).getCloseTime()/1000 + 1, 0, ZoneOffset.UTC), ZoneOffset.UTC);
+            if(result.size() < 750) break;
+            try {Thread.sleep(2500);} catch(Exception e){}
+        }
+        return candles;
+    }
+
+    private String makeFileName(String exchange, String symbol, long simulStart, long simulEnd) {
+        return exchange + "-" + symbol + "-" + simulStart + "-" + simulEnd;
     }
 
     private void serCandles(List<Candle> candles, String filename) {

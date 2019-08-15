@@ -12,7 +12,7 @@ public class TestVBRules extends BaseIT {
 
     private long SIMUL_END = 1564617600000L;
     // 2019년 March 1일 Friday  ~ 2019년 August 1일 Thursday AM 12:00:00
-    private Repository repo = new SimulatorRepositoryImpl("BTCUSDT", 1564531200000L, 1564617600000L - 1, 20, 0.7, 0.2);
+    private Repository repo = new SimulatorRepositoryImpl("BINANCE", "BTCUSDT", 1564531200000L, 1564617600000L - 1, 20, 0.7, 0.2);
 
     @Test
     public void test() {

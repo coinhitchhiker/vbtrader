@@ -40,7 +40,16 @@ public class SimulatorAppMain implements CommandLineRunner {
     public void run(String... args) throws IOException {
 
         CmdLine.CommandLineOptions opts = CmdLine.parseCommandLine(args);
-        if(!opts.getExchange().equals("BINANCE")) throw new RuntimeException("Only BINANCE is supported for now");
+        String exchange = opts.getExchange();
+        String mode = opts.getMode();
+
+        if(!exchange.equals("BINANCE") &&!exchange.equals("BITMEX")) {
+            throw new RuntimeException("Unsupported exchange");
+        }
+
+        if(exchange.equals("BINANCE") && !mode.equals("LONG")) {
+            throw new RuntimeException("BINANCE supports long only");
+        }
 
         if(opts.getValidation()) {
             Gson gson = new Gson();
@@ -57,7 +66,8 @@ public class SimulatorAppMain implements CommandLineRunner {
                         opts.getExchange(),
                         opts.getSymbol(),
                         simulResult.getTS_TRIGGER_PCT(),
-                        simulResult.getTS_PCT());
+                        simulResult.getTS_PCT(),
+                        mode);
 
                 simulator.init();
                 simulator.runSimul();
@@ -86,7 +96,8 @@ public class SimulatorAppMain implements CommandLineRunner {
                     opts.getExchange(),
                     opts.getSymbol(),
                     tsTriggerPct,
-                    tsPct);
+                    tsPct,
+                    mode);
 
             simulator.init();
             simulator.runSimul();
