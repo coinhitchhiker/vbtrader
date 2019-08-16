@@ -105,6 +105,8 @@ public class Simulator {
             if(this.MODE.equals("LONG") &&
                 curTradingWindow.getBuyOrder() != null &&
                 curTradingWindow.getTrailingStopPrice() > curPrice) {
+                LOGGER.info("---------------LONG TRAILING STOP HIT------------------------");
+                LOGGER.info("trailingStopPrice {} > curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
                 // market sell
                 sellAtMarketPrice(curTradingWindow);
                 curTradingWindow.clearOutOrders();
@@ -114,6 +116,8 @@ public class Simulator {
             if(this.MODE.equals("SHORT") &&
                 curTradingWindow.getSellOrder() != null &&
                 (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
+                LOGGER.info("---------------SHORT TRAILING STOP HIT------------------------");
+                LOGGER.info("trailingStopPrice {} < curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
                 // market sell
                 sellAtMarketPrice(curTradingWindow);
                 curTradingWindow.clearOutOrders();

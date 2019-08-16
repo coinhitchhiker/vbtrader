@@ -66,9 +66,8 @@ public class TradeEngine {
         if(this.MODE.equals("LONG") &&
                 curTradingWindow.getBuyOrder() != null &&
                 curTradingWindow.getTrailingStopPrice() > curPrice) {
-            LOGGER.info("---------------TRAILING STOP HIT------------------------");
+            LOGGER.info("---------------LONG TRAILING STOP HIT------------------------");
             LOGGER.info("trailingStopPrice {} > curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
-            // market sell
             sellAtMarketPrice();
             curTradingWindow.clearOutOrders();
             return;
@@ -77,13 +76,14 @@ public class TradeEngine {
         if(this.MODE.equals("SHORT") &&
                 curTradingWindow.getSellOrder() != null &&
                 (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
-            // market sell
+            LOGGER.info("---------------SHORT TRAILING STOP HIT------------------------");
+            LOGGER.info("trailingStopPrice {} < curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
             sellAtMarketPrice();
             curTradingWindow.clearOutOrders();
             return;
         }
 
-        // if a buy/sell order was placed in this trading window and no trailing stop price was broken,
+        // if a buy/sell order was placed in this trading window and no trailing stop price has been touched
         // we do nothing until this trading window is over
         if(curTradingWindow.getBuyOrder() != null || curTradingWindow.getSellOrder() != null) {
             LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
@@ -102,7 +102,7 @@ public class TradeEngine {
             double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
             double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
-            double availableBalance = exchange.getBalanceForTrade(QUOTE_CURRENCY);
+            double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
             double cost = availableBalance * weightedMAScore;
 
             if(cost > 0) {
@@ -140,7 +140,7 @@ public class TradeEngine {
             double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
             double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
-            double availableBalance = exchange.getBalanceForTrade(QUOTE_CURRENCY);
+            double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
             double cost = availableBalance * weightedMAScore;
 
             if(cost > 0) {
@@ -264,21 +264,6 @@ public class TradeEngine {
                 LOGGER.error("Placing buy order error", e);
                 return;
             }
-        }
-    }
-
-    @PreDestroy
-    public void cancelAllOutstandingOrders() {
-        OrderInfo outstandingBuyOrder = repository.getCurrentTradingWindow(DateTime.now(UTC).getMillis()).getBuyOrder();
-        if(outstandingBuyOrder != null && outstandingBuyOrder.getOrderStatus() != OrderStatus.COMPLETE) {
-            LOGGER.info("[CANCEL] {}", outstandingBuyOrder.toString());
-            exchange.cancelOrder(outstandingBuyOrder);
-        }
-
-        OrderInfo outstandingSellOrder = repository.getCurrentTradingWindow(DateTime.now(UTC).getMillis()).getSellOrder();
-        if(outstandingSellOrder != null && outstandingSellOrder.getOrderStatus() != OrderStatus.COMPLETE) {
-            LOGGER.info("[CANCEL] {}", outstandingSellOrder.toString());
-            exchange.cancelOrder(outstandingSellOrder);
         }
     }
 }

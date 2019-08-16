@@ -200,24 +200,12 @@ public class BitMexExchange implements Exchange {
         }
     }
 
-    // we must convert XBT to USD value in BitMex to not break TradeEngine logic
-    @Override
-    public double getBalanceForTrade(String quoteCurrency) {
-        if(!quoteCurrency.equals("XBt")) {
-            throw new RuntimeException("Unsupported quoteCurrency " + quoteCurrency);
-        }
-
-        double xbtAmount = getBalance().get(quoteCurrency).getAvailableForTrade();
-        double btcPrice = this.getCurrentPrice(null);
-        return xbtAmount * btcPrice;
-    }
-
     @Override
     public Map<String, Balance> getBalance() {
         Map<String, String> params = new HashMap<>();
         String response = this.query("GET", "/user/wallet", params, true, false);
         Map<String, Object> parsed = this.gsonMapper.fromJson(response, Map.class);
-        double amount = (double)parsed.get("amount") / 100000000.0D;
+        double amount = (double)parsed.get("amount");
         String currency = (String)parsed.get("currency");
 
         Map<String, Balance> result = new HashMap<>();

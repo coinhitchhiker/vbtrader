@@ -70,8 +70,4 @@ public class SimulatorExchange implements Exchange {
         return null;
     }
 
-    @Override
-    public double getBalanceForTrade(String quoteCurrency) {
-        return 0;
-    }
 }
