@@ -54,6 +54,7 @@ public class ShortTradingEngine implements TradeEngine {
         }
 
         double curPrice = exchange.getCurrentPrice(SYMBOL);
+        double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
 
         if(curTradingWindow.getSellOrder() != null &&
                 (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
@@ -83,7 +84,7 @@ public class ShortTradingEngine implements TradeEngine {
             double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
             double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
-            double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
+
             double cost = availableBalance * weightedMAScore;
 
             if(cost > 0) {
@@ -117,6 +118,8 @@ public class ShortTradingEngine implements TradeEngine {
                     curPrice ,
                     curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
                     curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            LOGGER.info("Available Balance {} {}", SYMBOL, availableBalance);
+            LOGGER.info("tradingWindow endTime {}", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
         }
         LOGGER.info("tradingWindow endTime {}", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
     }
