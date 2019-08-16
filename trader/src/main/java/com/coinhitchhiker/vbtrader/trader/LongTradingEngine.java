@@ -125,8 +125,11 @@ public class LongTradingEngine implements TradeEngine {
                     curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
                     curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
             LOGGER.info("Available Balance {} {}", SYMBOL, availableBalance);
-            LOGGER.info("tradingWindow endTime {}", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
         }
+        LOGGER.info("tradingWindow endTime {} curTime {}"
+                , new DateTime(curTradingWindow.getEndTimeStamp(), UTC)
+                , new DateTime(curTimeStamp, UTC)
+        );
     }
 
     private void sellAtMarketPrice() {
