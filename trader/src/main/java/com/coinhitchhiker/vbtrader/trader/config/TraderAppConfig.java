@@ -3,6 +3,8 @@ package com.coinhitchhiker.vbtrader.trader.config;
 import com.coinhitchhiker.vbtrader.common.Exchange;
 import com.coinhitchhiker.vbtrader.common.OrderBookCache;
 import com.coinhitchhiker.vbtrader.common.Repository;
+import com.coinhitchhiker.vbtrader.trader.LongTradingEngine;
+import com.coinhitchhiker.vbtrader.trader.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.trader.TradeEngine;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceOrderBookCache;
@@ -17,11 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
-
-import javax.annotation.PostConstruct;
 
 @Configuration
 public class TraderAppConfig {
@@ -29,10 +27,15 @@ public class TraderAppConfig {
     private static final Logger LOGGER = LoggerFactory.getLogger(TraderAppConfig.class);
 
     @Value("${trading.exchange}") String exchange;
+    @Value("${trading.mode}") private String MODE;
 
     @Bean
     public TradeEngine tradeEngine() {
-        return new TradeEngine();
+        if(MODE.equals("LONG")) {
+            return new LongTradingEngine();
+        } else {
+            return new ShortTradingEngine();
+        }
     }
 
     @Bean(name="encryptorBean")
@@ -49,7 +52,7 @@ public class TraderAppConfig {
 
     @Bean
     public Exchange exchange() {
-        LOGGER.info("Registering Exchange Bean. Configured EXCHANGE: " + exchange);
+        LOGGER.info("Registering " + exchange + " exchange bean");
 
         if(exchange.equals("BINANCE")) {
             return new BinanceExchange();
@@ -62,7 +65,7 @@ public class TraderAppConfig {
 
     @Bean
     public Repository repository() {
-        LOGGER.info("Registering Repository Bean. Configured EXCHANGE: " + exchange);
+        LOGGER.info("Registering " + exchange + "repository bean");
 
         if(exchange.equals("BINANCE")) {
             return new BinanceRepository();
@@ -75,7 +78,7 @@ public class TraderAppConfig {
 
     @Bean
     public OrderBookCache orderBookCache() {
-        LOGGER.info("Registering OrderBookCache Bean. Configured EXCHANGE: " + exchange);
+        LOGGER.info("Registering " + exchange + " orderBookCache bean");
 
         if(exchange.equals("BINANCE")) {
             return new BinanceOrderBookCache();
@@ -85,5 +88,4 @@ public class TraderAppConfig {
             throw new RuntimeException("Unsupported exchange was configured");
         }
     }
-
 }

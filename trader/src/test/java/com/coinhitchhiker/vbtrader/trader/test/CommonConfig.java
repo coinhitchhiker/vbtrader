@@ -1,11 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.test;
 
-import com.coinhitchhiker.vbtrader.trader.TradeEngine;
 import com.coinhitchhiker.vbtrader.trader.config.EncryptorHelper;
 import com.coinhitchhiker.vbtrader.trader.config.PropertyMapHandler;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceOrderBookCache;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceRepository;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;

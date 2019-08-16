@@ -145,7 +145,6 @@ public class BinanceOrderBookCache implements OrderBookCache {
         } else {
             return 0.0D;
         }
-
     }
 
     @Override
