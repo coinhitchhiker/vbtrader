@@ -4,6 +4,7 @@ import org.joda.time.DateTime;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Map;
 
 import static org.joda.time.DateTimeZone.UTC;
 
@@ -32,13 +33,27 @@ public class Candle implements Serializable {
     }
 
     public static Candle fromBinanceCandle(String symbol, String interval, List<Object> data) {
+
         long openTime = ((Double) data.get(0)).longValue();
+        long closeTime = ((Double) data.get(6)).longValue();
         double open = Double.valueOf((String) data.get(1));
         double high = Double.valueOf((String) data.get(2));
         double low = Double.valueOf((String) data.get(3));
         double close = Double.valueOf((String) data.get(4));
         double volume = Double.valueOf((String) data.get(5));
-        long closeTime = ((Double) data.get(6)).longValue();
+
+        return new Candle(symbol, interval, openTime, closeTime, open, high, low, close, volume);
+    }
+
+    public static Candle fromBitMexCandle(String symbol, String interval, Map<String, Object> data) {
+        long openTime = new DateTime((String)data.get("timestamp"), UTC).getMillis();
+        long closeTime = new DateTime((String)data.get("timestamp"), UTC).plusSeconds(59).getMillis();
+        double open = (double)data.get("open");
+        double high = (double)data.get("high");
+        double low = (double)data.get("low");
+        double close = (double)data.get("close");
+        double volume = (double)data.get("volume");
+
         return new Candle(symbol, interval, openTime, closeTime, open, high, low, close, volume);
     }
 

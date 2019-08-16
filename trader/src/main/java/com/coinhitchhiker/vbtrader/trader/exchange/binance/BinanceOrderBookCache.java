@@ -8,6 +8,7 @@ import com.neovisionaries.ws.client.WebSocketExtension;
 import com.neovisionaries.ws.client.WebSocketFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
@@ -21,7 +22,6 @@ import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component(value = BinanceOrderBookCache.BEAN_NAME_ORDERBOOK_CACHE_BINANCE)
 public class BinanceOrderBookCache implements OrderBookCache {
 
     public static final String BEAN_NAME_ORDERBOOK_CACHE_BINANCE = "orderbookcache-binance";
@@ -40,8 +40,7 @@ public class BinanceOrderBookCache implements OrderBookCache {
 
     @Value("${trading.symbol}") private String TRADING_SYMBOL;
 
-    @Resource(name = BinanceRepository.BEAN_NAME_REPOSITORY_BINANCE)
-    private Repository binanceRepository;
+    @Autowired private Repository binanceRepository;
 
     @PostConstruct
     public void init() {
@@ -70,7 +69,6 @@ public class BinanceOrderBookCache implements OrderBookCache {
         this.ws.addListener(new BinanceWebSocketAdapter(this.callback));
     }
 
-    @Override
     public void onTradeEvent(Map<String, Object> trade) {
         if(binanceRepository != null) {
             ((BinanceRepository)binanceRepository).onTradeEvent(trade);
@@ -167,9 +165,9 @@ public class BinanceOrderBookCache implements OrderBookCache {
     //----------------------------------------------------------------------
     protected final class BinanceWsCallback {
 
-        private OrderBookCache binanceOrderBookCache;
+        private BinanceOrderBookCache binanceOrderBookCache;
 
-        protected BinanceWsCallback(OrderBookCache orderBookCache) {
+        protected BinanceWsCallback(BinanceOrderBookCache orderBookCache) {
             this.binanceOrderBookCache = orderBookCache;
         }
 

@@ -4,10 +4,6 @@ import com.coinhitchhiker.vbtrader.common.Candle;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.google.gson.Gson;
-import io.swagger.client.ApiClient;
-import io.swagger.client.ApiException;
-import io.swagger.client.api.TradeApi;
-import io.swagger.client.model.TradeBin;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
@@ -15,14 +11,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
-import org.threeten.bp.LocalDateTime;
-import org.threeten.bp.OffsetDateTime;
-import org.threeten.bp.ZoneOffset;
 
 import java.io.*;
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+
+import static org.joda.time.DateTimeZone.UTC;
 
 public class SimulatorRepositoryImpl implements Repository {
 
@@ -84,40 +79,24 @@ public class SimulatorRepositoryImpl implements Repository {
     }
 
     private List<Candle> loadCandlesFromBitMex(String symbol, long simulStart, long SimulEnd) {
+        RestTemplate restTemplate = new RestTemplate();
+        Gson gson = new Gson();
         List<Candle> candles = new ArrayList<>();
 
-        ApiClient apiClient = new ApiClient();
-        apiClient.setBasePath("https://www.bitmex.com/api/v1");
-        TradeApi apiInstance = new TradeApi(apiClient);
+        String startTime = new DateTime(simulStart, UTC).toDateTimeISO().toString();
+        String endTime = new DateTime(SimulEnd, UTC).toDateTimeISO().toString();
 
-        BigDecimal count = new BigDecimal(750L); // BigDecimal | Number of results to fetch.
-        BigDecimal start = new BigDecimal(0L); // BigDecimal | Starting point for results.
-        OffsetDateTime startTime = OffsetDateTime.of(LocalDateTime.ofEpochSecond(simulStart/1000, 0, ZoneOffset.UTC), ZoneOffset.UTC);
-        OffsetDateTime endTime = OffsetDateTime.of(LocalDateTime.ofEpochSecond(SimulEnd/1000, 0, ZoneOffset.UTC), ZoneOffset.UTC);
         while(true) {
-            List<TradeBin> result = null;
-            try {
-                result = apiInstance.tradeGetBucketed("1m", false, symbol, null, null, count, start, false, startTime, endTime);
-            } catch(ApiException e) {
-                throw new RuntimeException(e);
+            String url = "https://www.bitmex.com/api/v1/trade/bucketed?symbol="+symbol+"&binSize=1m&count=750&start=0&startTime="+startTime+"&endTime="+endTime;
+            LOGGER.info(url);
+            String response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(null, null), String.class).getBody();
+            List<Map<String, Object>> list = gson.fromJson(response, List.class);
+            LOGGER.info("data cnt {}", list.size());
+            for(Map<String, Object> data : list) {
+                candles.add(Candle.fromBitMexCandle(symbol, "1m", data));
             }
-
-            LOGGER.info("data cnt {}", result.size());
-            for(TradeBin data : result) {
-                Candle candle = new Candle(data.getSymbol(),
-                    "1m",
-        (data.getTimestamp().toEpochSecond())*1000L,
-        (data.getTimestamp().toEpochSecond()+59)*1000L,
-                    data.getOpen(),
-                    data.getHigh(),
-                    data.getLow(),
-                    data.getClose(),
-                    data.getVolume().longValue());
-
-                candles.add(candle);
-            }
-            startTime = OffsetDateTime.of(LocalDateTime.ofEpochSecond(candles.get(candles.size()-1).getCloseTime()/1000 + 1, 0, ZoneOffset.UTC), ZoneOffset.UTC);
-            if(result.size() < 750) break;
+            if(list.size() < 750) break;
+            startTime = new DateTime(candles.get(candles.size()-1).getCloseTime() + 1000, UTC).toDateTimeISO().toString();
             try {Thread.sleep(2500);} catch(Exception e){}
         }
         return candles;

@@ -19,4 +19,6 @@ public interface Exchange {
 
     Map<String, Balance> getBalance();
 
+    double getBalanceForTrade(String quoteCurrency);
+
 }

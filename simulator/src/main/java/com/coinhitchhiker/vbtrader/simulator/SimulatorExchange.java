@@ -69,4 +69,9 @@ public class SimulatorExchange implements Exchange {
     public Map<String, Balance> getBalance() {
         return null;
     }
+
+    @Override
+    public double getBalanceForTrade(String quoteCurrency) {
+        return 0;
+    }
 }

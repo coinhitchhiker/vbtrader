@@ -7,7 +7,6 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = {
-        "com.coinhitchhiker.vbtrader.trader.exchange",
         "com.coinhitchhiker.vbtrader.trader.config"
 })
 @EnableScheduling

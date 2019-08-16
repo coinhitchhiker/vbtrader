@@ -11,16 +11,14 @@ import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
 import org.mockito.Mockito;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.context.annotation.*;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
-@Import(value = {BinanceExchange.class, BinanceRepository.class, BinanceOrderBookCache.class, EncryptorHelper.class,})
-public class TraderITConfig {
-
-    @Bean
-    public TradeEngine tradeEngine() {
-        return new TradeEngine();
-    }
+@Import(value = {EncryptorHelper.class,})
+public class CommonConfig {
 
     @Bean(name="encryptorBean")
     public StringEncryptor stringEncryptor() {
