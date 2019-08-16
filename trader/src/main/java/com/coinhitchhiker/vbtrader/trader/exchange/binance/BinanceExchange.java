@@ -238,11 +238,6 @@ public class BinanceExchange implements Exchange {
     }
 
     @Override
-    public double getBalanceForTrade(String quoteCurrency) {
-        return getBalance().get(quoteCurrency).getAvailableForTrade();
-    }
-
-    @Override
     public Map<String, Balance> getBalance() {
         Map<String, Balance> balance = new HashMap<>();
 
