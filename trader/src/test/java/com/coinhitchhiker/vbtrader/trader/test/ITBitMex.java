@@ -19,6 +19,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
@@ -31,8 +32,20 @@ public class ITBitMex extends BaseIT {
 
     @Autowired Exchange bitmexExchange;
     @Autowired Repository bitMexRepository;
+    @Autowired OrderBookCache bitmexOrderBookCache;
 
     @Value("${trading.quote.currency}") String quoteCurrency;
+
+    @PostConstruct
+    public void init() {
+        int idx = 0;
+        while(true) {
+            ((BitMexOrderBookCache)bitmexOrderBookCache).printBestAskBidMidprice();
+            try {Thread.sleep(100L);} catch(Exception e) {}
+            idx++;
+            if(idx == 7) break;
+        }
+    }
 
     @Test
     @Ignore
@@ -54,20 +67,27 @@ public class ITBitMex extends BaseIT {
         double xbtPrice;
         while(true) {
             xbtPrice = bitmexExchange.getCurrentPrice(null);
-            if(xbtPrice != 10000) break;
-            try {Thread.sleep(5000L); } catch(Exception e) {}
+            if(xbtPrice != 0.0) break;
+            try {Thread.sleep(1000L);} catch(Exception e) {}
         }
 
         LOGGER.info("XBTUSD price {}", xbtPrice);
         Map<String, Balance> bal = bitmexExchange.getBalance();
         double xbtAmount = bal.get(quoteCurrency).getAvailableForTrade();
+        double bestBid = bitmexOrderBookCache.getBestBid();
+        double bestAsk = bitmexOrderBookCache.getBestAsk();
+        int shortPrice = (int)(bestBid * (1-0.05/100));
+        int longPrice = (int)(bestAsk * (1+0.05/100));
+        int shortSize = (int)(xbtAmount / shortPrice);
+        int longSize = (int)(xbtAmount / longPrice);
+
         LOGGER.info("XBT amount {}", xbtAmount);
-        double shortSize = xbtPrice * (1.0-0.5/100) * xbtAmount;
-        LOGGER.info("ShortSize {}", (int)shortSize);
-
-        double longSize = xbtPrice * (1.0+0.5/100) * xbtAmount;
-        LOGGER.info("LongSize {}", (int)longSize);
-
+        LOGGER.info("BestBid {}", bestBid);
+        LOGGER.info("BestAsk {}", bestAsk);
+        LOGGER.info("shortPrice {}", shortPrice);
+        LOGGER.info("shortSize {}", shortSize);
+        LOGGER.info("longPrice {}", longPrice);
+        LOGGER.info("longSize {}", longSize);
     }
 
     @Test

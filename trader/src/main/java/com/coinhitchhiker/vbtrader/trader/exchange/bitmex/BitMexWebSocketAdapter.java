@@ -32,9 +32,13 @@ public class BitMexWebSocketAdapter extends WebSocketAdapter {
         List<Map<String, Object>> data = (List)map.get("data");
 
         if(data == null) return;
-        if(!table.equals("trade") || !action.equals("insert")) return;
-
-        this.callback.onTradeEvent(data);
+        if(table.equals("trade")) {
+            if(!action.equals("insert")) return;
+            this.callback.onTradeEvent(data);
+        } else if(table.equals("orderBook10")) {
+            if(!action.equals("update")) return;
+            this.callback.onOrderBookUpdate(data);
+        }
     }
 
     @Override

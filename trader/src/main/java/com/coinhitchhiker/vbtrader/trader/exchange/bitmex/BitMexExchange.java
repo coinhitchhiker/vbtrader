@@ -1,6 +1,5 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.bitmex;
 
-
 import com.coinhitchhiker.vbtrader.common.*;
 import com.coinhitchhiker.vbtrader.trader.config.EncryptorHelper;
 import com.coinhitchhiker.vbtrader.trader.config.PropertyMapHandler;
@@ -17,28 +16,23 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
-import java.math.BigDecimal;
 import java.util.*;
 
 import static org.joda.time.DateTimeZone.UTC;
 
 public class BitMexExchange implements Exchange {
 
-    public static final String BEAN_NAME_EXCHANGE_BITMEX = "exchange-bitmex";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BitMexExchange.class);
 
     private String apiSecretInternal = null;
-    private final String API_HOST = "https://testnet.bitmex.com";
     private final RestTemplate restTemplate = new RestTemplate();;
     private int readTimeOutSeconds = 5;
     private Gson gsonMapper = new Gson();
     private List<CoinInfo> coins = new ArrayList<>();
+    private String API_HOST;
 
     @Value("#{propertyMapHandler.getString(${bitmex.api.key}, ${vbtrader.id})}")
     private String apiKey;
@@ -56,6 +50,7 @@ public class BitMexExchange implements Exchange {
     @Value("${trading.window.size}") private int TRADING_WINDOW_SIZE;
     @Value("${trading.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
     @Value("${trading.iceberg.order}") private boolean doIcebergOrder;
+    @Value("${trading.bitmex.env}") private String BITMEX_ENV;
 
     @Autowired private EncryptorHelper encryptorHelper;
     @Autowired private PropertyMapHandler propertyMapHandler;
@@ -80,6 +75,12 @@ public class BitMexExchange implements Exchange {
             this.apiSecretInternal = encryptorHelper.getDecryptedValue(apiSecret);
         } else {
             this.apiSecretInternal = apiSecret;
+        }
+
+        if(BITMEX_ENV.equals("TEST")) {
+            API_HOST = "https://testnet.bitmex.com";
+        } else {
+            API_HOST = "https://www.bitmex.com";
         }
 
         getCoinInfoList().forEach(c -> this.coins.add(c));
@@ -154,7 +155,7 @@ public class BitMexExchange implements Exchange {
 
     @Override
     public OrderInfo cancelOrder(OrderInfo orderInfo) {
-        return null;
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -164,6 +165,7 @@ public class BitMexExchange implements Exchange {
 
     @Override
     public List<CoinInfo> getCoinInfoList() {
+        // XBt hardcoding
         CoinInfo coinInfo = new CoinInfo();
         coinInfo.setCoin("XBt");
         coinInfo.setSymbol("XBTUSD");
@@ -196,7 +198,7 @@ public class BitMexExchange implements Exchange {
             return e.getPrice();
         } else {
             LOGGER.warn("prevTradeEvent was not received. Returning default 10000...");
-            return 10000.0D;
+            return 0.0D;
         }
     }
 
