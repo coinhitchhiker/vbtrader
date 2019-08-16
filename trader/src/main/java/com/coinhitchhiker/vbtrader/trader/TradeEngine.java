@@ -151,6 +151,13 @@ public class TradeEngine {
                 } catch(Exception e) {
                     LOGGER.error("Placing buy order failed", e);
                 }
+            } else {
+                LOGGER.info("[-----------------BUY SIGNAL DETECTED. BETTING SIZE 0------------------------]");
+                LOGGER.info("bettingSize {} = availableBalance {} * weightedMAScore {}", bettingSize, availableBalance, weightedMAScore);
+                LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
+                        curPrice ,
+                        curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
+                        curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
             }
         } else {
             LOGGER.info("[---------------------NO BUY SIGNAL DETECTED----------------------------]");
