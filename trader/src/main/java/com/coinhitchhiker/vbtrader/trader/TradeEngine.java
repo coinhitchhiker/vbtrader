@@ -107,6 +107,12 @@ public class TradeEngine {
 
             if(cost > 0) {
                 LOGGER.info("[---------------------SELL SIGNAL DETECTED----------------------------]");
+                LOGGER.info("cost {} = availableBalance {} * weightedMAScore {}", cost, availableBalance, weightedMAScore);
+                LOGGER.info("curPrice {} < {} (openPrice {} - k {} * prevRange {})",
+                        curPrice ,
+                        curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
+                        curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+
                 double amount = cost / sellPrice;
                 OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, amount);
                 OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);

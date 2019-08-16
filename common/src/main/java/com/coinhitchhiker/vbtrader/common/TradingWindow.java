@@ -247,8 +247,8 @@ public class TradingWindow {
                 "TS_TRIGGER_PCT=" + TS_TRIGGER_PCT +
                 ", TS_PCT=" + TS_PCT +
                 ", symbol='" + symbol + '\'' +
-                ", startTimeStamp=" + startTimeStamp +
-                ", endTimeStamp=" + endTimeStamp +
+                ", startTimeStamp=" + new DateTime(startTimeStamp, DateTimeZone.UTC).toString() +
+                ", endTimeStamp=" + new DateTime(endTimeStamp, DateTimeZone.UTC).toString() +
                 ", openPrice=" + openPrice +
                 ", highPrice=" + highPrice +
                 ", closePrice=" + closePrice +
@@ -256,7 +256,7 @@ public class TradingWindow {
                 ", volume=" + volume +
                 ", sellVolume=" + sellVolume +
                 ", buyVolume=" + buyVolume +
-                ", curTimeStamp=" + curTimeStamp +
+                ", curTimeStamp=" + new DateTime(curTimeStamp, DateTimeZone.UTC).toString() +
                 ", buyOrder=" + buyOrder +
                 ", sellOrder=" + sellOrder +
                 ", trailingStopPrice=" + trailingStopPrice +

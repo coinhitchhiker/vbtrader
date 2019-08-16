@@ -1,5 +1,8 @@
 package com.coinhitchhiker.vbtrader.common;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 public class TradeEvent {
 
     String exchange;
@@ -64,7 +67,7 @@ public class TradeEvent {
                 "exchange='" + exchange + '\'' +
                 ", symbol='" + symbol + '\'' +
                 ", price=" + price +
-                ", tradeTime=" + tradeTime +
+                ", tradeTime=" + new DateTime(tradeTime, DateTimeZone.UTC).toString() +
                 ", amount=" + amount +
                 ", tradeId='" + tradeId + '\'' +
                 ", buyOrderId='" + buyOrderId + '\'' +
