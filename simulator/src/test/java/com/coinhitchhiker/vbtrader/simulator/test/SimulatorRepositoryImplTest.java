@@ -3,7 +3,6 @@ package com.coinhitchhiker.vbtrader.simulator.test;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.coinhitchhiker.vbtrader.simulator.SimulatorRepositoryImpl;
-import io.swagger.client.ApiException;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
@@ -25,8 +24,6 @@ public class SimulatorRepositoryImplTest {
     private Repository binanceRepo = new SimulatorRepositoryImpl("BINANCE", "BTCUSDT", 1551398400000L, 1564617600000L, 43, 0.7, 0.2);
     private static final int tradingWindowSizeInMinutes = 43;
 
-    public SimulatorRepositoryImplTest() throws ApiException {
-    }
 
     @Test
     @Ignore
@@ -57,8 +54,8 @@ public class SimulatorRepositoryImplTest {
     }
 
     @Test
-    @Ignore
-    public void getBitmexCandle() throws ApiException {
+//    @Ignore
+    public void getBitmexCandle()  {
         Repository bitmexRepo = new SimulatorRepositoryImpl("BITMEX", "XBTUSD", 1564617600000L, 1565740800000L, 43, 0.7, 0.2);
 
 

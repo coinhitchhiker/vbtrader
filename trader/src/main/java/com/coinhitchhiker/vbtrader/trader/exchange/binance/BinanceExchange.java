@@ -30,7 +30,6 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Component(value = BinanceExchange.BEAN_NAME_EXCHANGE_BINANCE)
 public class BinanceExchange implements Exchange {
 
     public static final String BEAN_NAME_EXCHANGE_BINANCE = "exchange-binance";
@@ -61,9 +60,7 @@ public class BinanceExchange implements Exchange {
     @Autowired private ApplicationEventPublisher eventPublisher;
     @Autowired private EncryptorHelper encryptorHelper;
     @Autowired private PropertyMapHandler propertyMapHandler;
-
-    @Resource(name = BinanceRepository.BEAN_NAME_REPOSITORY_BINANCE)
-    private Repository binanceRepository;
+    @Autowired private Repository binanceRepository;
 
     @PostConstruct
     public void init() {
@@ -240,12 +237,9 @@ public class BinanceExchange implements Exchange {
         return Double.valueOf(tickerPrice.getPrice());
     }
 
-    @Scheduled(fixedDelay = 2000L)
-    protected void refreshBalance() {
-        Map<String, Balance> balanceMap = getBalance();
-        if(balanceMap != null) {
-            balanceMap.entrySet().forEach(b -> this.balanceCache.put(b.getKey(), b.getValue()));
-        }
+    @Override
+    public double getBalanceForTrade(String quoteCurrency) {
+        return getBalance().get(quoteCurrency).getAvailableForTrade();
     }
 
     @Override

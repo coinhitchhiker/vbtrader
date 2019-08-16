@@ -54,6 +54,10 @@ public class TradeEvent {
         return sellOrderId;
     }
 
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
     @Override
     public String toString() {
         return "TradeEvent{" +

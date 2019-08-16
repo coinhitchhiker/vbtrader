@@ -103,16 +103,17 @@ public class TradingWindow {
         if(this.highPrice < e.getPrice()) this.highPrice = e.getPrice();
         if(this.lowPrice > e.getPrice()) this.lowPrice = e.getPrice();
         this.closePrice = e.getPrice();
-
-        this.volume += e.getAmount();
-        if(e.getPrice() > this.prevTradeEvent.getPrice()) {
-            this.buyVolume += e.getAmount();
-        } else if(e.getPrice() < this.prevTradeEvent.getPrice()) {
-            this.sellVolume += e.getAmount();
-        }
-
         this.curTimeStamp = e.getTradeTime();
-        this.updateTrailingStop(e.getPrice());
+        this.volume += e.getAmount();
+
+        if(this.prevTradeEvent != null) {
+            if(e.getPrice() > this.prevTradeEvent.getPrice()) {
+                this.buyVolume += e.getAmount();
+            } else if(e.getPrice() < this.prevTradeEvent.getPrice()) {
+                this.sellVolume += e.getAmount();
+            }
+            this.updateTrailingStop(e.getPrice());
+        }
 
         this.prevTradeEvent = e;
     }
@@ -147,6 +148,10 @@ public class TradingWindow {
                 }
             }
         }
+    }
+
+    public TradeEvent getPrevTradeEvent() {
+        return prevTradeEvent;
     }
 
     public void clearOutOrders() {

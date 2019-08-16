@@ -4,12 +4,16 @@ import java.util.Map;
 
 public interface OrderBookCache {
 
-    double getBestAsk();
+    default double getBestAsk() {
+        return 0.0D;
+    }
 
-    double getBestBid();
+    default double getBestBid() {
+        return 0.0D;
+    }
 
-    double getMidPrice();
-
-    void onTradeEvent(Map<String, Object> trade);
+    default double getMidPrice() {
+        return 0.0D;
+    }
 
 }
