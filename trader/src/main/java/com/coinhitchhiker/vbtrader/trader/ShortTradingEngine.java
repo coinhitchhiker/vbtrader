@@ -123,7 +123,7 @@ public class ShortTradingEngine implements TradeEngine {
                     curPrice ,
                     curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
                     curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-            LOGGER.info("Available Balance {} {}", SYMBOL, availableBalance);
+            LOGGER.info("Available Balance {} {}", QUOTE_CURRENCY, availableBalance);
         }
         LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
                 , new DateTime(curTradingWindow.getEndTimeStamp(), UTC)
