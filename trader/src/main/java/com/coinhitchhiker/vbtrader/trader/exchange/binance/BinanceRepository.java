@@ -10,14 +10,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -90,7 +87,7 @@ public class BinanceRepository implements Repository {
         long windowStart = windowEnd - TRADING_WINDOW_SIZE * 60 * 1000;
 
         for(int i = 0; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
-            List<Candle> candles = this.getBinanceCandles(TRADING_SYMBOL, windowStart, windowEnd);
+            List<Candle> candles = this.getCandles(TRADING_SYMBOL, windowStart, windowEnd);
             TradingWindow tw = TradingWindow.of(candles);
             LOGGER.debug("{}/{} {}", i, TRADING_WINDOW_LOOK_BEHIND, tw.toString());
             pastTradingWindows.add(tw);
@@ -124,16 +121,23 @@ public class BinanceRepository implements Repository {
         result.setTS_TRIGGER_PCT(TS_TRIGGER_PCT);
         result.setTS_PCT(TS_PCT);
 
-        List<Candle> binanceCandles = getBinanceCandles(TRADING_SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
-        if(binanceCandles.size() > 0) {
-            TradingWindow twFromBinanceData = TradingWindow.of(binanceCandles);
+        List<Candle> candles = getCandles(TRADING_SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
+        if(candles.size() > 0) {
+            TradingWindow twFromBinanceData = TradingWindow.of(candles);
             result.setHighPrice(twFromBinanceData.getHighPrice());
             result.setOpenPrice(twFromBinanceData.getOpenPrice());
+        } else {
+            // wait for 10s to ensure receiving orderbook data
+            try {Thread.sleep(10_000L); } catch(Exception e) {}
+            double price = orderBookCache.getMidPrice();
+            if(price == 0.0) LOGGER.warn("orderbook mid price is 0.0!!!!!");
+            result.setOpenPrice(price);
+            result.setHighPrice(price);
         }
         return result;
     }
 
-    private List<Candle> getBinanceCandles(String symbol, long startTime, long endTime) {
+    private List<Candle> getCandles(String symbol, long startTime, long endTime) {
         List<Candle> candles = new ArrayList<>();
         String interval = "1m";
         while(true) {
