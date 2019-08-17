@@ -1,9 +1,6 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.bitmex;
 
-import com.coinhitchhiker.vbtrader.common.Candle;
-import com.coinhitchhiker.vbtrader.common.Repository;
-import com.coinhitchhiker.vbtrader.common.TradeEvent;
-import com.coinhitchhiker.vbtrader.common.TradingWindow;
+import com.coinhitchhiker.vbtrader.common.*;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -43,8 +40,7 @@ public class BitMexRepository implements Repository {
     @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
     @Value("${trading.ts.pct}") private double TS_PCT;
 
-    @Autowired
-    BitMexExchange bitmexExchange;
+    @Autowired OrderBookCache orderBookCache;
 
     @PostConstruct
     public void init() {
@@ -151,11 +147,18 @@ public class BitMexRepository implements Repository {
         result.setTS_TRIGGER_PCT(TS_TRIGGER_PCT);
         result.setTS_PCT(TS_PCT);
 
-        List<Candle> binanceCandles = getCandles(TRADING_SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
-        if(binanceCandles.size() > 0) {
-            TradingWindow twFromBinanceData = TradingWindow.of(binanceCandles);
+        List<Candle> candles = getCandles(TRADING_SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
+        if(candles.size() > 0) {
+            TradingWindow twFromBinanceData = TradingWindow.of(candles);
             result.setHighPrice(twFromBinanceData.getHighPrice());
             result.setOpenPrice(twFromBinanceData.getOpenPrice());
+        } else {
+            // wait for 10s to ensure receiving orderbook data
+            try {Thread.sleep(10_000L); } catch(Exception e) {}
+            double price = orderBookCache.getMidPrice();
+            if(price == 0.0) LOGGER.warn("orderbook mid price is 0.0!!!!!");
+            result.setOpenPrice(price);
+            result.setHighPrice(price);
         }
         return result;
     }
