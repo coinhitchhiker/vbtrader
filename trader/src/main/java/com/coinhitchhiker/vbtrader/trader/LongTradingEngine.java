@@ -57,6 +57,11 @@ public class LongTradingEngine implements TradeEngine {
         }
 
         double curPrice = exchange.getCurrentPrice(SYMBOL);
+        if(curPrice == 0.0) {
+            LOGGER.warn("curPrice 0.0 was received. Returning...");
+            return;
+        }
+
         double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
 
         if(curTradingWindow.getBuyOrder() != null &&
