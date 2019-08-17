@@ -126,13 +126,17 @@ public class BinanceRepository implements Repository {
             TradingWindow twFromBinanceData = TradingWindow.of(candles);
             result.setHighPrice(twFromBinanceData.getHighPrice());
             result.setOpenPrice(twFromBinanceData.getOpenPrice());
+            result.setLowPrice(twFromBinanceData.getLowPrice());
         } else {
             // wait for 10s to ensure receiving orderbook data
             try {Thread.sleep(10_000L); } catch(Exception e) {}
             double price = orderBookCache.getMidPrice();
-            if(price == 0.0) LOGGER.warn("orderbook mid price is 0.0!!!!!");
+            if(price == 0.0) {
+                throw new RuntimeException("orderbook mid price is 0.0!!!!!");
+            }
             result.setOpenPrice(price);
             result.setHighPrice(price);
+            result.setLowPrice(price);
         }
         return result;
     }
