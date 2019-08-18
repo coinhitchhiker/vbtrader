@@ -31,7 +31,7 @@ public class ShortTradingEngine implements TradeEngine {
     @Autowired private Repository repository;
     @Autowired private OrderBookCache orderBookCache;
 
-    @Scheduled(fixedDelay = 10_000L)
+    @Scheduled(fixedDelay = 30_000L)
     protected void trade() {
 
         long curTimeStamp = DateTime.now(UTC).getMillis();
