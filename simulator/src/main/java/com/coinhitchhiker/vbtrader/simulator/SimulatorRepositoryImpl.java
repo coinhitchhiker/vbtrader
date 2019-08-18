@@ -36,6 +36,10 @@ public class SimulatorRepositoryImpl implements Repository {
                                    double tsTriggerPct,
                                    double tsPct)  {
 
+        this.currentTimestamp = simulStart;
+        this.tsTriggerPct = tsTriggerPct;
+        this.tsPct = tsPct;
+
         List<Candle> result = deserCandles(makeFileName(exchange, symbol, simulStart, simulEnd));
         if(result != null && result.size() > 0) {
             convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
@@ -48,10 +52,6 @@ public class SimulatorRepositoryImpl implements Repository {
             serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd));
             convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
         }
-
-        this.currentTimestamp = simulStart;
-        this.tsTriggerPct = tsTriggerPct;
-        this.tsPct = tsPct;
 
         this.refreshTradingWindows();
     }
