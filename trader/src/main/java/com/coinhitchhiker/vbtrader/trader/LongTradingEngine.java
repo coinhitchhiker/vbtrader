@@ -58,7 +58,7 @@ public class LongTradingEngine implements TradeEngine {
 
         double curPrice = exchange.getCurrentPrice(SYMBOL);
         if(curPrice == 0.0) {
-            LOGGER.warn("curPrice 0.0 was received. Returning...");
+            LOGGER.warn("curPrice 0.0 was received. Returning... will check again in a minute");
             return;
         }
 
