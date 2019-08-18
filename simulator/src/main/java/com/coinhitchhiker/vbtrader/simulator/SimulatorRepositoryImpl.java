@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.Candle;
+import com.coinhitchhiker.vbtrader.common.RESTAPIResponseErrorHandler;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.coinhitchhiker.vbtrader.common.TradingWindow;
 import com.google.gson.Gson;
@@ -58,6 +59,8 @@ public class SimulatorRepositoryImpl implements Repository {
 
     private List<Candle> loadCandlesFromBinance(String symbol, long simulStart, long simulEnd) {
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new RESTAPIResponseErrorHandler());
+
         Gson gson = new Gson();
         List<Candle> candles = new ArrayList<>();
         long startTime = simulStart;
@@ -80,6 +83,8 @@ public class SimulatorRepositoryImpl implements Repository {
 
     private List<Candle> loadCandlesFromBitMex(String symbol, long simulStart, long SimulEnd) {
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new RESTAPIResponseErrorHandler());
+
         Gson gson = new Gson();
         List<Candle> candles = new ArrayList<>();
 
