@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.binance;
 
 import com.coinhitchhiker.vbtrader.common.OrderBookCache;
+import com.coinhitchhiker.vbtrader.common.RESTAPIResponseErrorHandler;
 import com.coinhitchhiker.vbtrader.common.Repository;
 import com.google.gson.Gson;
 import com.neovisionaries.ws.client.WebSocket;
@@ -45,6 +46,7 @@ public class BinanceOrderBookCache implements OrderBookCache {
     @PostConstruct
     public void init() {
         this.callback = new BinanceOrderBookCache.BinanceWsCallback(this);
+        this.restTemplate.setErrorHandler(new RESTAPIResponseErrorHandler());
 
         this.subscribeToOrderBookAndTrades();
     }

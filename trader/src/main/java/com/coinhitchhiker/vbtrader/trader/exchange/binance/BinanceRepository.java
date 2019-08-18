@@ -51,6 +51,8 @@ public class BinanceRepository implements Repository {
             throw new RuntimeException(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", TS_TRIGGER_PCT, TS_PCT));
         }
 
+        this.restTemplate.setErrorHandler(new RESTAPIResponseErrorHandler());
+
         this.refreshTradingWindows();
     }
 

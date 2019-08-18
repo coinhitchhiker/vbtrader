@@ -169,6 +169,8 @@ public class BitMexRepository implements Repository {
 
     public List<Candle> getCandles(String symbol, long windowStart, long windowEnd) {
         RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new RESTAPIResponseErrorHandler());
+        
         Gson gson = new Gson();
         String startTime = new DateTime(windowStart, UTC).toDateTimeISO().toString();
         String endTime = new DateTime(windowEnd, UTC).toDateTimeISO().toString();

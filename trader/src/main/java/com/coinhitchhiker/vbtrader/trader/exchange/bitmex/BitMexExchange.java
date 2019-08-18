@@ -83,6 +83,8 @@ public class BitMexExchange implements Exchange {
             API_HOST = "https://www.bitmex.com";
         }
 
+        this.restTemplate.setErrorHandler(new RESTAPIResponseErrorHandler());
+
         getCoinInfoList().forEach(c -> this.coins.add(c));
     }
 
