@@ -2,11 +2,15 @@ package com.coinhitchhiker.vbtrader.common;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TradingWindow {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(TradingWindow.class);
 
     private double TS_TRIGGER_PCT = 0.7/100D; // trailing when 0.7% profit is gained (default)
     private double TS_PCT = 0.2/100D; // run trailing stop order when 0.2% loss from highest price (default)
@@ -124,13 +128,15 @@ public class TradingWindow {
         if(this.buyOrder != null) {
             if(this.trailingStopPrice == 0) {
                 if(curPrice > buyOrder.getPriceExecuted() * (1.0 + TS_TRIGGER_PCT)) {
-                    System.out.println(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS_PCT)));
+                    LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS_PCT)));
                     this.trailingStopPrice = curPrice * (1.0 - TS_PCT);
                 }
             } else {
                 if(curPrice > prevPrice) {
-                    System.out.println(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS_PCT)));
-                    this.trailingStopPrice = curPrice * (1.0 - TS_PCT);
+                    if(this.trailingStopPrice < curPrice * (1.0 - TS_PCT)) {
+                        LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS_PCT)));
+                        this.trailingStopPrice = curPrice * (1.0 - TS_PCT);
+                    }
                 }
             }
         }
@@ -138,13 +144,15 @@ public class TradingWindow {
         if(this.sellOrder != null) {
             if(this.trailingStopPrice == 0) {
                 if(curPrice < sellOrder.getPriceExecuted() * (1.0 - TS_TRIGGER_PCT)) {
-                    System.out.println(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS_PCT)));
+                    LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS_PCT)));
                     this.trailingStopPrice = curPrice * (1.0 + TS_PCT);
                 }
             } else {
                 if(curPrice < prevPrice) {
-                    System.out.println(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS_PCT)));
-                    this.trailingStopPrice = curPrice * (1.0 + TS_PCT);
+                    if(this.trailingStopPrice > curPrice * (1.0 + TS_PCT)) {
+                        LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS_PCT)));
+                        this.trailingStopPrice = curPrice * (1.0 + TS_PCT);
+                    }
                 }
             }
         }
