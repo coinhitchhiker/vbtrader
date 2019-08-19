@@ -134,7 +134,8 @@ public class Simulator {
                 double sellPrice = curPrice;
 
                 double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+//                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_aggresive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE_IN_MIN, curTimeStamp);
                 double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
                 double bettingSize = USD_BALANCE * weightedMAScore;
@@ -157,10 +158,8 @@ public class Simulator {
             if(this.MODE.equals("LONG") && curTradingWindow.isBuySignal(curPrice, k, lookbehindTradingWindows.get(0))) {
                 double buyPrice = curPrice;
                 double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows,
-                        getCurTradingWindowVol(curTradingWindow.getCandles(), curTimeStamp),
-                        MA_MIN,
-                        TRADING_WINDOW_LOOK_BEHIND);
+                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_aggresive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE_IN_MIN, curTimeStamp);
+//                double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, getCurTradingWindowVol(curTradingWindow.getCandles(), curTimeStamp),MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
 
                 double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
@@ -280,7 +279,7 @@ public class Simulator {
     private double getCurTradingWindowVol(List<Candle> candles, long currentTimestamp) {
         double volume = 0.0D;
         for(Candle candle : candles) {
-            if(candle.getCloseTime() > currentTimestamp) {
+            if(candle.getCloseTime() < currentTimestamp) {
                 volume += candle.getVolume();
             }
         }
