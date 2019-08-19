@@ -91,6 +91,11 @@ public class BinanceRepository implements Repository {
         for(int i = 0; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
             List<Candle> candles = this.getCandles(TRADING_SYMBOL, windowStart, windowEnd);
             TradingWindow tw = TradingWindow.of(candles);
+            if(pastTradingWindows.size() == 0) {
+                this.currentTradingWindow.setPrevWindow(tw);
+            } else {
+                pastTradingWindows.get(i).setPrevWindow(tw);
+            }
             LOGGER.debug("{}/{} {}", i, TRADING_WINDOW_LOOK_BEHIND, tw.toString());
             pastTradingWindows.add(tw);
             windowEnd -= TRADING_WINDOW_SIZE * 60 * 1000;

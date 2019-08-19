@@ -127,14 +127,8 @@ public class BitMexExchange implements Exchange {
         params.put("side", orderInfo.getOrderSide() == OrderSide.BUY ? "Buy" : "Sell");
         params.put("orderQty", String.valueOf(coinInfo.getCanonicalAmount(orderInfo.getAmount())));
         params.put("orderType", "Limit");
-
-        double price;
-        if(orderInfo.getOrderSide() == OrderSide.BUY) {
-            price = Math.ceil(orderInfo.getPrice());
-        } else {
-            price = Math.floor(orderInfo.getPrice());
-        }
-        params.put("price", String.valueOf(price));
+        params.put("execInst", "ParticipateDoNotInitiate");     // LIMIT_MAKER order. will throw an exception when taken immediately
+        params.put("price", String.valueOf(orderInfo.getPrice()));
         params.put("timeInForce", "GoodTillCancel");
 
         String response = this.query("POST", "/order", params, true, true);
