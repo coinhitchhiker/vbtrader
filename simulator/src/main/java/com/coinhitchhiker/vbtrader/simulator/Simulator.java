@@ -101,8 +101,6 @@ public class Simulator {
             }
 
             double curPrice = exchange.getCurrentPrice(SYMBOL);
-            double pvt = curTradingWindow.getPVT(curTimeStamp);
-            System.out.println(String.format("%s,%f,%f,%f", new DateTime(curTimeStamp, UTC), curPrice, pvt, curTradingWindow.getCurTradingWindowVol(curTimeStamp)));
 
             if(this.MODE.equals("LONG") &&
                 curTradingWindow.getBuyOrder() != null &&
@@ -157,6 +155,7 @@ public class Simulator {
 
             // buy signal!
             if(this.MODE.equals("LONG") && curTradingWindow.isBuySignal(curPrice, k, lookbehindTradingWindows.get(0))) {
+
                 double buyPrice = curPrice;
                 double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
                 double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows,
@@ -170,13 +169,19 @@ public class Simulator {
 
                 if(bettingSize > 0) {
                     LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
+
+                    double prevPVT1 = curTradingWindow.getPrevWindow().getPVT();
+                    double prevPVT2 = curTradingWindow.getPrevWindow().getPrevWindow().getPVT();
+                    double pvtDelta = (prevPVT1 - prevPVT2) / prevPVT2 * 100;
+                    LOGGER.info("{} prevPVT1 {} prevPVT2 {} pvtDelta {}", new DateTime(curTimeStamp, UTC), prevPVT1, prevPVT2, pvtDelta);
+
                     double amount = bettingSize / buyPrice;
                     OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
                     OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
 
                     curTradingWindow.setBuyOrder(placedBuyOrder);
                     LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
-                    LOGGER.debug("[PLACED BUY ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
+                    LOGGER.info("[PLACED BUY ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
                     double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
                     curTradingWindow.setBuyFee(buyFee);
                 }

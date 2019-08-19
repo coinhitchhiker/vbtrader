@@ -198,18 +198,17 @@ public class TradingWindow {
             return this.volume;
         }
 
-        double currentClose = this.closePrice;
         List<Candle> prevCandles = this.prevWindow.getCandles();
         double prevClose = prevCandles.get(prevCandles.size()-1).getClosePrice();
 
-        return (this.closePrice - prevClose) / prevClose * getCurTradingWindowVol(curTimeStamp) + prevWindow.getPVT();
+        return (this.closePrice - prevClose) / prevClose * getCurTradingWindowVol(curTimeStamp) + prevWindow.getPVT(curTimeStamp);
     }
 
     // for simulation use
     public double getCurTradingWindowVol(long currentTimestamp) {
         double volume = 0.0D;
         for(Candle candle : candles) {
-            if(candle.getCloseTime() > currentTimestamp) {
+            if(candle.getCloseTime() < currentTimestamp) {
                 volume += candle.getVolume();
             }
         }
