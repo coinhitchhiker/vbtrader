@@ -171,6 +171,7 @@ public class TradingWindow {
         this.profit = 0.0D;
         this.sellFee = 0.0D;
         this.sellOrder = null;
+        this.trailingStopPrice = 0.0D;
     }
 
     // for production use
