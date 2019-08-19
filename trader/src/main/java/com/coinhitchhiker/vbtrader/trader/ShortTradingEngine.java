@@ -41,8 +41,8 @@ public class ShortTradingEngine implements TradeEngine {
             return;
         }
 
-        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimeStamp);
-        if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND) {
+        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimeStamp);
+        if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
             LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
             return;
         }
