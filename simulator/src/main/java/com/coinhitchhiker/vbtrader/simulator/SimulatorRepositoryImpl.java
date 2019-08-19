@@ -219,7 +219,7 @@ public class SimulatorRepositoryImpl implements Repository {
             }
         }
 
-        throw new RuntimeException("unreacheable code path");
+        throw new RuntimeException("unreachable code path");
     }
 
     private DateTime getClosestMin(DateTime now) {
