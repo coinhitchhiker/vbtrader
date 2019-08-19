@@ -65,7 +65,7 @@ public class TraderAppConfig {
 
     @Bean
     public Repository repository() {
-        LOGGER.info("Registering " + exchange + "repository bean");
+        LOGGER.info("Registering " + exchange + " repository bean");
 
         if(exchange.equals("BINANCE")) {
             return new BinanceRepository();
