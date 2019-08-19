@@ -83,12 +83,12 @@ public class ShortTradingEngine implements TradeEngine {
         // sell signal!
         if(curTradingWindow.isSellSignal(curPrice, k, lookbehindTradingWindows.get(0))) {
             double volume = curTradingWindow.getVolume();
-            double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
+//            double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
+            double sellPrice = orderBookCache.getBestAsk();
 
             double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
             double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
             double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
-
 
             double cost = availableBalance * weightedMAScore;
 
@@ -146,7 +146,8 @@ public class ShortTradingEngine implements TradeEngine {
         double bestAsk = orderBookCache.getBestAsk();
         if(bestAsk == 0.0) throw new RuntimeException("bestAsk was 0");
 
-        double buyPrice = bestAsk * (1 + LIMIT_ORDER_PREMIUM/100.0D);
+        double buyPrice = bestAsk;
+        //double buyPrice = bestAsk * (1 + LIMIT_ORDER_PREMIUM/100.0D);
         double buyAmount = placedSellOrder.getAmountExecuted();
         OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, buyAmount);
         OrderInfo placedBuyOrder = null;
@@ -175,6 +176,7 @@ public class ShortTradingEngine implements TradeEngine {
                     placedBuyOrder.getAmountExecuted());
             LOGGER.info("-----------------------------------------------------------------------------------------");
             repository.logCompleteTradingWindow(curTradingWindow);
+            return;
         } catch(Exception e) {
             LOGGER.error("Placing buy order error", e);
         }

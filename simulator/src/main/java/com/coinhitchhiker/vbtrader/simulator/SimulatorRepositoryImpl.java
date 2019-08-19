@@ -147,15 +147,24 @@ public class SimulatorRepositoryImpl implements Repository {
                 tw.setTS_TRIGGER_PCT(tsTriggerPct);
                 tw.setTS_PCT(tsPct);
 
+                if(this.tradingWindows.size() > 0) {
+                    TradingWindow tipTW = this.tradingWindows.get(this.tradingWindows.size()-1);
+                    tw.setPrevWindow(tipTW);
+                }
                 this.tradingWindows.add(tw);
+
                 tempList = new ArrayList<>();
             }
         }
 
+        // residual candles
         if(tempList.size() > 0) {
             TradingWindow tw = TradingWindow.of(tempList);
             tw.setTS_TRIGGER_PCT(this.tsTriggerPct);
             tw.setTS_PCT(this.tsPct);
+
+            TradingWindow tipTW = this.tradingWindows.get(this.tradingWindows.size()-1);
+            tw.setPrevWindow(tipTW);
             this.tradingWindows.add(tw);
         }
     }
@@ -204,6 +213,7 @@ public class SimulatorRepositoryImpl implements Repository {
                 tw.setCandles(tradingWindow.getCandles());
                 tw.setTS_TRIGGER_PCT(tsTriggerPct);
                 tw.setTS_PCT(tsPct);
+                tw.setPrevWindow(tradingWindow.getPrevWindow());
                 this.currentTradingWindow = tw;
                 return;
             }

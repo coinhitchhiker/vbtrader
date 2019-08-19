@@ -101,6 +101,8 @@ public class Simulator {
             }
 
             double curPrice = exchange.getCurrentPrice(SYMBOL);
+            double pvt = curTradingWindow.getPVT(curTimeStamp);
+            System.out.println(String.format("%s,%f,%f,%f", new DateTime(curTimeStamp, UTC), curPrice, pvt, curTradingWindow.getCurTradingWindowVol(curTimeStamp)));
 
             if(this.MODE.equals("LONG") &&
                 curTradingWindow.getBuyOrder() != null &&
@@ -130,7 +132,7 @@ public class Simulator {
 
              // sell signal!
             if(this.MODE.equals("SHORT") && curTradingWindow.isSellSignal(curPrice, k, lookbehindTradingWindows.get(0))) {
-                double volume = getCurTradingWindowVol(curTradingWindow.getCandles(), curTimeStamp);
+                double volume = curTradingWindow.getCurTradingWindowVol(curTimeStamp);
                 double sellPrice = curPrice;
 
                 double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
@@ -158,7 +160,7 @@ public class Simulator {
                 double buyPrice = curPrice;
                 double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
                 double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows,
-                        getCurTradingWindowVol(curTradingWindow.getCandles(), curTimeStamp),
+                        curTradingWindow.getCurTradingWindowVol(curTimeStamp),
                         MA_MIN,
                         TRADING_WINDOW_LOOK_BEHIND);
 
@@ -275,16 +277,6 @@ public class Simulator {
 
         LOGGER.info("-----------------------------------------------------------------------------------------");
         repository.logCompleteTradingWindow(curTradingWindow);
-    }
-
-    private double getCurTradingWindowVol(List<Candle> candles, long currentTimestamp) {
-        double volume = 0.0D;
-        for(Candle candle : candles) {
-            if(candle.getCloseTime() > currentTimestamp) {
-                volume += candle.getVolume();
-            }
-        }
-        return volume;
     }
 
     public SimulResult collectSimulResult() {

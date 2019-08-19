@@ -41,6 +41,8 @@ public class TradingWindow {
 
     private List<Candle> candles;
 
+    private TradingWindow prevWindow;
+
     public TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
         this.symbol = symbol;
         this.startTimeStamp = startTimeStamp;
@@ -169,6 +171,48 @@ public class TradingWindow {
         this.profit = 0.0D;
         this.sellFee = 0.0D;
         this.sellOrder = null;
+    }
+
+    // for production use
+    public double getPVT() {
+        if(this.prevWindow == null) {
+            return this.volume;
+        }
+
+        if(this.prevTradeEvent == null && this.closePrice == 0.0) {
+            LOGGER.warn("prevTradeEvent is null && closePrice == 0.0");
+            return 0;
+        }
+
+        double currentClose = this.prevTradeEvent != null ? this.prevTradeEvent.getPrice() : this.closePrice;
+        List<Candle> prevCandles = this.prevWindow.getCandles();
+        double prevClose = prevCandles.get(prevCandles.size()-1).getClosePrice();
+
+        return (currentClose - prevClose) / prevClose * this.volume + prevWindow.getPVT();
+    }
+
+    // for simulation use
+    public double getPVT(long curTimeStamp) {
+        if(this.prevWindow == null) {
+            return this.volume;
+        }
+
+        double currentClose = this.closePrice;
+        List<Candle> prevCandles = this.prevWindow.getCandles();
+        double prevClose = prevCandles.get(prevCandles.size()-1).getClosePrice();
+
+        return (this.closePrice - prevClose) / prevClose * getCurTradingWindowVol(curTimeStamp) + prevWindow.getPVT();
+    }
+
+    // for simulation use
+    public double getCurTradingWindowVol(long currentTimestamp) {
+        double volume = 0.0D;
+        for(Candle candle : candles) {
+            if(candle.getCloseTime() > currentTimestamp) {
+                volume += candle.getVolume();
+            }
+        }
+        return volume;
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -324,5 +368,13 @@ public class TradingWindow {
 
     public double getVolume() {
         return volume;
+    }
+
+    public TradingWindow getPrevWindow() {
+        return prevWindow;
+    }
+
+    public void setPrevWindow(TradingWindow prevWindow) {
+        this.prevWindow = prevWindow;
     }
 }
