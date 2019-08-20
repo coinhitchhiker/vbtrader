@@ -1,10 +1,9 @@
 package com.coinhitchhiker.vbtrader.simulator.test;
 
-import com.coinhitchhiker.vbtrader.common.model.VolatilityBreakoutRules;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Import;
 
 @Configuration
 //@Import(value = {VolatilityBreakoutRules.class,})

@@ -1,7 +1,7 @@
-package com.coinhitchhiker.vbtrader.common.model;
+package com.coinhitchhiker.vbtrader.common.strategy;
 
+import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
 import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
@@ -34,6 +35,7 @@ public class Simulator {
     private SimulatorExchange exchange;
     private SimulatorOrderBookCache orderBookCache;
     private SimulatorDAO simulatorDAO;
+    private VolatilityBreakoutRules vbRules;
 
     private final double SLIPPAGE = 0.01/100.0D;
     private static final int MA_MIN = 3;
@@ -56,7 +58,8 @@ public class Simulator {
                      double TS_TRIGGER_PCT,
                      double TS_PCT,
                      String mode,
-                     String QUOTE_CURRENCY)  {
+                     String QUOTE_CURRENCY,
+                     VolatilityBreakoutRules vbRules)  {
 
         this.simulatorDAO = simulatorDAO;
 
@@ -72,6 +75,8 @@ public class Simulator {
         this.TS_PCT = TS_PCT;
         this.MODE = mode;
         this.QUOTE_CURRRENCY = QUOTE_CURRENCY;
+
+        this.vbRules = vbRules;
     }
 
     public void init() {
@@ -92,6 +97,7 @@ public class Simulator {
         } else {
             tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true);
         }
+        tradingEngine.setVBRules(this.vbRules);
 
         long curTimestamp = 0; double curPrice = 0;
 

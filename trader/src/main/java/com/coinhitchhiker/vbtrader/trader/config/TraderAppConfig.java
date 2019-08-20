@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
 import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;

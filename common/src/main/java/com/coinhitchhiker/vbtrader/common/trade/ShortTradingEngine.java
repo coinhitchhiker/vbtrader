@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.common.trade;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -180,7 +181,7 @@ public class ShortTradingEngine implements TradingEngine {
     }
 
     @Autowired
-    public void setVbRules(VolatilityBreakoutRules vbRules) {
+    public void setVBRules(VolatilityBreakoutRules vbRules) {
         this.vbRules = vbRules;
     }
 }

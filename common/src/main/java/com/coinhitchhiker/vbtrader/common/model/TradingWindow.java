@@ -93,18 +93,6 @@ public class TradingWindow {
         return highPrice - lowPrice;
     }
 
-    public boolean isBuySignal(double curPrice, double k, TradingWindow prevTradingWindow) {
-        if(highPrice == 0 || lowPrice == 0) return false;
-
-        return  curPrice > openPrice + k * prevTradingWindow.getRange();
-    }
-
-    public boolean isSellSignal(double curPrice, double k, TradingWindow prevTradingWindow) {
-        if(highPrice == 0 || lowPrice == 0) return false;
-
-        return curPrice < openPrice - k * prevTradingWindow.getRange();
-    }
-
     public void updateWindowData(TradeEvent e) {
         if(this.highPrice < e.getPrice()) this.highPrice = e.getPrice();
         if(this.lowPrice > e.getPrice()) this.lowPrice = e.getPrice();
