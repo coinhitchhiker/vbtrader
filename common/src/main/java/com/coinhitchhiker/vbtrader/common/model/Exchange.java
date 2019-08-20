@@ -1,4 +1,4 @@
-package com.coinhitchhiker.vbtrader.common;
+package com.coinhitchhiker.vbtrader.common.model;
 
 import java.util.List;
 import java.util.Map;

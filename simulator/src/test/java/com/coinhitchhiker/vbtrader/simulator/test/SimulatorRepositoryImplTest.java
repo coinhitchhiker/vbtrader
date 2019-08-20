@@ -1,7 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator.test;
 
-import com.coinhitchhiker.vbtrader.common.Repository;
-import com.coinhitchhiker.vbtrader.common.TradingWindow;
+import com.coinhitchhiker.vbtrader.common.model.Repository;
+import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
 import com.coinhitchhiker.vbtrader.simulator.SimulatorRepositoryImpl;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;

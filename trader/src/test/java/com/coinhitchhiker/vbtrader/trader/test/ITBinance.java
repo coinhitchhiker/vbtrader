@@ -1,20 +1,12 @@
 package com.coinhitchhiker.vbtrader.trader.test;
 
-import com.coinhitchhiker.vbtrader.common.*;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceOrderBookCache;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceRepository;
-import org.junit.Ignore;
+import com.coinhitchhiker.vbtrader.common.model.Exchange;
+import com.coinhitchhiker.vbtrader.common.model.Repository;
+import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-
-import javax.annotation.Resource;
 
 import java.util.List;
 

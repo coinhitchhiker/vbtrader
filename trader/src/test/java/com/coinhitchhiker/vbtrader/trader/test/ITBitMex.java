@@ -1,7 +1,6 @@
 package com.coinhitchhiker.vbtrader.trader.test;
 
-import com.coinhitchhiker.vbtrader.common.*;
-import com.coinhitchhiker.vbtrader.trader.exchange.bitmex.BitMexExchange;
+import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.trader.exchange.bitmex.BitMexOrderBookCache;
 import com.coinhitchhiker.vbtrader.trader.exchange.bitmex.BitMexRepository;
 import org.junit.Ignore;
@@ -10,17 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
 
@@ -30,7 +22,8 @@ public class ITBitMex extends BaseIT {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ITBitMex.class);
 
-    @Autowired Exchange bitmexExchange;
+    @Autowired
+    Exchange bitmexExchange;
     @Autowired Repository bitMexRepository;
     @Autowired OrderBookCache bitmexOrderBookCache;
 

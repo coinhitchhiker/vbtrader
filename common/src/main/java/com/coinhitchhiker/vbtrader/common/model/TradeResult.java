@@ -1,4 +1,4 @@
-package com.coinhitchhiker.vbtrader.common;
+package com.coinhitchhiker.vbtrader.common.model;
 
 public class TradeResult {
 

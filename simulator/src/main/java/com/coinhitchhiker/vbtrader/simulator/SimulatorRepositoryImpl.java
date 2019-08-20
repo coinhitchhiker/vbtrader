@@ -1,18 +1,22 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.common.model.Candle;
+import com.coinhitchhiker.vbtrader.common.model.Repository;
+import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
+import com.coinhitchhiker.vbtrader.common.model.VolatilityBreakoutRules;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -243,7 +247,7 @@ public class SimulatorRepositoryImpl implements Repository {
     @Override
     public void refreshTradingWindows() {
         DateTime now = new DateTime(this.currentTimestamp, DateTimeZone.UTC);
-        DateTime closestMin = VolatilityBreakoutRules.getClosestMin(now);
+        DateTime closestMin = Util.getClosestMin(now);
         long timestamp = closestMin.getMillis();
 
         for(TradingWindow tradingWindow : tradingWindows) {

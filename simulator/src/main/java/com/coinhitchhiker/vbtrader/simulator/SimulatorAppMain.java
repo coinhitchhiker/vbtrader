@@ -1,8 +1,5 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.Repository;
-import com.coinhitchhiker.vbtrader.common.TradingWindow;
-import com.coinhitchhiker.vbtrader.common.VolatilityBreakoutRules;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
@@ -17,7 +14,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-import javax.sql.DataSource;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;

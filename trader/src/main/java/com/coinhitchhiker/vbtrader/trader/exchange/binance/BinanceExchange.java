@@ -1,6 +1,6 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.binance;
 
-import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.trader.config.EncryptorHelper;
 import com.coinhitchhiker.vbtrader.trader.config.PropertyMapHandler;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.api.client.BinanceApiClientFactory;
@@ -21,12 +21,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
-import org.springframework.scheduling.annotation.Scheduled;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 

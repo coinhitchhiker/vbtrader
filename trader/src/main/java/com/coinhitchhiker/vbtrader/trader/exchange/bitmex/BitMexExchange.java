@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.bitmex;
 
 import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.trader.config.EncryptorHelper;
 import com.coinhitchhiker.vbtrader.trader.config.PropertyMapHandler;
 import com.google.gson.Gson;

@@ -1,4 +1,4 @@
-package com.coinhitchhiker.vbtrader.common;
+package com.coinhitchhiker.vbtrader.common.model;
 
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
