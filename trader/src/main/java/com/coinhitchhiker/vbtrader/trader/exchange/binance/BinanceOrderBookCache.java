@@ -1,8 +1,8 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.binance;
 
-import com.coinhitchhiker.vbtrader.common.OrderBookCache;
+import com.coinhitchhiker.vbtrader.common.model.OrderBookCache;
 import com.coinhitchhiker.vbtrader.common.RESTAPIResponseErrorHandler;
-import com.coinhitchhiker.vbtrader.common.Repository;
+import com.coinhitchhiker.vbtrader.common.model.Repository;
 import com.google.gson.Gson;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketExtension;
@@ -13,11 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
-import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.*;

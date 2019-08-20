@@ -1,6 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.common.model.*;
 
 import java.util.HashMap;
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.bitmex;
 
-import com.coinhitchhiker.vbtrader.common.OrderBookCache;
-import com.coinhitchhiker.vbtrader.common.Repository;
+import com.coinhitchhiker.vbtrader.common.model.OrderBookCache;
+import com.coinhitchhiker.vbtrader.common.model.Repository;
 import com.google.gson.Gson;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketExtension;
@@ -12,7 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.servlet.tags.EditorAwareTag;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;

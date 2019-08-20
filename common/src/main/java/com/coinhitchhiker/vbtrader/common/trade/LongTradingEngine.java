@@ -1,8 +1,11 @@
-package com.coinhitchhiker.vbtrader.common;
+package com.coinhitchhiker.vbtrader.common.trade;
 
+import com.coinhitchhiker.vbtrader.common.Util;
+import com.coinhitchhiker.vbtrader.common.model.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,10 +22,6 @@ public class LongTradingEngine implements TradingEngine {
     private final String SYMBOL;
     private final String QUOTE_CURRENCY;
     private final double LIMIT_ORDER_PREMIUM;
-    private final int MA_MIN;
-    private final int TRADING_WINDOW_SIZE;
-    private final double PRICE_MA_WEIGHT;
-    private final double VOLUME_MA_WEIGHT;
     private final String EXCHANGE;
     private final double FEE_RATE;
     private final boolean TRADING_ENABLED;
@@ -34,10 +33,11 @@ public class LongTradingEngine implements TradingEngine {
     private final double PVT_THRESHOLD = 50.0/100;  // if PVT delta is 50% in LOOK_BEHIND sized array...
     private DateTime lastClosestMin = DateTime.now();
 
+    private VolatilityBreakoutRules vbRules;
+
     public LongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                              int TRADING_WINDOW_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM,
-                             int MA_MIN, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT, String EXCHANGE,
-                             double FEE_RATE, boolean TRADING_ENABLED) {
+                             String EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED) {
         this.repository = repository;
         this.exchange = exchange;
         this.orderBookCache = orderBookCache;
@@ -46,10 +46,6 @@ public class LongTradingEngine implements TradingEngine {
         this.SYMBOL = SYMBOL;
         this.QUOTE_CURRENCY = QUOTE_CURRENCY;
         this.LIMIT_ORDER_PREMIUM = LIMIT_ORDER_PREMIUM;
-        this.MA_MIN = MA_MIN;
-        this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
-        this.PRICE_MA_WEIGHT = PRICE_MA_WEIGHT;
-        this.VOLUME_MA_WEIGHT = VOLUME_MA_WEIGHT;
         this.EXCHANGE = EXCHANGE;
         this.FEE_RATE = FEE_RATE;
         this.TRADING_ENABLED =  TRADING_ENABLED;
@@ -101,7 +97,7 @@ public class LongTradingEngine implements TradingEngine {
 
         double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
 
-        DateTime curClosestMin = VolatilityBreakoutRules.getClosestMin(new DateTime(curTimeStamp, UTC));
+        DateTime curClosestMin = Util.getClosestMin(new DateTime(curTimeStamp, UTC));
 
         if(!lastClosestMin.equals(curClosestMin)) {
             double pvt = repository.getPVT(curTimeStamp);
@@ -130,68 +126,36 @@ public class LongTradingEngine implements TradingEngine {
             return null;
         }
 
-        double k = VolatilityBreakoutRules.getKValue(lookbehindTradingWindows);
+        double signalStrength = vbRules.buySignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimeStamp);
 
-        if(curTradingWindow.isBuySignal(curPrice, k, lookbehindTradingWindows.get(0))) {
-            double volume = curTradingWindow.getVolume();
-            double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
+        if(signalStrength == 0) return null;
 
-            double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-//            double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-            double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_aggresive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimeStamp);
-            double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
+        double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
+        double cost = availableBalance * signalStrength;
+        double amount = cost / buyPrice;
+        OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
 
-            double cost = availableBalance * weightedMAScore;
-
-            if(cost > 0) {
-                LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
-                LOGGER.info("cost {} = availableBalance {} * weightedMAScore {}", cost, availableBalance, weightedMAScore);
-                LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
-                        curPrice ,
-                        curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
-                        curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-
-                double amount = cost / buyPrice;
-                OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
-
-                try {
-                    if(!this.TRADING_ENABLED) {
-                        LOGGER.info("TRADING DISABLED!");
-                        return null;
-                    }
-
-                    OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
-                    LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
-                    LOGGER.info("[PLACED BUY ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
-                    double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
-                    curTradingWindow.setBuyOrder(placedBuyOrder);
-                    curTradingWindow.setBuyFee(buyFee);
-                } catch(Exception e) {
-                    LOGGER.error("Placing buy order failed", e);
-                }
-            } else {
-                LOGGER.info("[-----------------BUY SIGNAL DETECTED BUT COST IS 0------------------------]");
-                LOGGER.info("cost {} = availableBalance {} * weightedMAScore {}", cost, availableBalance, weightedMAScore);
-                LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
-                        curPrice ,
-                        curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
-                        curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-                LOGGER.info("tradingWindow endTime {}", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
+        try {
+            if(!this.TRADING_ENABLED) {
+                LOGGER.info("TRADING DISABLED!");
+                return null;
             }
-        } else {
-            LOGGER.info("[---------------------NO BUY SIGNAL DETECTED----------------------------]");
-            LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
-                    curPrice ,
-                    curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
-                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-            LOGGER.info("Available Balance {} {}", QUOTE_CURRENCY, availableBalance);
+
+            OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
+            LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
+            LOGGER.info("[PLACED BUY ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
+            double buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+            curTradingWindow.setBuyOrder(placedBuyOrder);
+            curTradingWindow.setBuyFee(buyFee);
+        } catch(Exception e) {
+            LOGGER.error("Placing buy order failed", e);
         }
+
         LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
-                , new DateTime(curTradingWindow.getEndTimeStamp(), UTC)
-                , new DateTime(curTimeStamp, UTC)
-                , curTradingWindow.getHighPrice()
-                , curTradingWindow.getLowPrice()
-        );
+            , new DateTime(curTradingWindow.getEndTimeStamp(), UTC)
+            , new DateTime(curTimeStamp, UTC)
+            , curTradingWindow.getHighPrice()
+            , curTradingWindow.getLowPrice());
 
         return null;
     }
@@ -240,5 +204,10 @@ public class LongTradingEngine implements TradingEngine {
         }
 
         return tradeResult;
+    }
+
+    @Autowired
+    public void setVbRules(VolatilityBreakoutRules vbRules) {
+        this.vbRules = vbRules;
     }
 }

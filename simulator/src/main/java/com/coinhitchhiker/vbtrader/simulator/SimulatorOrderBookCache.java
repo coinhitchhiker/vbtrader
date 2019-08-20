@@ -1,6 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.OrderBookCache;
+import com.coinhitchhiker.vbtrader.common.model.OrderBookCache;
 
 public class SimulatorOrderBookCache implements OrderBookCache {
 

@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.bitmex;
 
 import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.common.model.*;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -10,12 +11,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -40,7 +39,8 @@ public class BitMexRepository implements Repository {
     @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
     @Value("${trading.ts.pct}") private double TS_PCT;
 
-    @Autowired OrderBookCache orderBookCache;
+    @Autowired
+    OrderBookCache orderBookCache;
 
     @PostConstruct
     public void init() {

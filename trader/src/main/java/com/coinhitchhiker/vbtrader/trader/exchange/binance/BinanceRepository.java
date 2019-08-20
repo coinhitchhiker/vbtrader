@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.exchange.binance;
 
 import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.trader.db.TraderDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;

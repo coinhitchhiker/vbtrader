@@ -1,6 +1,8 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
@@ -10,9 +12,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.List;
-
-import static org.joda.time.DateTimeZone.UTC;
 
 public class Simulator {
 
@@ -89,9 +88,9 @@ public class Simulator {
 
         TradingEngine tradingEngine = null;
         if(this.MODE.equals("LONG")) {
-            tradingEngine = new LongTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, MA_MIN, TRADING_WINDOW_SIZE_IN_MIN, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, EXCHANGE, FEE_RATE, true);
+            tradingEngine = new LongTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true);
         } else {
-            tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, MA_MIN, TRADING_WINDOW_SIZE_IN_MIN, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, EXCHANGE, FEE_RATE, true);
+            tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true);
         }
 
         long curTimestamp = 0; double curPrice = 0;

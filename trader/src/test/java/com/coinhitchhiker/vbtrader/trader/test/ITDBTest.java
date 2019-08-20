@@ -1,17 +1,14 @@
 package com.coinhitchhiker.vbtrader.trader.test;
 
-import com.coinhitchhiker.vbtrader.common.OrderInfo;
-import com.coinhitchhiker.vbtrader.common.OrderSide;
-import com.coinhitchhiker.vbtrader.common.OrderStatus;
-import com.coinhitchhiker.vbtrader.common.TradingWindow;
+import com.coinhitchhiker.vbtrader.common.model.OrderInfo;
+import com.coinhitchhiker.vbtrader.common.model.OrderSide;
+import com.coinhitchhiker.vbtrader.common.model.OrderStatus;
+import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
 import com.coinhitchhiker.vbtrader.trader.db.TraderDAO;
 import com.google.gson.Gson;
 import org.junit.Ignore;
 import org.junit.Test;
-import org.mybatis.spring.annotation.MapperScan;
-import org.mybatis.spring.boot.test.autoconfigure.MybatisTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

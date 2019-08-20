@@ -1,6 +1,8 @@
 package com.coinhitchhiker.vbtrader.trader.config;
 
-import com.coinhitchhiker.vbtrader.common.*;
+import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceOrderBookCache;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceRepository;
@@ -38,10 +40,15 @@ public class TraderAppConfig {
     @Bean
     public TradingEngine tradeEngine() {
         if(MODE.equals("LONG")) {
-            return new LongTradingEngine(repository(), exchange(), orderBookCache(), TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, exchange, FEE_RATE, tradingEnabled);
+            return new LongTradingEngine(repository(), exchange(), orderBookCache(), TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, exchange, FEE_RATE, tradingEnabled);
         } else {
-            return new ShortTradingEngine(repository(), exchange(), orderBookCache(), TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, exchange, FEE_RATE, tradingEnabled);
+            return new ShortTradingEngine(repository(), exchange(), orderBookCache(), TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, exchange, FEE_RATE, tradingEnabled);
         }
+    }
+
+    @Bean
+    public VolatilityBreakoutRules volatilityBreakoutRules() {
+        return new VolatilityBreakoutRules(TRADING_WINDOW_LOOK_BEHIND, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
     }
 
     @Bean(name="encryptorBean")
