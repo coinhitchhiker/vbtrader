@@ -2,7 +2,11 @@ package com.coinhitchhiker.vbtrader.common.trade;
 
 import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
 import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +17,8 @@ import java.util.List;
 import static org.joda.time.DateTimeZone.UTC;
 
 public class LongTradingEngine implements TradingEngine {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(LongTradingEngine.class);
 
     private final Repository repository;
     private final Exchange exchange;
@@ -26,14 +32,10 @@ public class LongTradingEngine implements TradingEngine {
     private final double FEE_RATE;
     private final boolean TRADING_ENABLED;
 
-    private List<Double> pvtValues = new ArrayList<>();
-    private List<Double> obvValues = new ArrayList<>();
-
-    private final int PVT_LOOK_BEHIND_SIZE = 10;    // to find out optimal value...
-    private final double PVT_THRESHOLD = 50.0/100;  // if PVT delta is 50% in LOOK_BEHIND sized array...
     private DateTime lastClosestMin = DateTime.now();
 
     private VolatilityBreakoutRules vbRules;
+    private PVTOBV pvtobv = new PVTOBV();
 
     public LongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                              int TRADING_WINDOW_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM,
@@ -51,69 +53,55 @@ public class LongTradingEngine implements TradingEngine {
         this.TRADING_ENABLED =  TRADING_ENABLED;
     }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LongTradingEngine.class);
+    private void buildTechnicalIndicator(long curTimestamp) {
+        DateTime curClosestMin = Util.getClosestMin(new DateTime(curTimestamp, UTC));
 
-    private void addPvtValue(double pvt) {
-        this.pvtValues.add(pvt);
-        if(this.pvtValues.size() > PVT_LOOK_BEHIND_SIZE) {
-            this.pvtValues.remove(0);
-        }
-    }
+        if(lastClosestMin.equals(curClosestMin)) return;
 
-    private double pvtDelta() {
-        return (this.pvtValues.get(this.pvtValues.size()-1) - this.pvtValues.get(0)) / this.pvtValues.get(0) * 100;
-    }
+        // now 1min passed... build indicator for the 1min candle
+        double pvt = repository.getPVT(curTimestamp);
+        double obv = repository.getOBV(curTimestamp);
 
-    private void addObvValue(double obv) {
-        this.obvValues.add(obv);
-        if(this.obvValues.size() > PVT_LOOK_BEHIND_SIZE) {
-            this.obvValues.remove(0);
-        }
-    }
+        pvtobv.addPvtValue(pvt);
+        pvtobv.addObvValue(obv);
 
-    private double obvDelta() {
-        return (this.obvValues.get(this.obvValues.size()-1) - this.obvValues.get(0)) / this.obvValues.get(0) * 100;
+        DateTime dt = new DateTime(curTimestamp, UTC);
+        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd H:m");
+        String str = fmt.print(dt);
+
+//        System.out.println(str + "," + pvt + "," + pvtobv.pvtDelta() + "," + obv + "," + pvtobv.obvDelta());
+
+        lastClosestMin = curClosestMin;
+
     }
 
     @Override
-    public TradeResult run(double curPrice, long curTimeStamp) {
-        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimeStamp);
+    public TradeResult run(double curPrice, long curTimestamp) {
+        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
         if(curTradingWindow == null) {
             LOGGER.debug("curTradingWindow is null");
             return null;
         }
 
-        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimeStamp);
+        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimestamp);
         if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
             LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
             return null;
         }
 
-        if(curTimeStamp > curTradingWindow.getEndTimeStamp()) {
-            TradeResult tradeResult = sellAtMarketPrice(curTimeStamp);
+        if(curTimestamp > curTradingWindow.getEndTimeStamp()) {
+            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
             repository.refreshTradingWindows();
             return tradeResult;
         }
 
-        double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
-
-        DateTime curClosestMin = Util.getClosestMin(new DateTime(curTimeStamp, UTC));
-
-        if(!lastClosestMin.equals(curClosestMin)) {
-            double pvt = repository.getPVT(curTimeStamp);
-            double obv = repository.getOBV(curTimeStamp);
-
-            addPvtValue(pvt);
-            addObvValue(obv);
-            System.out.println(new DateTime(curTimeStamp, UTC).toDateTimeISO() + "," + pvt + "," + pvtDelta() + "," + obv + "," + obvDelta());
-            lastClosestMin = curClosestMin;
-        }
+        buildTechnicalIndicator(curTimestamp);
 
         if(curTradingWindow.getBuyOrder() != null &&
                 curTradingWindow.getTrailingStopPrice() > curPrice) {
             LOGGER.info("---------------LONG TRAILING STOP HIT------------------------");
             LOGGER.info("trailingStopPrice {} > curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
-            TradeResult tradeResult = sellAtMarketPrice(curTimeStamp);
+            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
             curTradingWindow.clearOutOrders();
             return tradeResult;
         }
@@ -126,10 +114,19 @@ public class LongTradingEngine implements TradingEngine {
             return null;
         }
 
-        double signalStrength = vbRules.buySignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimeStamp);
+        double vbBuySignal = vbRules.buySignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimestamp);
+        double pvtobvBuySignal = pvtobv.buySignalStrength();
+
+        if(vbBuySignal > 0 || pvtobvBuySignal > 0) {
+            LOGGER.info("{} vbBuySignal {} pvtobvBuySignal {}", new DateTime(curTimestamp, UTC), vbBuySignal, pvtobvBuySignal);
+        }
+
+        //double signalStrenth = vbBuySignal;
+        double signalStrength = pvtobvBuySignal;
 
         if(signalStrength == 0) return null;
 
+        double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
         double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
         double cost = availableBalance * signalStrength;
         double amount = cost / buyPrice;
@@ -153,7 +150,7 @@ public class LongTradingEngine implements TradingEngine {
 
         LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
             , new DateTime(curTradingWindow.getEndTimeStamp(), UTC)
-            , new DateTime(curTimeStamp, UTC)
+            , new DateTime(curTimestamp, UTC)
             , curTradingWindow.getHighPrice()
             , curTradingWindow.getLowPrice());
 
@@ -207,7 +204,7 @@ public class LongTradingEngine implements TradingEngine {
     }
 
     @Autowired
-    public void setVbRules(VolatilityBreakoutRules vbRules) {
+    public void setVBRules(VolatilityBreakoutRules vbRules) {
         this.vbRules = vbRules;
     }
 }

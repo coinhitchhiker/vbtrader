@@ -1,5 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
@@ -13,6 +14,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,6 +33,18 @@ public class SimulatorAppMain implements CommandLineRunner {
         app.setBannerMode(Banner.Mode.OFF);
         app.setWebApplicationType(WebApplicationType.NONE);
         app.run(args);
+    }
+
+    public VolatilityBreakoutRules volatilityBreakoutRules(CmdLine.CommandLineOptions opts) throws IOException {
+        Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput());
+        VolatilityBreakoutRules vb = new VolatilityBreakoutRules(
+                parsedBBInput.get("tradingWindowLookBehind").intValue(),
+                3,
+                parsedBBInput.get("tradingWindowSizeInMin").intValue(),
+                parsedBBInput.get("priceMaWeight"),
+                parsedBBInput.get("volumeMaWeight")
+        );
+        return vb;
     }
 
     public void run(String... args) throws IOException {
@@ -64,7 +78,8 @@ public class SimulatorAppMain implements CommandLineRunner {
                         simulResult.getTS_TRIGGER_PCT(),
                         simulResult.getTS_PCT(),
                         mode,
-                        opts.getQuoteCurrency()
+                        opts.getQuoteCurrency(),
+                        volatilityBreakoutRules(opts)
                         );
 
                 simulator.init();
@@ -96,7 +111,8 @@ public class SimulatorAppMain implements CommandLineRunner {
                     tsTriggerPct,
                     tsPct,
                     mode,
-                    opts.getQuoteCurrency()
+                    opts.getQuoteCurrency(),
+                    volatilityBreakoutRules(opts)
                     );
 
             simulator.init();
