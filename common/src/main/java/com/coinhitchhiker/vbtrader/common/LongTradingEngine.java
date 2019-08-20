@@ -24,11 +24,12 @@ public class LongTradingEngine implements TradingEngine {
     private final double VOLUME_MA_WEIGHT;
     private final String EXCHANGE;
     private final double FEE_RATE;
+    private final boolean TRADING_ENABLED;
 
     public LongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                              int TRADING_WINDOW_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM,
                              int MA_MIN, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT, String EXCHANGE,
-                             double FEE_RATE) {
+                             double FEE_RATE, boolean TRADING_ENABLED) {
         this.repository = repository;
         this.exchange = exchange;
         this.orderBookCache = orderBookCache;
@@ -43,6 +44,7 @@ public class LongTradingEngine implements TradingEngine {
         this.VOLUME_MA_WEIGHT = VOLUME_MA_WEIGHT;
         this.EXCHANGE = EXCHANGE;
         this.FEE_RATE = FEE_RATE;
+        this.TRADING_ENABLED =  TRADING_ENABLED;
     }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LongTradingEngine.class);
@@ -111,6 +113,11 @@ public class LongTradingEngine implements TradingEngine {
                 OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
 
                 try {
+                    if(!this.TRADING_ENABLED) {
+                        LOGGER.info("TRADING DISABLED!");
+                        return null;
+                    }
+
                     OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
                     LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
                     LOGGER.info("[PLACED BUY ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
