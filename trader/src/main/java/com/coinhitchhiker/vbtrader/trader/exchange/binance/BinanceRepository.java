@@ -17,6 +17,7 @@ import org.springframework.web.client.RestTemplate;
 import javax.annotation.PostConstruct;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -28,6 +29,7 @@ public class BinanceRepository implements Repository {
     private static final Logger LOGGER = LoggerFactory.getLogger(BinanceRepository.class);
     private List<TradingWindow> pastTradingWindows;
     private TradingWindow currentTradingWindow;
+    private List<Candle> allCandles = new LinkedList<>();
 
     private RestTemplate restTemplate = new RestTemplateBuilder().setConnectTimeout(Duration.ofMillis(1000L)).setReadTimeout(Duration.ofMillis(5000L)).build();
     private boolean refreshingTradingWindows = false;
@@ -88,14 +90,14 @@ public class BinanceRepository implements Repository {
         long windowEnd = curTimestamp - 1000;
         long windowStart = windowEnd - TRADING_WINDOW_SIZE * 60 * 1000;
 
+        allCandles = new LinkedList<>();
+
         for(int i = 0; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
             List<Candle> candles = this.getCandles(TRADING_SYMBOL, windowStart, windowEnd);
+
+            allCandles.addAll(candles);
+
             TradingWindow tw = TradingWindow.of(candles);
-            if(pastTradingWindows.size() == 0) {
-                this.currentTradingWindow.setPrevWindow(tw);
-            } else {
-                pastTradingWindows.get(i).setPrevWindow(tw);
-            }
             LOGGER.debug("{}/{} {}", i, TRADING_WINDOW_LOOK_BEHIND, tw.toString());
             pastTradingWindows.add(tw);
             windowEnd -= TRADING_WINDOW_SIZE * 60 * 1000;

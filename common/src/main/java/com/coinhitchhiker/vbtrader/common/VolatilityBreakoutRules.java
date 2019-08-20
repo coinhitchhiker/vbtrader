@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.common;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -103,6 +104,17 @@ public class VolatilityBreakoutRules {
 
     public static double getKValue(List<TradingWindow> lookbehindTradingWindows) {
         return lookbehindTradingWindows.stream().mapToDouble(TradingWindow::getNoiseRatio).average().getAsDouble();
+    }
+
+    public static DateTime getClosestMin(DateTime now) {
+        int y = now.getYear();
+        int m = now.getMonthOfYear();
+        int d = now.getDayOfMonth();
+        int h = now.getHourOfDay();
+        int mm = now.getMinuteOfHour();
+
+        DateTime closestMin = new DateTime(y,m,d,h,mm, DateTimeZone.UTC);
+        return closestMin;
     }
 
 }

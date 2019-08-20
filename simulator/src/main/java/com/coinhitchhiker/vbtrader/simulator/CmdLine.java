@@ -42,6 +42,10 @@ public class CmdLine {
         mode.setRequired(true);
         options.addOption(mode);
 
+        Option quoteCurrency = new Option("q", "quote-currency", true, "USDT, XBt...");
+        quoteCurrency.setRequired(true);
+        options.addOption(quoteCurrency);
+
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
@@ -62,7 +66,8 @@ public class CmdLine {
                 cmd.getOptionValue("y"),
                 cmd.getOptionValue("ex"),
                 cmd.hasOption("v"),
-                cmd.getOptionValue("m")
+                cmd.getOptionValue("m"),
+                cmd.getOptionValue("q")
         );
     }
 
@@ -75,6 +80,7 @@ public class CmdLine {
         private String exchange;
         private boolean validation;
         private String mode;
+        private String quoteCurrency;
 
         public CommandLineOptions(String blackboxInput
                 , String simulStart
@@ -82,7 +88,8 @@ public class CmdLine {
                 , String symbol
                 , String exchange
                 , boolean validation
-                , String mode) {
+                , String mode
+                , String quoteCurrency) {
             this.blackboxInput = blackboxInput;
             this.simulStart = simulStart;
             this.simulEnd = simulEnd;
@@ -90,6 +97,7 @@ public class CmdLine {
             this.exchange = exchange;
             this.validation = validation;
             this.mode = mode;
+            this.quoteCurrency = quoteCurrency;
         }
 
         public String getBlackboxInput() {
@@ -118,6 +126,10 @@ public class CmdLine {
 
         public String getMode() {
             return mode;
+        }
+
+        public String getQuoteCurrency() {
+            return quoteCurrency;
         }
     }
 

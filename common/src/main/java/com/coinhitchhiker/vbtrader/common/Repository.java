@@ -16,4 +16,12 @@ public interface Repository {
 
     TradingWindow getCurrentTradingWindow(long curTimestamp);
 
+    default double getPVT(long currentTimestamp) {
+        return 0;
+    }
+
+    default double getOBV(long curTimestamp) {
+        return 0;
+    }
+
 }
