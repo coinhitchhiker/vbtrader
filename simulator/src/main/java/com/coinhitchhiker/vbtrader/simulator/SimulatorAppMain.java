@@ -62,12 +62,14 @@ public class SimulatorAppMain implements CommandLineRunner {
                         simulResult.getPRICE_MA_WEIGHT(),
                         simulResult.getVOLUME_MA_WEIGHT(),
                         DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
-                        DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
+                        DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
                         opts.getExchange(),
                         opts.getSymbol(),
                         simulResult.getTS_TRIGGER_PCT(),
                         simulResult.getTS_PCT(),
-                        mode);
+                        mode,
+                        opts.getQuoteCurrency()
+                        );
 
                 simulator.init();
                 simulator.runSimul();
@@ -92,12 +94,14 @@ public class SimulatorAppMain implements CommandLineRunner {
                     parsedBBInput.get("priceMaWeight"),
                     parsedBBInput.get("volumeMaWeight"),
                     DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
-                    DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
+                    DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
                     opts.getExchange(),
                     opts.getSymbol(),
                     tsTriggerPct,
                     tsPct,
-                    mode);
+                    mode,
+                    opts.getQuoteCurrency()
+                    );
 
             simulator.init();
             simulator.runSimul();

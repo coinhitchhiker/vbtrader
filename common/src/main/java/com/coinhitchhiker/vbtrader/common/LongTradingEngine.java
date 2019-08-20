@@ -1,76 +1,125 @@
-package com.coinhitchhiker.vbtrader.trader;
+package com.coinhitchhiker.vbtrader.common;
 
-
-import com.coinhitchhiker.vbtrader.common.*;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.scheduling.annotation.Scheduled;
 
-import javax.annotation.PostConstruct;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.joda.time.DateTimeZone.UTC;
 
-// This class gets initialized in TraderAppConfig as a spring bean
-public class LongTradingEngine implements TradeEngine {
+public class LongTradingEngine implements TradingEngine {
+
+    private final Repository repository;
+    private final Exchange exchange;
+    private final OrderBookCache orderBookCache;
+
+    private final int TRADING_WINDOW_LOOK_BEHIND;
+    private final String SYMBOL;
+    private final String QUOTE_CURRENCY;
+    private final double LIMIT_ORDER_PREMIUM;
+    private final int MA_MIN;
+    private final int TRADING_WINDOW_SIZE;
+    private final double PRICE_MA_WEIGHT;
+    private final double VOLUME_MA_WEIGHT;
+    private final String EXCHANGE;
+    private final double FEE_RATE;
+    private final boolean TRADING_ENABLED;
+
+    private List<Double> pvtValues = new ArrayList<>();
+    private List<Double> obvValues = new ArrayList<>();
+
+    private final int PVT_LOOK_BEHIND_SIZE = 10;    // to find out optimal value...
+    private final double PVT_THRESHOLD = 50.0/100;  // if PVT delta is 50% in LOOK_BEHIND sized array...
+    private DateTime lastClosestMin = DateTime.now();
+
+    public LongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
+                             int TRADING_WINDOW_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM,
+                             int MA_MIN, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT, String EXCHANGE,
+                             double FEE_RATE, boolean TRADING_ENABLED) {
+        this.repository = repository;
+        this.exchange = exchange;
+        this.orderBookCache = orderBookCache;
+
+        this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
+        this.SYMBOL = SYMBOL;
+        this.QUOTE_CURRENCY = QUOTE_CURRENCY;
+        this.LIMIT_ORDER_PREMIUM = LIMIT_ORDER_PREMIUM;
+        this.MA_MIN = MA_MIN;
+        this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
+        this.PRICE_MA_WEIGHT = PRICE_MA_WEIGHT;
+        this.VOLUME_MA_WEIGHT = VOLUME_MA_WEIGHT;
+        this.EXCHANGE = EXCHANGE;
+        this.FEE_RATE = FEE_RATE;
+        this.TRADING_ENABLED =  TRADING_ENABLED;
+    }
 
     private static final Logger LOGGER = LoggerFactory.getLogger(LongTradingEngine.class);
-    private static final int MA_MIN = 3;
 
-    @Value("${trading.exchange}") private String EXCHANGE;
-    @Value("${trading.symbol}") private String SYMBOL;
-    @Value("${trading.quote.currency}") private String QUOTE_CURRENCY;
-    @Value("${trading.window.size}") private int TRADING_WINDOW_SIZE;
-    @Value("${trading.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
-    @Value("${trading.price.weight}") private double PRICE_MA_WEIGHT;
-    @Value("${trading.volume.weight}") private double VOLUME_MA_WEIGHT;
-    @Value("${trading.limit.order.premium}") private double LIMIT_ORDER_PREMIUM;
-    @Value("${trading.fee.rate}") private double FEE_RATE;
+    private void addPvtValue(double pvt) {
+        this.pvtValues.add(pvt);
+        if(this.pvtValues.size() > PVT_LOOK_BEHIND_SIZE) {
+            this.pvtValues.remove(0);
+        }
+    }
 
-    @Autowired private Exchange exchange;
-    @Autowired private Repository repository;
-    @Autowired private OrderBookCache orderBookCache;
+    private double pvtDelta() {
+        return (this.pvtValues.get(this.pvtValues.size()-1) - this.pvtValues.get(0)) / this.pvtValues.get(0) * 100;
+    }
 
-    @Scheduled(fixedDelay = 10_000L)
-    protected void trade() {
+    private void addObvValue(double obv) {
+        this.obvValues.add(obv);
+        if(this.obvValues.size() > PVT_LOOK_BEHIND_SIZE) {
+            this.obvValues.remove(0);
+        }
+    }
 
-        long curTimeStamp = DateTime.now(UTC).getMillis();
+    private double obvDelta() {
+        return (this.obvValues.get(this.obvValues.size()-1) - this.obvValues.get(0)) / this.obvValues.get(0) * 100;
+    }
+
+    @Override
+    public TradeResult run(double curPrice, long curTimeStamp) {
         TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimeStamp);
         if(curTradingWindow == null) {
             LOGGER.debug("curTradingWindow is null");
-            return;
+            return null;
         }
 
-        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimeStamp);
-        if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND) {
+        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimeStamp);
+        if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
             LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
-            return;
+            return null;
         }
 
         if(curTimeStamp > curTradingWindow.getEndTimeStamp()) {
-            sellAtMarketPrice();
+            TradeResult tradeResult = sellAtMarketPrice(curTimeStamp);
             repository.refreshTradingWindows();
-            return;
-        }
-
-        double curPrice = exchange.getCurrentPrice(SYMBOL);
-        if(curPrice == 0.0) {
-            LOGGER.warn("curPrice 0.0 was received. Returning... will check again in a minute");
-            return;
+            return tradeResult;
         }
 
         double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
+
+        DateTime curClosestMin = VolatilityBreakoutRules.getClosestMin(new DateTime(curTimeStamp, UTC));
+
+        if(!lastClosestMin.equals(curClosestMin)) {
+            double pvt = repository.getPVT(curTimeStamp);
+            double obv = repository.getOBV(curTimeStamp);
+
+            addPvtValue(pvt);
+            addObvValue(obv);
+            System.out.println(new DateTime(curTimeStamp, UTC).toDateTimeISO() + "," + pvt + "," + pvtDelta() + "," + obv + "," + obvDelta());
+            lastClosestMin = curClosestMin;
+        }
 
         if(curTradingWindow.getBuyOrder() != null &&
                 curTradingWindow.getTrailingStopPrice() > curPrice) {
             LOGGER.info("---------------LONG TRAILING STOP HIT------------------------");
             LOGGER.info("trailingStopPrice {} > curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
-            sellAtMarketPrice();
+            TradeResult tradeResult = sellAtMarketPrice(curTimeStamp);
             curTradingWindow.clearOutOrders();
-            return;
+            return tradeResult;
         }
 
         // if a buy order was placed in this trading window and no trailing stop price has been touched
@@ -78,7 +127,7 @@ public class LongTradingEngine implements TradeEngine {
         if(curTradingWindow.getBuyOrder() != null) {
             LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
             LOGGER.info(curTradingWindow.toString());
-            return;
+            return null;
         }
 
         double k = VolatilityBreakoutRules.getKValue(lookbehindTradingWindows);
@@ -88,7 +137,8 @@ public class LongTradingEngine implements TradeEngine {
             double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
 
             double priceMAScore = VolatilityBreakoutRules.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-            double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+//            double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+            double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_aggresive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimeStamp);
             double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
             double cost = availableBalance * weightedMAScore;
@@ -105,6 +155,11 @@ public class LongTradingEngine implements TradeEngine {
                 OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
 
                 try {
+                    if(!this.TRADING_ENABLED) {
+                        LOGGER.info("TRADING DISABLED!");
+                        return null;
+                    }
+
                     OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
                     LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
                     LOGGER.info("[PLACED BUY ORDER] liquidation expected at {} ", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
@@ -137,11 +192,12 @@ public class LongTradingEngine implements TradeEngine {
                 , curTradingWindow.getHighPrice()
                 , curTradingWindow.getLowPrice()
         );
+
+        return null;
     }
 
-    private void sellAtMarketPrice() {
-        DateTime now = DateTime.now(UTC);
-        long curTimeStamp = now.getMillis();
+    private TradeResult sellAtMarketPrice(long curTimeStamp) {
+        TradeResult tradeResult = null;
         TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimeStamp);
 
         if(curTradingWindow.getBuyOrder() != null) {
@@ -177,9 +233,12 @@ public class LongTradingEngine implements TradeEngine {
                         placedBuyOrder.getAmountExecuted());
                 LOGGER.info("-----------------------------------------------------------------------------------------");
                 repository.logCompleteTradingWindow(curTradingWindow);
+                tradeResult = new TradeResult(EXCHANGE, SYMBOL, QUOTE_CURRENCY, netProfit, profit, placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), placedBuyOrder.getAmountExecuted(), buyFee + sellFee);
             } catch(Exception e) {
                 LOGGER.error("Placing sell order error", e);
             }
         }
+
+        return tradeResult;
     }
 }

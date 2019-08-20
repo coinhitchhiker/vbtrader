@@ -1,9 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.Candle;
-import com.coinhitchhiker.vbtrader.common.RESTAPIResponseErrorHandler;
-import com.coinhitchhiker.vbtrader.common.Repository;
-import com.coinhitchhiker.vbtrader.common.TradingWindow;
+import com.coinhitchhiker.vbtrader.common.*;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -15,6 +12,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +26,8 @@ public class SimulatorRepositoryImpl implements Repository {
     private long currentTimestamp;
     private double tsTriggerPct;
     private double tsPct;
+
+    private List<Candle> allCandles = new ArrayList<>();
 
     public SimulatorRepositoryImpl(String exchange,
                                    String symbol,
@@ -44,6 +44,7 @@ public class SimulatorRepositoryImpl implements Repository {
         List<Candle> result = deserCandles(makeFileName(exchange, symbol, simulStart, simulEnd));
         if(result != null && result.size() > 0) {
             convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
+            allCandles.addAll(result);
         } else {
             if(exchange.equals("BINANCE")) {
                 result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
@@ -52,10 +53,64 @@ public class SimulatorRepositoryImpl implements Repository {
             }
             serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd));
             convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
+            allCandles.addAll(result);
         }
 
         this.refreshTradingWindows();
     }
+
+    private int getCurrentCandleIndex(long curTimestamp) {
+        int i = 0;
+        for(Candle candle : allCandles) {
+            if(candle.getOpenTime() <= curTimestamp && curTimestamp <= candle.getCloseTime()) {
+                return i;
+            }
+            i++;
+        }
+        LOGGER.warn("No candle was found for {}", new DateTime(curTimestamp, UTC));
+        return -1;
+    }
+
+    @Override
+    public double getPVT(long curTimestamp) {
+        // in simulation mode we already have candle data. we start out previous candle
+        // to simulate we are looking at past data
+        int curCandleIndex = getCurrentCandleIndex(curTimestamp) - 1;
+
+        return getPVTInternal(curCandleIndex);
+    }
+
+    private double getPVTInternal(int curCandleIndex) {
+        if(curCandleIndex <= 0) return 0;
+
+        Candle curCandle = allCandles.get(curCandleIndex);
+        Candle prevCandle = allCandles.get(curCandleIndex-1);
+
+        return (curCandle.getClosePrice() - prevCandle.getClosePrice())/prevCandle.getClosePrice() * curCandle.getVolume() + getPVTInternal(curCandleIndex-1);
+    }
+
+
+    public double getOBV(long curTimestamp) {
+        int curCandleIndex = getCurrentCandleIndex(curTimestamp) - 1;
+
+        return getOBVInternal(curCandleIndex);
+    }
+
+    private double getOBVInternal(int curCandleIndex) {
+        if(curCandleIndex <= 0) return 0;
+
+        Candle curCandle = allCandles.get(curCandleIndex);
+        Candle prevCandle = allCandles.get(curCandleIndex-1);
+
+        if(curCandle.getClosePrice() > prevCandle.getClosePrice()) {
+            return getOBVInternal(curCandleIndex-1) + curCandle.getVolume();
+        } else if(curCandle.getClosePrice() < prevCandle.getClosePrice()) {
+            return getOBVInternal(curCandleIndex-1) - curCandle.getVolume();
+        } else {
+            return getOBVInternal(curCandleIndex-1);
+        }
+    }
+
 
     private List<Candle> loadCandlesFromBinance(String symbol, long simulStart, long simulEnd) {
         RestTemplate restTemplate = new RestTemplate();
@@ -147,12 +202,7 @@ public class SimulatorRepositoryImpl implements Repository {
                 tw.setTS_TRIGGER_PCT(tsTriggerPct);
                 tw.setTS_PCT(tsPct);
 
-                if(this.tradingWindows.size() > 0) {
-                    TradingWindow tipTW = this.tradingWindows.get(this.tradingWindows.size()-1);
-                    tw.setPrevWindow(tipTW);
-                }
                 this.tradingWindows.add(tw);
-
                 tempList = new ArrayList<>();
             }
         }
@@ -162,9 +212,6 @@ public class SimulatorRepositoryImpl implements Repository {
             TradingWindow tw = TradingWindow.of(tempList);
             tw.setTS_TRIGGER_PCT(this.tsTriggerPct);
             tw.setTS_PCT(this.tsPct);
-
-            TradingWindow tipTW = this.tradingWindows.get(this.tradingWindows.size()-1);
-            tw.setPrevWindow(tipTW);
             this.tradingWindows.add(tw);
         }
     }
@@ -196,7 +243,7 @@ public class SimulatorRepositoryImpl implements Repository {
     @Override
     public void refreshTradingWindows() {
         DateTime now = new DateTime(this.currentTimestamp, DateTimeZone.UTC);
-        DateTime closestMin = getClosestMin(now);
+        DateTime closestMin = VolatilityBreakoutRules.getClosestMin(now);
         long timestamp = closestMin.getMillis();
 
         for(TradingWindow tradingWindow : tradingWindows) {
@@ -213,24 +260,12 @@ public class SimulatorRepositoryImpl implements Repository {
                 tw.setCandles(tradingWindow.getCandles());
                 tw.setTS_TRIGGER_PCT(tsTriggerPct);
                 tw.setTS_PCT(tsPct);
-                tw.setPrevWindow(tradingWindow.getPrevWindow());
                 this.currentTradingWindow = tw;
                 return;
             }
         }
 
         throw new RuntimeException("unreachable code path");
-    }
-
-    private DateTime getClosestMin(DateTime now) {
-        int y = now.getYear();
-        int m = now.getMonthOfYear();
-        int d = now.getDayOfMonth();
-        int h = now.getHourOfDay();
-        int mm = now.getMinuteOfHour();
-
-        DateTime closestMin = new DateTime(y,m,d,h,mm,DateTimeZone.UTC);
-        return closestMin;
     }
 
     public void setCurrentTimestamp(long currentTimestamp) {

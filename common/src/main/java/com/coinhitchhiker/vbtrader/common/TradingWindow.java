@@ -12,8 +12,8 @@ public class TradingWindow {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TradingWindow.class);
 
-    private double TS_TRIGGER_PCT = 0.7/100D; // trailing when 0.7% profit is gained (default)
-    private double TS_PCT = 0.2/100D; // run trailing stop order when 0.2% loss from highest price (default)
+    private double TS_TRIGGER_PCT = 0.7D; // trailing when 0.7% profit is gained (default)
+    private double TS_PCT = 0.2D; // run trailing stop order when 0.2% loss from highest price (default)
 
     private final String symbol;
     private final long startTimeStamp;    // unix epoch in millis
@@ -129,15 +129,15 @@ public class TradingWindow {
 
         if(this.buyOrder != null) {
             if(this.trailingStopPrice == 0) {
-                if(curPrice > buyOrder.getPriceExecuted() * (1.0 + TS_TRIGGER_PCT)) {
-                    LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS_PCT)));
-                    this.trailingStopPrice = curPrice * (1.0 - TS_PCT);
+                if(curPrice > buyOrder.getPriceExecuted() * (100.0 + TS_TRIGGER_PCT)/100) {
+                    LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
+                    this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
                 }
             } else {
                 if(curPrice > prevPrice) {
-                    if(this.trailingStopPrice < curPrice * (1.0 - TS_PCT)) {
-                        LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 - TS_PCT)));
-                        this.trailingStopPrice = curPrice * (1.0 - TS_PCT);
+                    if(this.trailingStopPrice < curPrice * (100.0 - TS_PCT)/100.0) {
+                        LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
+                        this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
                     }
                 }
             }
@@ -145,15 +145,15 @@ public class TradingWindow {
 
         if(this.sellOrder != null) {
             if(this.trailingStopPrice == 0) {
-                if(curPrice < sellOrder.getPriceExecuted() * (1.0 - TS_TRIGGER_PCT)) {
-                    LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS_PCT)));
-                    this.trailingStopPrice = curPrice * (1.0 + TS_PCT);
+                if(curPrice < sellOrder.getPriceExecuted() * (100.0 - TS_TRIGGER_PCT)/100.0) {
+                    LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
+                    this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
                 }
             } else {
                 if(curPrice < prevPrice) {
-                    if(this.trailingStopPrice > curPrice * (1.0 + TS_PCT)) {
-                        LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (1.0 + TS_PCT)));
-                        this.trailingStopPrice = curPrice * (1.0 + TS_PCT);
+                    if(this.trailingStopPrice > curPrice * (100.0 + TS_PCT)/100.0) {
+                        LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
+                        this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
                     }
                 }
             }
@@ -172,36 +172,6 @@ public class TradingWindow {
         this.sellFee = 0.0D;
         this.sellOrder = null;
         this.trailingStopPrice = 0.0D;
-    }
-
-    // for production use
-    public double getPVT() {
-        if(this.prevWindow == null) {
-            return this.volume;
-        }
-
-        if(this.prevTradeEvent == null && this.closePrice == 0.0) {
-            LOGGER.warn("prevTradeEvent is null && closePrice == 0.0");
-            return 0;
-        }
-
-        double currentClose = this.prevTradeEvent != null ? this.prevTradeEvent.getPrice() : this.closePrice;
-        List<Candle> prevCandles = this.prevWindow.getCandles();
-        double prevClose = prevCandles.get(prevCandles.size()-1).getClosePrice();
-
-        return (currentClose - prevClose) / prevClose * this.volume + prevWindow.getPVT();
-    }
-
-    // for simulation use
-    public double getPVT(long curTimeStamp) {
-        if(this.prevWindow == null) {
-            return this.volume;
-        }
-
-        List<Candle> prevCandles = this.prevWindow.getCandles();
-        double prevClose = prevCandles.get(prevCandles.size()-1).getClosePrice();
-
-        return (this.closePrice - prevClose) / prevClose * getCurTradingWindowVol(curTimeStamp) + prevWindow.getPVT(curTimeStamp);
     }
 
     // for simulation use
@@ -370,11 +340,4 @@ public class TradingWindow {
         return volume;
     }
 
-    public TradingWindow getPrevWindow() {
-        return prevWindow;
-    }
-
-    public void setPrevWindow(TradingWindow prevWindow) {
-        this.prevWindow = prevWindow;
-    }
 }
