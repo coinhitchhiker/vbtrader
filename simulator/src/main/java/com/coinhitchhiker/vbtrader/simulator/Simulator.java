@@ -89,7 +89,9 @@ public class Simulator {
 
         TradingEngine tradingEngine = null;
         if(this.MODE.equals("LONG")) {
-            tradingEngine = new LongTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, MA_MIN, TRADING_WINDOW_SIZE_IN_MIN, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, EXCHANGE, FEE_RATE);
+            tradingEngine = new LongTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, MA_MIN, TRADING_WINDOW_SIZE_IN_MIN, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, EXCHANGE, FEE_RATE, true);
+        } else {
+            tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, MA_MIN, TRADING_WINDOW_SIZE_IN_MIN, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, EXCHANGE, FEE_RATE, true);
         }
 
         long curTimestamp = 0; double curPrice = 0;
