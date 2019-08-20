@@ -67,7 +67,9 @@ public class SimulatorAppMain implements CommandLineRunner {
                         opts.getSymbol(),
                         simulResult.getTS_TRIGGER_PCT(),
                         simulResult.getTS_PCT(),
-                        mode);
+                        mode,
+                        opts.getQuoteCurrency()
+                        );
 
                 simulator.init();
                 simulator.runSimul();
@@ -97,7 +99,9 @@ public class SimulatorAppMain implements CommandLineRunner {
                     opts.getSymbol(),
                     tsTriggerPct,
                     tsPct,
-                    mode);
+                    mode,
+                    opts.getQuoteCurrency()
+                    );
 
             simulator.init();
             simulator.runSimul();
