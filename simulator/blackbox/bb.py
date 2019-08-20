@@ -11,6 +11,7 @@ cmd = [java_bin + "/java", "-Xmx384m",  "-jar", "simulator.jar"
       , "--symbol" , "BTCUSDT"
       , "--exchange" , "BINANCE"
       , "--mode" , "LONG"
+      , "--quote-currency" , "USDT"
       ,"--bb-input" , sys.argv[1]]
 
 run_result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
