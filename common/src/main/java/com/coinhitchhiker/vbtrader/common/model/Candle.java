@@ -10,15 +10,17 @@ import static org.joda.time.DateTimeZone.UTC;
 
 public class Candle implements Serializable {
     //symbol interval openTime closeTime openPrice highPrice lowPrice closePrice volume
-    private final String symbol;
-    private final String interval;
-    private final long openTime;    // milli
-    private final long closeTime;
-    private final double openPrice;
-    private final double highPrice;
-    private final double lowPrice;
-    private final double closePrice;
-    private final double volume;
+    private String symbol;
+    private String interval;
+    private long openTime;    // milli
+    private long closeTime;
+    private double openPrice;
+    private double highPrice;
+    private double lowPrice;
+    private double closePrice;
+    private double volume;
+    private double pvt;
+    private double obv;
 
     public Candle(String symbol, String interval, long openTime, long closeTime, double openPrice, double highPrice, double lowPrice, double closePrice, double volume) {
         this.symbol = symbol;
@@ -59,54 +61,92 @@ public class Candle implements Serializable {
 
     //-----------------------------------------------------
 
+
     public String getSymbol() {
         return symbol;
+    }
+
+    public void setSymbol(String symbol) {
+        this.symbol = symbol;
     }
 
     public String getInterval() {
         return interval;
     }
 
+    public void setInterval(String interval) {
+        this.interval = interval;
+    }
+
     public long getOpenTime() {
         return openTime;
+    }
+
+    public void setOpenTime(long openTime) {
+        this.openTime = openTime;
     }
 
     public long getCloseTime() {
         return closeTime;
     }
 
+    public void setCloseTime(long closeTime) {
+        this.closeTime = closeTime;
+    }
+
     public double getOpenPrice() {
         return openPrice;
+    }
+
+    public void setOpenPrice(double openPrice) {
+        this.openPrice = openPrice;
     }
 
     public double getHighPrice() {
         return highPrice;
     }
 
+    public void setHighPrice(double highPrice) {
+        this.highPrice = highPrice;
+    }
+
     public double getLowPrice() {
         return lowPrice;
+    }
+
+    public void setLowPrice(double lowPrice) {
+        this.lowPrice = lowPrice;
     }
 
     public double getClosePrice() {
         return closePrice;
     }
 
+    public void setClosePrice(double closePrice) {
+        this.closePrice = closePrice;
+    }
+
     public double getVolume() {
         return volume;
     }
 
-    @Override
-    public String toString() {
-        return "Candle{" +
-                "symbol='" + symbol + '\'' +
-                ", interval='" + interval + '\'' +
-                ", openTime=" + new DateTime(openTime, UTC).toString() +
-                ", closeTime=" + new DateTime(closeTime, UTC).toString() +
-                ", openPrice=" + openPrice +
-                ", highPrice=" + highPrice +
-                ", lowPrice=" + lowPrice +
-                ", closePrice=" + closePrice +
-                ", volume=" + volume +
-                '}';
+    public void setVolume(double volume) {
+        this.volume = volume;
+    }
+
+    public double getPvt() {
+        return pvt;
+    }
+
+    public void setPvt(double pvt) {
+        this.pvt = pvt;
+    }
+
+    public double getObv() {
+        return obv;
+    }
+
+    public void setObv(double obv) {
+        this.obv = obv;
     }
 }

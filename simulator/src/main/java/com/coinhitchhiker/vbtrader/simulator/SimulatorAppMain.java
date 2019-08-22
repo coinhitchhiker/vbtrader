@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
+import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
@@ -14,7 +15,6 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
 
 import java.io.IOException;
 import java.util.List;
@@ -35,16 +35,28 @@ public class SimulatorAppMain implements CommandLineRunner {
         app.run(args);
     }
 
-    public VolatilityBreakoutRules volatilityBreakoutRules(CmdLine.CommandLineOptions opts) throws IOException {
+    private VolatilityBreakout volatilityBreakoutRules(CmdLine.CommandLineOptions opts) throws IOException {
         Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput());
-        VolatilityBreakoutRules vb = new VolatilityBreakoutRules(
-                parsedBBInput.get("tradingWindowLookBehind").intValue(),
+        VolatilityBreakout vb = new VolatilityBreakout(
+                parsedBBInput.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
                 3,
-                parsedBBInput.get("tradingWindowSizeInMin").intValue(),
-                parsedBBInput.get("priceMaWeight"),
-                parsedBBInput.get("volumeMaWeight")
+                parsedBBInput.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
+                parsedBBInput.get(CmdLine.PRICE_MA_WEIGHT),
+                parsedBBInput.get(CmdLine.VOLUME_MA_WEIGHT)
         );
         return vb;
+    }
+
+    private PVTOBV pvtobv(CmdLine.CommandLineOptions opts) throws IOException {
+        Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput());
+        PVTOBV pvtobv = new PVTOBV(
+                parsedBBInput.get(CmdLine.PVT_LOOK_BEHIND).intValue(),
+                parsedBBInput.get(CmdLine.PVT_SIGNAL_THRESHOLD).intValue(),
+                parsedBBInput.get(CmdLine.OBV_LOOK_BEHIND).intValue(),
+                parsedBBInput.get(CmdLine.OBV_BUY_SIGNAL_THRESHOLD).intValue(),
+                parsedBBInput.get(CmdLine.OBV_SELL_SIGNAL_THRESHOLD).intValue()
+        );
+        return pvtobv;
     }
 
     public void run(String... args) throws IOException {
@@ -79,8 +91,8 @@ public class SimulatorAppMain implements CommandLineRunner {
                         simulResult.getTS_PCT(),
                         mode,
                         opts.getQuoteCurrency(),
-                        volatilityBreakoutRules(opts)
-                        );
+                        volatilityBreakoutRules(opts),
+                        pvtobv(opts));
 
                 simulator.init();
                 simulator.runSimul();
@@ -90,8 +102,8 @@ public class SimulatorAppMain implements CommandLineRunner {
         } else {
             Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput());
 
-            double tsTriggerPct = parsedBBInput.get("tsTriggerPct");
-            double tsPct = parsedBBInput.get("tsPct");
+            double tsTriggerPct = parsedBBInput.get(CmdLine.TS_TRIGGER_PCT);
+            double tsPct = parsedBBInput.get(CmdLine.TS_PCT);
 
             if(tsTriggerPct <= tsPct) {
                 LOGGER.error(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", tsTriggerPct, tsPct));
@@ -100,10 +112,10 @@ public class SimulatorAppMain implements CommandLineRunner {
             }
 
             Simulator simulator = new Simulator(this.simulatorDAO,
-                    parsedBBInput.get("tradingWindowSizeInMin").intValue(),
-                    parsedBBInput.get("tradingWindowLookBehind").intValue(),
-                    parsedBBInput.get("priceMaWeight"),
-                    parsedBBInput.get("volumeMaWeight"),
+                    parsedBBInput.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
+                    parsedBBInput.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
+                    parsedBBInput.get(CmdLine.PRICE_MA_WEIGHT),
+                    parsedBBInput.get(CmdLine.VOLUME_MA_WEIGHT),
                     DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                     DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
                     opts.getExchange(),
@@ -112,8 +124,8 @@ public class SimulatorAppMain implements CommandLineRunner {
                     tsPct,
                     mode,
                     opts.getQuoteCurrency(),
-                    volatilityBreakoutRules(opts)
-                    );
+                    volatilityBreakoutRules(opts),
+                    pvtobv(opts));
 
             simulator.init();
             simulator.runSimul();

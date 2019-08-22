@@ -1,5 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator.db;
 
+import com.coinhitchhiker.vbtrader.common.model.Candle;
 import com.coinhitchhiker.vbtrader.simulator.TopSimulResult;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -23,5 +24,10 @@ public interface SimulatorDAO {
     List<TopSimulResult> getTopSimulResults();
 
     void insertValidationResult(@Param("periodId") int periodId, @Param("simulResultId") int simulResultId, @Param("validationResult") String validationResult);
+
+    List<Candle> getBinanceCandles(@Param("symbol") String symbol,
+                                   @Param("interval") String interval,
+                                   @Param("simulStart") long simulStart,
+                                   @Param("simulEnd") long simulEnd);
 
 }

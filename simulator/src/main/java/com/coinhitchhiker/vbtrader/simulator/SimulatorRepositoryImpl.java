@@ -4,6 +4,7 @@ import com.coinhitchhiker.vbtrader.common.*;
 import com.coinhitchhiker.vbtrader.common.model.Candle;
 import com.coinhitchhiker.vbtrader.common.model.Repository;
 import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
+import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -30,6 +31,7 @@ public class SimulatorRepositoryImpl implements Repository {
     private double tsPct;
 
     private List<Candle> allCandles = new ArrayList<>();
+    private SimulatorDAO simulatorDAO;
 
     public SimulatorRepositoryImpl(String exchange,
                                    String symbol,
@@ -37,11 +39,13 @@ public class SimulatorRepositoryImpl implements Repository {
                                    long simulEnd,
                                    int tradingWindowSizeInMinutes,
                                    double tsTriggerPct,
-                                   double tsPct)  {
+                                   double tsPct,
+                                   SimulatorDAO simulatorDAO)  {
 
         this.currentTimestamp = simulStart;
         this.tsTriggerPct = tsTriggerPct;
         this.tsPct = tsPct;
+        this.simulatorDAO = simulatorDAO;
 
         List<Candle> result = deserCandles(makeFileName(exchange, symbol, simulStart, simulEnd));
         if(result != null && result.size() > 0) {
@@ -49,7 +53,8 @@ public class SimulatorRepositoryImpl implements Repository {
             allCandles.addAll(result);
         } else {
             if(exchange.equals("BINANCE")) {
-                result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
+//                result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
+                result = loadCandlesFromDB(exchange, symbol, simulStart, simulEnd);
             } else if(exchange.equals("BITMEX")) {
                 result = loadCandlesFromBitMex(symbol, simulStart, simulEnd);
             }
@@ -79,40 +84,23 @@ public class SimulatorRepositoryImpl implements Repository {
         // to simulate we are looking at past data
         int curCandleIndex = getCurrentCandleIndex(curTimestamp) - 1;
 
-        return getPVTInternal(curCandleIndex);
+        return allCandles.get(curCandleIndex).getPvt();
     }
 
-    private double getPVTInternal(int curCandleIndex) {
-        if(curCandleIndex <= 0) return 0;
-
-        Candle curCandle = allCandles.get(curCandleIndex);
-        Candle prevCandle = allCandles.get(curCandleIndex-1);
-
-        return (curCandle.getClosePrice() - prevCandle.getClosePrice())/prevCandle.getClosePrice() * curCandle.getVolume() + getPVTInternal(curCandleIndex-1);
-    }
-
-
+    @Override
     public double getOBV(long curTimestamp) {
         int curCandleIndex = getCurrentCandleIndex(curTimestamp) - 1;
 
-        return getOBVInternal(curCandleIndex);
+        return allCandles.get(curCandleIndex).getObv();
     }
 
-    private double getOBVInternal(int curCandleIndex) {
-        if(curCandleIndex <= 0) return 0;
-
-        Candle curCandle = allCandles.get(curCandleIndex);
-        Candle prevCandle = allCandles.get(curCandleIndex-1);
-
-        if(curCandle.getClosePrice() > prevCandle.getClosePrice()) {
-            return getOBVInternal(curCandleIndex-1) + curCandle.getVolume();
-        } else if(curCandle.getClosePrice() < prevCandle.getClosePrice()) {
-            return getOBVInternal(curCandleIndex-1) - curCandle.getVolume();
-        } else {
-            return getOBVInternal(curCandleIndex-1);
+    private List<Candle> loadCandlesFromDB(String exchange, String symbol, long simulStart, long simulEnd) {
+        if(!exchange.equals("BINANCE")) {
+            throw new RuntimeException("Only BINANCE is supported");
         }
-    }
 
+        return simulatorDAO.getBinanceCandles(symbol, "1m", simulStart, simulEnd);
+    }
 
     private List<Candle> loadCandlesFromBinance(String symbol, long simulStart, long simulEnd) {
         RestTemplate restTemplate = new RestTemplate();
@@ -273,4 +261,5 @@ public class SimulatorRepositoryImpl implements Repository {
     public void setCurrentTimestamp(long currentTimestamp) {
         this.currentTimestamp = currentTimestamp;
     }
+
 }

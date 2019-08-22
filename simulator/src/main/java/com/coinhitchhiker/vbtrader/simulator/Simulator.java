@@ -1,7 +1,8 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
+import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
@@ -35,7 +36,8 @@ public class Simulator {
     private SimulatorExchange exchange;
     private SimulatorOrderBookCache orderBookCache;
     private SimulatorDAO simulatorDAO;
-    private VolatilityBreakoutRules vbRules;
+    private VolatilityBreakout vbRules;
+    private PVTOBV pvtobv;
 
     private final double SLIPPAGE = 0.01/100.0D;
     private static final int MA_MIN = 3;
@@ -59,7 +61,8 @@ public class Simulator {
                      double TS_PCT,
                      String mode,
                      String QUOTE_CURRENCY,
-                     VolatilityBreakoutRules vbRules)  {
+                     VolatilityBreakout vbRules,
+                     PVTOBV pvtobv)  {
 
         this.simulatorDAO = simulatorDAO;
 
@@ -77,10 +80,11 @@ public class Simulator {
         this.QUOTE_CURRRENCY = QUOTE_CURRENCY;
 
         this.vbRules = vbRules;
+        this.pvtobv = pvtobv;
     }
 
     public void init() {
-        this.repository = new SimulatorRepositoryImpl(EXCHANGE, SYMBOL, SIMUL_START, SIMUL_END, TRADING_WINDOW_SIZE_IN_MIN, TS_TRIGGER_PCT, TS_PCT);
+        this.repository = new SimulatorRepositoryImpl(EXCHANGE, SYMBOL, SIMUL_START, SIMUL_END, TRADING_WINDOW_SIZE_IN_MIN, TS_TRIGGER_PCT, TS_PCT, simulatorDAO);
         this.orderBookCache = new SimulatorOrderBookCache();
         this.exchange = new SimulatorExchange(this.repository, this.orderBookCache, SLIPPAGE);
     }
@@ -98,6 +102,7 @@ public class Simulator {
             tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true);
         }
         tradingEngine.setVBRules(this.vbRules);
+        tradingEngine.setPVTOBV(this.pvtobv);
 
         long curTimestamp = 0; double curPrice = 0;
 
@@ -109,12 +114,12 @@ public class Simulator {
 
                 long timeDiff = candle.getCloseTime() - candle.getOpenTime();
 
-                // assume low price point comes first
-                curTimestamp = timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getLowPrice();
-                tradeWith(curPrice, curTimestamp, tradingEngine);
-
                 // high  price point comes next
                 curTimestamp = 2*timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getHighPrice();
+                tradeWith(curPrice, curTimestamp, tradingEngine);
+
+                // assume low price point comes first
+                curTimestamp = timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getLowPrice();
                 tradeWith(curPrice, curTimestamp, tradingEngine);
 
                 // trade close price
@@ -159,6 +164,11 @@ public class Simulator {
         LOGGER.info("SLIPPAGE {}", SLIPPAGE);
         LOGGER.info("TS_TRIGGER_PCT {}", TS_TRIGGER_PCT);
         LOGGER.info("TS_PCT {}", TS_PCT);
+        LOGGER.info("PVT_LOOK_BEHIND {}", pvtobv.getPVT_LOOK_BEHIND());
+        LOGGER.info("PVT_SIGNAL_THRESHOLD {}", pvtobv.getPVT_SIGNAL_THRESHOLD());
+        LOGGER.info("OBV_LOOK_BEHIND {}", pvtobv.getOBV_LOOK_BEHIND());
+        LOGGER.info("OBV_BUY_SIGNAL_THRESHOLD {}", pvtobv.getOBV_BUY_SIGNAL_THRESHOLD());
+        LOGGER.info("OBV_SELL_SIGNAL_THRESHOLD {}", pvtobv.getOBV_SELL_SIGNAL_THRESHOLD());
         LOGGER.info("----------------------------------------------------------------");
 
         System.out.println((-1)*exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
@@ -185,6 +195,11 @@ public class Simulator {
         result.setTS_TRIGGER_PCT(TS_TRIGGER_PCT);
         result.setTS_PCT(TS_PCT);
         result.setMODE(MODE);
+        result.setPVT_LOOK_BEHIND(pvtobv.getPVT_LOOK_BEHIND());
+        result.setPVT_SIGNAL_THRESHOLD(pvtobv.getPVT_SIGNAL_THRESHOLD());
+        result.setOBV_LOOK_BEHIND(pvtobv.getOBV_LOOK_BEHIND());
+        result.setOBV_BUY_SIGNAL_THRESHOLD(pvtobv.getOBV_BUY_SIGNAL_THRESHOLD());
+        result.setOBV_SELL_SIGNAL_THRESHOLD(pvtobv.getOBV_SELL_SIGNAL_THRESHOLD());
 
         return result;
     }

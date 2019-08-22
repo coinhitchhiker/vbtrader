@@ -32,6 +32,7 @@ public class TradingWindow {
     private OrderInfo buyOrder;
     private OrderInfo sellOrder;
     private double trailingStopPrice;
+    private double stopLossPrice;
     private TradeEvent prevTradeEvent;
 
     private double buyFee;
@@ -107,9 +108,32 @@ public class TradingWindow {
                 this.sellVolume += e.getAmount();
             }
             this.updateTrailingStop(e.getPrice());
+            this.updateStopLoss(e.getPrice());
         }
 
         this.prevTradeEvent = e;
+    }
+
+    private void updateStopLoss(double curPrice) {
+        if(this.buyOrder != null) {
+            double buyPriceExecuted = buyOrder.getPriceExecuted();
+            if(this.stopLossPrice == 0) {
+                double stopLossPrice = buyPriceExecuted * (1 + (0.045 + 0.045 + 0.1)/100.0);
+                if(curPrice > stopLossPrice) {
+                    this.stopLossPrice = stopLossPrice;
+                }
+            }
+        }
+
+        if(this.sellOrder != null) {
+            double sellPriceExecuted = sellOrder.getPriceExecuted();
+            if(this.stopLossPrice == 0) {
+                double stopLossPrice = sellPriceExecuted * (1 - (0.045 + 0.045 + 0.1)/100.0);
+                if(curPrice < stopLossPrice) {
+                    this.stopLossPrice = stopLossPrice;
+                }
+            }
+        }
     }
 
     private void updateTrailingStop(double curPrice) {
@@ -160,6 +184,7 @@ public class TradingWindow {
         this.sellFee = 0.0D;
         this.sellOrder = null;
         this.trailingStopPrice = 0.0D;
+        this.stopLossPrice = 0.0D;
     }
 
     // for simulation use
@@ -328,4 +353,11 @@ public class TradingWindow {
         return volume;
     }
 
+    public double getStopLossPrice() {
+        return stopLossPrice;
+    }
+
+    public void setStopLossPrice(double stopLossPrice) {
+        this.stopLossPrice = stopLossPrice;
+    }
 }
