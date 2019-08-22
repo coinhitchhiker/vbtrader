@@ -29,8 +29,32 @@
         </rollingPolicy>
     </appender>
 
+    <appender name="BUYSELL" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log-buysell.txt</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %msg%n
+            </Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                log-buysell.%d{yyyy-MM-dd}.%i.txt.zip
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>200MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+    </appender>
+
     <logger name="com.coinhitchhiker.vbtrader.simulator" level="INFO" additivity="false">
         <appender-ref ref="FILE" />
+    </logger>
+
+    <logger name="BUYSELLLOGGER" level="DEBUG" additivity="false">
+        <appender-ref ref="BUYSELL"/>
     </logger>
 
     <logger name="com.coinhitchhiker.vbtrader.simulator.test" level="DEBUG" additivity="false">

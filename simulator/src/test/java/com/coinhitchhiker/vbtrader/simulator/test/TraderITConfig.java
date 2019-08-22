@@ -1,6 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator.test;
 
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,8 +15,8 @@ public class TraderITConfig {
     @Value("${trading.volume.weight}") private double VOLUME_MA_WEIGHT;
 
     @Bean
-    public VolatilityBreakoutRules volatilityBreakoutRules() {
-        return new VolatilityBreakoutRules(TRADING_WINDOW_LOOK_BEHIND, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
+    public VolatilityBreakout volatilityBreakoutRules() {
+        return new VolatilityBreakout(TRADING_WINDOW_LOOK_BEHIND, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
     }
 
 }

@@ -1,7 +1,8 @@
 package com.coinhitchhiker.vbtrader.common.trade;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
+import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,14 +29,10 @@ public class ShortTradingEngine implements TradingEngine {
     private final double FEE_RATE;
     private final boolean TRADING_ENABLED;
 
-    private List<Double> pvtValues = new ArrayList<>();
-    private List<Double> obvValues = new ArrayList<>();
-
-    private final int PVT_LOOK_BEHIND_SIZE = 10;    // to find out optimal value...
-    private final double PVT_THRESHOLD = 50.0/100;  // if PVT delta is 50% in LOOK_BEHIND sized array...
     private DateTime lastClosestMin = DateTime.now();
 
-    private VolatilityBreakoutRules vbRules;
+    private VolatilityBreakout vbRules;
+    private PVTOBV pvtobv;
 
     public ShortTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                              int TRADING_WINDOW_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM,
@@ -181,7 +178,12 @@ public class ShortTradingEngine implements TradingEngine {
     }
 
     @Autowired
-    public void setVBRules(VolatilityBreakoutRules vbRules) {
+    public void setVBRules(VolatilityBreakout vbRules) {
         this.vbRules = vbRules;
+    }
+
+    @Autowired
+    public void setPVTOBV(PVTOBV pvtobv) {
+        this.pvtobv = pvtobv;
     }
 }

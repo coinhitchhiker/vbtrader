@@ -10,9 +10,9 @@ import java.util.List;
 
 import static org.joda.time.DateTimeZone.UTC;
 
-public class VolatilityBreakoutRules {
+public class VolatilityBreakout {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VolatilityBreakoutRules.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VolatilityBreakout.class);
 
     private final int TRADING_WINDOW_LOOK_BEHIND;
     private final int MA_MIN;
@@ -20,7 +20,7 @@ public class VolatilityBreakoutRules {
     private final double PRICE_MA_WEIGHT;
     private final double VOLUME_MA_WEIGHT;
 
-    public VolatilityBreakoutRules(int TRADING_WINDOW_LOOK_BEHIND, int MA_MIN, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT) {
+    public VolatilityBreakout(int TRADING_WINDOW_LOOK_BEHIND, int MA_MIN, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT) {
 
         this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
         this.MA_MIN = MA_MIN;

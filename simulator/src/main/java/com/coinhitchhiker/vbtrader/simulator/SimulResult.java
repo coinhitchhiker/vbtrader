@@ -20,6 +20,11 @@ public class SimulResult {
     private double TS_TRIGGER_PCT;
     private double TS_PCT;
     private String MODE;
+    private int PVT_LOOK_BEHIND;
+    private int PVT_SIGNAL_THRESHOLD;
+    private int OBV_LOOK_BEHIND;
+    private int OBV_BUY_SIGNAL_THRESHOLD;
+    private int OBV_SELL_SIGNAL_THRESHOLD;
 
     public double getVersion() {
         return version;
@@ -143,5 +148,45 @@ public class SimulResult {
 
     public void setMODE(String MODE) {
         this.MODE = MODE;
+    }
+
+    public int getPVT_LOOK_BEHIND() {
+        return PVT_LOOK_BEHIND;
+    }
+
+    public void setPVT_LOOK_BEHIND(int PVT_LOOK_BEHIND) {
+        this.PVT_LOOK_BEHIND = PVT_LOOK_BEHIND;
+    }
+
+    public int getPVT_SIGNAL_THRESHOLD() {
+        return PVT_SIGNAL_THRESHOLD;
+    }
+
+    public void setPVT_SIGNAL_THRESHOLD(int PVT_SIGNAL_THRESHOLD) {
+        this.PVT_SIGNAL_THRESHOLD = PVT_SIGNAL_THRESHOLD;
+    }
+
+    public int getOBV_LOOK_BEHIND() {
+        return OBV_LOOK_BEHIND;
+    }
+
+    public void setOBV_LOOK_BEHIND(int OBV_LOOK_BEHIND) {
+        this.OBV_LOOK_BEHIND = OBV_LOOK_BEHIND;
+    }
+
+    public int getOBV_BUY_SIGNAL_THRESHOLD() {
+        return OBV_BUY_SIGNAL_THRESHOLD;
+    }
+
+    public void setOBV_BUY_SIGNAL_THRESHOLD(int OBV_BUY_SIGNAL_THRESHOLD) {
+        this.OBV_BUY_SIGNAL_THRESHOLD = OBV_BUY_SIGNAL_THRESHOLD;
+    }
+
+    public int getOBV_SELL_SIGNAL_THRESHOLD() {
+        return OBV_SELL_SIGNAL_THRESHOLD;
+    }
+
+    public void setOBV_SELL_SIGNAL_THRESHOLD(int OBV_SELL_SIGNAL_THRESHOLD) {
+        this.OBV_SELL_SIGNAL_THRESHOLD = OBV_SELL_SIGNAL_THRESHOLD;
     }
 }

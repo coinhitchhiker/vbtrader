@@ -21,7 +21,7 @@ public class SimulatorRepositoryImplTest {
 
     private Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImplTest.class);
 
-    private Repository binanceRepo = new SimulatorRepositoryImpl("BINANCE", "BTCUSDT", 1551398400000L, 1564617600000L, 43, 0.7, 0.2);
+    private Repository binanceRepo = new SimulatorRepositoryImpl("BINANCE", "BTCUSDT", 1551398400000L, 1564617600000L, 43, 0.7, 0.2, null);
     private static final int tradingWindowSizeInMinutes = 43;
 
 
@@ -47,16 +47,17 @@ public class SimulatorRepositoryImplTest {
                 new DateTime(2019,8,1,0,0, DateTimeZone.UTC).getMillis(),
                         720,
                 0.7,
-                0.2
+                0.2,
+                null
         );
 
         assertThat(repo.getTradingWindows().size()).isEqualTo(37);
     }
 
     @Test
-//    @Ignore
+    @Ignore
     public void getBitmexCandle()  {
-        Repository bitmexRepo = new SimulatorRepositoryImpl("BITMEX", "XBTUSD", 1564617600000L, 1565740800000L, 43, 0.7, 0.2);
+        Repository bitmexRepo = new SimulatorRepositoryImpl("BITMEX", "XBTUSD", 1564617600000L, 1565740800000L, 43, 0.7, 0.2, null);
 
 
     }

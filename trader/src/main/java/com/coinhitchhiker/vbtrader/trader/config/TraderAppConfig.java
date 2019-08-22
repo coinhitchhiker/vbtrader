@@ -1,7 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakoutRules;
+import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
@@ -48,8 +48,8 @@ public class TraderAppConfig {
     }
 
     @Bean
-    public VolatilityBreakoutRules volatilityBreakoutRules() {
-        return new VolatilityBreakoutRules(TRADING_WINDOW_LOOK_BEHIND, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
+    public VolatilityBreakout volatilityBreakoutRules() {
+        return new VolatilityBreakout(TRADING_WINDOW_LOOK_BEHIND, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
     }
 
     @Bean(name="encryptorBean")
