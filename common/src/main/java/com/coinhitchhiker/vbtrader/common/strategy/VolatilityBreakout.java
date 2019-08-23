@@ -7,10 +7,11 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import static org.joda.time.DateTimeZone.UTC;
 
-public class VolatilityBreakout {
+public class VolatilityBreakout implements Strategy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VolatilityBreakout.class);
 
@@ -124,10 +125,10 @@ public class VolatilityBreakout {
         return lookbehindTradingWindows.stream().mapToDouble(TradingWindow::getNoiseRatio).average().getAsDouble();
     }
 
-    public double buySignalStrength(double curPrice,
-                                    TradingWindow curTradingWindow,
-                                    List<TradingWindow> lookbehindTradingWindows,
-                                    long curTimeStamp) {
+    private double longBuySignalStrength(double curPrice,
+                                         TradingWindow curTradingWindow,
+                                         List<TradingWindow> lookbehindTradingWindows,
+                                         long curTimeStamp) {
 
         if(curTradingWindow.getHighPrice() == 0 || curTradingWindow.getLowPrice() == 0) return 0;
 
@@ -168,10 +169,10 @@ public class VolatilityBreakout {
         return weightedMAScore;
     }
 
-    public double sellSignalStrength(double curPrice,
-                                     TradingWindow curTradingWindow,
-                                     List<TradingWindow> lookbehindTradingWindows,
-                                     long curTimeStamp) {
+    private double longSellSignalStrength(double curPrice,
+                                          TradingWindow curTradingWindow,
+                                          List<TradingWindow> lookbehindTradingWindows,
+                                          long curTimeStamp) {
         if(curTradingWindow.getHighPrice() == 0 || curTradingWindow.getLowPrice() == 0) return 0;
 
         double k = this.getKValue(lookbehindTradingWindows);
@@ -206,5 +207,36 @@ public class VolatilityBreakout {
         }
 
         return weightedMAScore;
+    }
+
+    @Override
+    public double sellSignalStrength(Map<String, Object> params) {
+        double curPrice = (double)params.get("curPrice");
+        TradingWindow curTradingWindow = (TradingWindow)params.get("curTradingWindow");
+        List<TradingWindow> lookbehindTradingWindows = (List)params.get("lookbehindTradingWindows");
+        long curTimestamp = (long)params.get("curTimestamp");
+        String mode = (String)params.get("mode");
+
+        // VB SELLING LOGIC
+        if(mode.equals("LONG") && curTimestamp > curTradingWindow.getEndTimeStamp()) {
+            return this.longSellSignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimestamp);
+        } else {
+            return 0;
+        }
+    }
+
+    @Override
+    public double buySignalStrength(Map<String, Object> params) {
+        double curPrice = (double)params.get("curPrice");
+        TradingWindow curTradingWindow = (TradingWindow)params.get("curTradingWindow");
+        List<TradingWindow> lookbehindTradingWindows = (List)params.get("lookbehindTradingWindows");
+        long curTimestamp = (long)params.get("curTimestamp");
+        String mode = (String)params.get("mode");
+
+        if(mode.equals("LONG")) {
+            return this.longBuySignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimestamp);
+        } else {
+            return 0;
+        }
     }
 }

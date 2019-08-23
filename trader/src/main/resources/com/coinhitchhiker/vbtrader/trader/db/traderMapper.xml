@@ -5,6 +5,20 @@
 
 <mapper namespace="com.coinhitchhiker.vbtrader.trader.db.TraderDAO">
 
+    <resultMap id="candleMap" type="com.coinhitchhiker.vbtrader.common.model.Candle">
+        <result column="symbol" property="symbol"/>
+        <result column="interval" property="interval"/>
+        <result column="openTime" property="openTime"/>
+        <result column="closeTime" property="closeTime"/>
+        <result column="openPrice" property="openPrice"/>
+        <result column="highPrice" property="highPrice"/>
+        <result column="lowPrice" property="lowPrice"/>
+        <result column="closePrice" property="closePrice"/>
+        <result column="volume" property="volume"/>
+        <result column="pvt" property="pvt"/>
+        <result column="obv" property="obv"/>
+    </resultMap>
+
     <select id="validateConnection" resultType="_int">
         select 1 from dual
     </select>
@@ -12,5 +26,13 @@
     <insert id="logCompleteTransaction">
         insert into VB.LOG_COMPLETE_TRANSACTION (completeTransaction) values (#{completeTransaction})
     </insert>
+
+    <select id="getBinanceCandles" resultMap="candleMap">
+        select * from CT.BINANCE_CANDLE
+        where symbol=#{symbol}
+        and `interval`=#{interval}
+        and openTime >= #{openTime}
+        and closeTime &lt; #{closeTime}
+    </select>
 
 </mapper>
