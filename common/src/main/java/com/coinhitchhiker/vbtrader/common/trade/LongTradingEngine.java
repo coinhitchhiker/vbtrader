@@ -38,7 +38,6 @@ public class LongTradingEngine implements TradingEngine {
 
     private DateTime lastClosestMin = DateTime.now();
 
-    private PVTOBV pvtobv;
     private Strategy strategy;
 
     public LongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
@@ -58,57 +57,26 @@ public class LongTradingEngine implements TradingEngine {
         this.TRAILING_STOP_ENABLED = TRAILING_STOP_ENABLED;
     }
 
-    private void buildTechnicalIndicator(long curTimestamp, double price) {
-        DateTime curClosestMin = Util.getClosestMin(new DateTime(curTimestamp, UTC));
-
-        if(lastClosestMin.equals(curClosestMin)) return;
-
-        double pvt = 0, obv = 0;
-
-        try {
-            // now 1min passed... build indicator for the 1min candle
-            pvt = repository.getPVT(curTimestamp);
-            obv = repository.getOBV(curTimestamp);
-
-            pvtobv.addPvtValue(pvt);
-            pvtobv.addObvValue(obv);
-            pvtobv.addPrice(price);
-
-            DateTime dt = new DateTime(curTimestamp, UTC);
-            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd H:m");
-            String str = fmt.print(dt);
-
-//        System.out.println(str + "," + curTimestamp + "," + pvt + "," + pvtobv.pvtDelta() + "," + obv + "," + pvtobv.obvDelta());
-
-        } catch (Exception e) {
-            LOGGER.error("curTimestamp={}, price={}, pvt={}, obv={}", curTimestamp, price, pvt, obv, e);
-        }
-
-        lastClosestMin = curClosestMin;
-    }
-
     @Override
     public TradeResult run(double curPrice, long curTimestamp) {
-        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
-        if(curTradingWindow == null) {
-            LOGGER.debug("curTradingWindow is null");
-            return null;
-        }
-
-        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimestamp);
-        if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
-            LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
-            return null;
-        }
-
-        buildTechnicalIndicator(curTimestamp, curPrice);
 
         Map<String, Object> params = new HashMap<>();
-        params.put("curPrice", curPrice);
-        params.put("curTradingWindow", curTradingWindow);
-        params.put("lookbehindTradingWindows", lookbehindTradingWindows);
+        params.put("repository", this.repository);
         params.put("curTimestamp", curTimestamp);
+        params.put("curPrice", curPrice);
         params.put("mode", "LONG");
+        if(!strategy.checkPrecondition(params)) {
+            return null;
+        }
+
+        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
+
+        // Digest curTimestamp & curPrice to collect any technical indicator that the strategy may rely on
+        DateTime curClosestMin = Util.getClosestMin(new DateTime(curTimestamp, UTC));
+        if(!lastClosestMin.equals(curClosestMin)) {
+            strategy.buildMinuteTechnicalIndicator(params);
+            lastClosestMin = curClosestMin;
+        }
 
         if(curTradingWindow.getBuyOrder() != null && strategy.sellSignalStrength(params) > 0) {
             TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
@@ -213,11 +181,6 @@ public class LongTradingEngine implements TradingEngine {
         }
 
         return tradeResult;
-    }
-
-    @Autowired
-    public void setPVTOBV(PVTOBV pvtobv) {
-        this.pvtobv = pvtobv;
     }
 
     @Autowired

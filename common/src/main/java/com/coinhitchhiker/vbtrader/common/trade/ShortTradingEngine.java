@@ -195,11 +195,6 @@ public class ShortTradingEngine implements TradingEngine {
     }
 
     @Autowired
-    public void setPVTOBV(PVTOBV pvtobv) {
-        this.pvtobv = pvtobv;
-    }
-
-    @Autowired
     public void setStrategy(Strategy strategy) {
         this.strategy = strategy;
     }
