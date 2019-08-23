@@ -172,7 +172,7 @@ public class VolatilityBreakout implements Strategy {
         return weightedMAScore;
     }
 
-    private double longSellSignalStrength(double curPrice,
+    private double shortSellSignalStrength(double curPrice,
                                           TradingWindow curTradingWindow,
                                           List<TradingWindow> lookbehindTradingWindows,
                                           long curTimeStamp) {
@@ -214,7 +214,6 @@ public class VolatilityBreakout implements Strategy {
 
     @Override
     public double sellSignalStrength(Map<String, Object> params) {
-        double curPrice = (double)params.get("curPrice");
         long curTimestamp = (long)params.get("curTimestamp");
         String mode = (String)params.get("mode");
         Repository repository = (Repository)params.get("repository");
@@ -222,11 +221,9 @@ public class VolatilityBreakout implements Strategy {
         TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
         if(curTradingWindow.getBuyOrder() == null) return 0;
 
-        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimestamp);
-
         // VB SELLING LOGIC
         if(mode.equals("LONG") && curTimestamp > curTradingWindow.getEndTimeStamp()) {
-            return this.longSellSignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimestamp);
+            return 1.0;
         } else {
             LOGGER.error("Unknown mode was given. Returning 0 sellSignalStrength");
             return 0;
