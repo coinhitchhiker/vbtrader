@@ -94,7 +94,8 @@ public class BinanceRepository implements Repository {
         allCandles = new LinkedList<>();
 
         for(int i = 0; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
-            List<Candle> candles = this.getCandles(TRADING_SYMBOL, windowStart, windowEnd);
+//            List<Candle> candles = this.getCandles(TRADING_SYMBOL, windowStart, windowEnd);
+            List<Candle> candles = this.getCandlesFromDB(TRADING_SYMBOL, windowStart, windowEnd);
 
             allCandles.addAll(candles);
 
@@ -151,11 +152,15 @@ public class BinanceRepository implements Repository {
         return result;
     }
 
+    private List<Candle> getCandlesFromDB(String symbol, long starTime, long endTime) {
+        return traderDAO.getBinanceCandles(symbol, "1m", starTime, endTime);
+    }
+
     private List<Candle> getCandles(String symbol, long startTime, long endTime) {
         List<Candle> candles = new ArrayList<>();
         String interval = "1m";
         while(true) {
-            String url = "https://api.binance.com//api/v1/klines?symbol="+symbol+"&interval="+interval+"&limit=1000&startTime="+startTime+"&endTime="+endTime;
+            String url = "https://api.binance.com/api/v1/klines?symbol="+symbol+"&interval="+interval+"&limit=1000&startTime="+startTime+"&endTime="+endTime;
             LOGGER.info(url);
             String response;
             try {

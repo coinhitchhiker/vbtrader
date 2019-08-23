@@ -3,6 +3,7 @@ package com.coinhitchhiker.vbtrader.common.trade;
 import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.Strategy;
 import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -11,7 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.joda.time.DateTimeZone.UTC;
 
@@ -31,15 +34,16 @@ public class LongTradingEngine implements TradingEngine {
     private final String EXCHANGE;
     private final double FEE_RATE;
     private final boolean TRADING_ENABLED;
+    private final boolean TRAILING_STOP_ENABLED;
 
     private DateTime lastClosestMin = DateTime.now();
 
-    private VolatilityBreakout vbRules;
     private PVTOBV pvtobv;
+    private Strategy strategy;
 
     public LongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                              int TRADING_WINDOW_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM,
-                             String EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED) {
+                             String EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED) {
         this.repository = repository;
         this.exchange = exchange;
         this.orderBookCache = orderBookCache;
@@ -51,6 +55,7 @@ public class LongTradingEngine implements TradingEngine {
         this.EXCHANGE = EXCHANGE;
         this.FEE_RATE = FEE_RATE;
         this.TRADING_ENABLED =  TRADING_ENABLED;
+        this.TRAILING_STOP_ENABLED = TRAILING_STOP_ENABLED;
     }
 
     private void buildTechnicalIndicator(long curTimestamp, double price) {
@@ -58,19 +63,26 @@ public class LongTradingEngine implements TradingEngine {
 
         if(lastClosestMin.equals(curClosestMin)) return;
 
-        // now 1min passed... build indicator for the 1min candle
-        double pvt = repository.getPVT(curTimestamp);
-        double obv = repository.getOBV(curTimestamp);
+        double pvt = 0, obv = 0;
 
-        pvtobv.addPvtValue(pvt);
-        pvtobv.addObvValue(obv);
-        pvtobv.addPrice(price);
+        try {
+            // now 1min passed... build indicator for the 1min candle
+            pvt = repository.getPVT(curTimestamp);
+            obv = repository.getOBV(curTimestamp);
 
-        DateTime dt = new DateTime(curTimestamp, UTC);
-        DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd H:m");
-        String str = fmt.print(dt);
+            pvtobv.addPvtValue(pvt);
+            pvtobv.addObvValue(obv);
+            pvtobv.addPrice(price);
+
+            DateTime dt = new DateTime(curTimestamp, UTC);
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd H:m");
+            String str = fmt.print(dt);
 
 //        System.out.println(str + "," + curTimestamp + "," + pvt + "," + pvtobv.pvtDelta() + "," + obv + "," + pvtobv.obvDelta());
+
+        } catch (Exception e) {
+            LOGGER.error("curTimestamp={}, price={}, pvt={}, obv={}", curTimestamp, price, pvt, obv, e);
+        }
 
         lastClosestMin = curClosestMin;
     }
@@ -91,43 +103,27 @@ public class LongTradingEngine implements TradingEngine {
 
         buildTechnicalIndicator(curTimestamp, curPrice);
 
-//        // VB SEELING LOGIC
-//        if(curTimestamp > curTradingWindow.getEndTimeStamp()) {
-//            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
-//            if(tradeResult != null) {
-//                LOGGERBUYSELL.info("---------------WINDOW END HIT------------------------");
-//            }
-//            repository.refreshTradingWindows();
-//            return tradeResult;
-//        }
+        Map<String, Object> params = new HashMap<>();
+        params.put("curPrice", curPrice);
+        params.put("curTradingWindow", curTradingWindow);
+        params.put("lookbehindTradingWindows", lookbehindTradingWindows);
+        params.put("curTimestamp", curTimestamp);
+        params.put("mode", "LONG");
 
-        // PVTOBT SELLING LOGIC
-        if(curTradingWindow.getBuyOrder() != null) {
-            double sellSignal = pvtobv.sellSignalStrength();
-            if(sellSignal > 0) {
-                TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
-                repository.refreshTradingWindows();
-                return tradeResult;
-            }
+        if(curTradingWindow.getBuyOrder() != null && strategy.sellSignalStrength(params) > 0) {
+            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
+            repository.refreshTradingWindows();
+            return tradeResult;
         }
 
         // TRAILING STOP
-        if(curTradingWindow.getBuyOrder() != null && curTradingWindow.getTrailingStopPrice() > curPrice) {
+        if(TRAILING_STOP_ENABLED && curTradingWindow.getBuyOrder() != null && curTradingWindow.getTrailingStopPrice() > curPrice) {
            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
             LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
             LOGGERBUYSELL.info("---------------LONG TRAILING STOP HIT------------------------");
             curTradingWindow.clearOutOrders();
             return tradeResult;
         }
-
-//        // STOP LOSS
-//        if(curTradingWindow.getBuyOrder() != null && curPrice < curTradingWindow.getStopLossPrice()) {
-//            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
-//            LOGGERBUYSELL.info("stopLossPrice {} > curPrice {}", curTradingWindow.getStopLossPrice(), curPrice);
-//            LOGGERBUYSELL.info("---------------STOP LOSS HIT------------------------");
-//            curTradingWindow.clearOutOrders();
-//            return tradeResult;
-//        }
 
         // if a buy order was placed in this trading window and no trailing stop price has been touched
         // we do nothing until this trading window is over
@@ -137,16 +133,13 @@ public class LongTradingEngine implements TradingEngine {
             return null;
         }
 
-//        double vbBuySignal = vbRules.buySignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimestamp);
-//        double signalStrength = vbBuySignal;
-        double pvtobvBuySignal = pvtobv.buySignalStrength();
-        double signalStrength = pvtobvBuySignal;
+        double buySignalStrength = strategy.buySignalStrength(params);
 
-        if(signalStrength == 0) return null;
+        if(buySignalStrength == 0) return null;
 
         double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
         double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
-        double cost = availableBalance * signalStrength;
+        double cost = availableBalance * buySignalStrength;
         double amount = cost / buyPrice;
         OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
 
@@ -223,12 +216,12 @@ public class LongTradingEngine implements TradingEngine {
     }
 
     @Autowired
-    public void setVBRules(VolatilityBreakout vbRules) {
-        this.vbRules = vbRules;
+    public void setPVTOBV(PVTOBV pvtobv) {
+        this.pvtobv = pvtobv;
     }
 
     @Autowired
-    public void setPVTOBV(PVTOBV pvtobv) {
-        this.pvtobv = pvtobv;
+    public void setStrategy(Strategy strategy) {
+        this.strategy = strategy;
     }
 }

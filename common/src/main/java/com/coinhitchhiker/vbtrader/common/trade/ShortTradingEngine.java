@@ -2,6 +2,7 @@ package com.coinhitchhiker.vbtrader.common.trade;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.Strategy;
 import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -9,7 +10,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.joda.time.DateTimeZone.UTC;
 
@@ -28,15 +31,16 @@ public class ShortTradingEngine implements TradingEngine {
     private final String EXCHANGE;
     private final double FEE_RATE;
     private final boolean TRADING_ENABLED;
+    private final boolean TRAILING_STOP_ENABLED;
 
     private DateTime lastClosestMin = DateTime.now();
 
-    private VolatilityBreakout vbRules;
+    private Strategy strategy;
     private PVTOBV pvtobv;
 
     public ShortTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                              int TRADING_WINDOW_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM,
-                             String EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED) {
+                             String EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED) {
         this.repository = repository;
         this.exchange = exchange;
         this.orderBookCache = orderBookCache;
@@ -48,25 +52,32 @@ public class ShortTradingEngine implements TradingEngine {
         this.EXCHANGE = EXCHANGE;
         this.FEE_RATE = FEE_RATE;
         this.TRADING_ENABLED = TRADING_ENABLED;
+        this.TRAILING_STOP_ENABLED = TRAILING_STOP_ENABLED;
     }
 
     @Override
-    public TradeResult run(double curPrice, long curTimeStamp) {
+    public TradeResult run(double curPrice, long curTimestamp) {
 
-        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimeStamp);
+        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
         if(curTradingWindow == null) {
             LOGGER.debug("curTradingWindow is null");
             return null;
         }
 
-        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimeStamp);
+        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimestamp);
         if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
             LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
             return null;
         }
 
-        if(curTimeStamp > curTradingWindow.getEndTimeStamp()) {
-            TradeResult tradeResult = sellAtMarketPrice(curTimeStamp);
+        Map<String, Object> params = new HashMap<>();
+        params.put("curPrice", curPrice);
+        params.put("curTradingWindow", curTradingWindow);
+        params.put("lookbehindTradingWindows", lookbehindTradingWindows);
+        params.put("curTimestamp", curTimestamp);
+
+        if(curTimestamp > curTradingWindow.getEndTimeStamp()) {
+            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
             repository.refreshTradingWindows();
             return tradeResult;
         }
@@ -82,7 +93,7 @@ public class ShortTradingEngine implements TradingEngine {
                 (0 < curTradingWindow.getTrailingStopPrice() && curTradingWindow.getTrailingStopPrice() < curPrice)) {
             LOGGER.info("---------------SHORT TRAILING STOP HIT------------------------");
             LOGGER.info("trailingStopPrice {} < curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
-            TradeResult tradeResult = sellAtMarketPrice(curTimeStamp);
+            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
             curTradingWindow.clearOutOrders();
             return tradeResult;
         }
@@ -95,7 +106,7 @@ public class ShortTradingEngine implements TradingEngine {
             return null;
         }
 
-        double signalStrength = vbRules.sellSignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimeStamp);
+        double signalStrength = strategy.sellSignalStrength(params);
 
         if(signalStrength == 0) return null;
 
@@ -108,6 +119,12 @@ public class ShortTradingEngine implements TradingEngine {
                 LOGGER.info("TRADING DISABLED!");
                 return null;
             }
+
+            if(true) {
+                LOGGER.error("Refactoring in progress....... No actual trading will happen!!");
+                return null;
+            }
+
             OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, amount);
             OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
             LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
@@ -121,7 +138,7 @@ public class ShortTradingEngine implements TradingEngine {
 
         LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
                 , new DateTime(curTradingWindow.getEndTimeStamp(), UTC)
-                , new DateTime(curTimeStamp, UTC)
+                , new DateTime(curTimestamp, UTC)
                 , curTradingWindow.getHighPrice()
                 , curTradingWindow.getLowPrice()
         );
@@ -178,12 +195,12 @@ public class ShortTradingEngine implements TradingEngine {
     }
 
     @Autowired
-    public void setVBRules(VolatilityBreakout vbRules) {
-        this.vbRules = vbRules;
+    public void setPVTOBV(PVTOBV pvtobv) {
+        this.pvtobv = pvtobv;
     }
 
     @Autowired
-    public void setPVTOBV(PVTOBV pvtobv) {
-        this.pvtobv = pvtobv;
+    public void setStrategy(Strategy strategy) {
+        this.strategy = strategy;
     }
 }

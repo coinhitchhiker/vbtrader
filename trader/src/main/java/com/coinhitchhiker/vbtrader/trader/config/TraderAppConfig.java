@@ -1,6 +1,8 @@
 package com.coinhitchhiker.vbtrader.trader.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.Strategy;
 import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
@@ -37,19 +39,45 @@ public class TraderAppConfig {
     @Value("${trading.volume.weight}") private double VOLUME_MA_WEIGHT;
     @Value("${trading.limit.order.premium}") private double LIMIT_ORDER_PREMIUM;
     @Value("${trading.fee.rate}") private double FEE_RATE;
+    @Value("${trading.strategy}") private String strategy;
+    @Value("${trading.ts.enabled}") private boolean trailingStopEnabled;
 
     @Bean
     public TradingEngine tradeEngine() {
         if(MODE.equals("LONG")) {
-            return new LongTradingEngine(repository(), exchange(), orderBookCache(), TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, exchange, FEE_RATE, tradingEnabled);
+            return new LongTradingEngine(repository(),
+                    exchange(),
+                    orderBookCache(),
+                    TRADING_WINDOW_LOOK_BEHIND,
+                    SYMBOL,
+                    QUOTE_CURRENCY,
+                    LIMIT_ORDER_PREMIUM,
+                    exchange,
+                    FEE_RATE,
+                    tradingEnabled,
+                    trailingStopEnabled);
         } else {
-            return new ShortTradingEngine(repository(), exchange(), orderBookCache(), TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, exchange, FEE_RATE, tradingEnabled);
+            return new ShortTradingEngine(repository(),
+                    exchange(),
+                    orderBookCache(),
+                    TRADING_WINDOW_LOOK_BEHIND,
+                    SYMBOL,
+                    QUOTE_CURRENCY,
+                    LIMIT_ORDER_PREMIUM,
+                    exchange,
+                    FEE_RATE,
+                    tradingEnabled,
+                    trailingStopEnabled);
         }
     }
 
     @Bean
-    public VolatilityBreakout volatilityBreakoutRules() {
-        return new VolatilityBreakout(TRADING_WINDOW_LOOK_BEHIND, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
+    public Strategy strategy() {
+        if(this.strategy.equals("VB")) {
+            return new VolatilityBreakout(TRADING_WINDOW_LOOK_BEHIND, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
+        } else {
+            throw new RuntimeException("Unsupported strategy was given. " + this.strategy);
+        }
     }
 
     @Bean(name="encryptorBean")

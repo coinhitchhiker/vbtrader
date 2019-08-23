@@ -97,12 +97,12 @@ public class Simulator {
 
         TradingEngine tradingEngine = null;
         if(this.MODE.equals("LONG")) {
-            tradingEngine = new LongTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true);
+            tradingEngine = new LongTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true, true);
         } else {
-            tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true);
+            tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true, true);
         }
-        tradingEngine.setVBRules(this.vbRules);
         tradingEngine.setPVTOBV(this.pvtobv);
+        tradingEngine.setStrategy(this.vbRules);
 
         long curTimestamp = 0; double curPrice = 0;
 
