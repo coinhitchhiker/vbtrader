@@ -104,6 +104,8 @@ public class VolatilityBreakout implements Strategy {
                 vol += candleVolumes.get(i);
             }
         }
+        // add residual vol to the end of volumes array
+        volumes.add(vol);
 
         double curVol = volumes.get(0);
         volumes.remove(0);
@@ -239,6 +241,8 @@ public class VolatilityBreakout implements Strategy {
         String mode = (String)params.get("mode");
 
         TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
+
+        // load one more trading window to
         List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimestamp);
 
         if(mode.equals("LONG")) {
