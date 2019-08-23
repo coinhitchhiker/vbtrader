@@ -94,14 +94,18 @@ public class BinanceRepository implements Repository {
         allCandles = new LinkedList<>();
 
         for(int i = 0; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
-//            List<Candle> candles = this.getCandles(TRADING_SYMBOL, windowStart, windowEnd);
-            List<Candle> candles = this.getCandlesFromDB(TRADING_SYMBOL, windowStart, windowEnd);
+            List<Candle> candles = this.getCandles(TRADING_SYMBOL, windowStart, windowEnd);
+//            List<Candle> candles = this.getCandlesFromDB(TRADING_SYMBOL, windowStart, windowEnd);
+            if(candles == null || candles.size() == 0) {
+                LOGGER.warn("No candle data was found from BINANCE or DB");
+            } else {
+                allCandles.addAll(candles);
 
-            allCandles.addAll(candles);
+                TradingWindow tw = TradingWindow.of(candles);
+                LOGGER.debug("{}/{} {}", i, TRADING_WINDOW_LOOK_BEHIND, tw.toString());
+                pastTradingWindows.add(tw);
+            }
 
-            TradingWindow tw = TradingWindow.of(candles);
-            LOGGER.debug("{}/{} {}", i, TRADING_WINDOW_LOOK_BEHIND, tw.toString());
-            pastTradingWindows.add(tw);
             windowEnd -= TRADING_WINDOW_SIZE * 60 * 1000;
             windowStart -= TRADING_WINDOW_SIZE * 60 * 1000;
             try {Thread.sleep(300L);} catch(Exception e) {}

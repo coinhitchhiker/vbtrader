@@ -1,5 +1,10 @@
 package com.coinhitchhiker.vbtrader.common.strategy;
 
+import com.coinhitchhiker.vbtrader.common.Util;
+import com.coinhitchhiker.vbtrader.common.model.Repository;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -7,13 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static org.joda.time.DateTimeZone.UTC;
+
 public class PVTOBV {
 
     private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
+    private static final Logger LOGGER = LoggerFactory.getLogger(PVTOBV.class);
 
     private List<Double> lastNPvtValues = new ArrayList<>();
     private List<Double> lastNObvValues = new ArrayList<>();
     private List<Double> lastNPrices = new ArrayList<>();
+
+    private Repository repository;
 
     private int PVT_LOOK_BEHIND;
     private int PVT_SIGNAL_THRESHOLD;
@@ -123,6 +133,34 @@ public class PVTOBV {
                     OBV_SELL_SIGNAL_THRESHOLD);
         }
         return pvtCondition && obvCondition ? 1 : 0;
+    }
+
+    public void buildMinuteTechnicalIndicator(Map<String, Object> params) {
+
+        long curTimestamp = (long)params.get("curTimestamp");
+        double curPrice = (double)params.get("curPrice");
+        Repository repository = (Repository)params.get("repository");
+
+        double pvt = 0, obv = 0;
+
+        try {
+            // now 1min passed... build indicator for the 1min candle
+            pvt = repository.getPVT(curTimestamp);
+            obv = repository.getOBV(curTimestamp);
+
+            this.addPvtValue(pvt);
+            this.addObvValue(obv);
+            this.addPrice(curPrice);
+
+            DateTime dt = new DateTime(curTimestamp, UTC);
+            DateTimeFormatter fmt = DateTimeFormat.forPattern("yyyy-MM-dd H:m");
+            String str = fmt.print(dt);
+
+//        System.out.println(str + "," + curTimestamp + "," + pvt + "," + pvtobv.pvtDelta() + "," + obv + "," + pvtobv.obvDelta());
+
+        } catch (Exception e) {
+            LOGGER.error("curTimestamp={}, price={}, pvt={}, obv={}", curTimestamp, curPrice, pvt, obv, e);
+        }
     }
 
     public int getPVT_LOOK_BEHIND() {

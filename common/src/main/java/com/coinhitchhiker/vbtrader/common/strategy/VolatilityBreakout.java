@@ -1,5 +1,6 @@
 package com.coinhitchhiker.vbtrader.common.strategy;
 
+import com.coinhitchhiker.vbtrader.common.model.Repository;
 import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -212,15 +213,20 @@ public class VolatilityBreakout implements Strategy {
     @Override
     public double sellSignalStrength(Map<String, Object> params) {
         double curPrice = (double)params.get("curPrice");
-        TradingWindow curTradingWindow = (TradingWindow)params.get("curTradingWindow");
-        List<TradingWindow> lookbehindTradingWindows = (List)params.get("lookbehindTradingWindows");
         long curTimestamp = (long)params.get("curTimestamp");
         String mode = (String)params.get("mode");
+        Repository repository = (Repository)params.get("repository");
+
+        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
+        if(curTradingWindow.getBuyOrder() == null) return 0;
+
+        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimestamp);
 
         // VB SELLING LOGIC
         if(mode.equals("LONG") && curTimestamp > curTradingWindow.getEndTimeStamp()) {
             return this.longSellSignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimestamp);
         } else {
+            LOGGER.error("Unknown mode was given. Returning 0 sellSignalStrength");
             return 0;
         }
     }
@@ -228,15 +234,36 @@ public class VolatilityBreakout implements Strategy {
     @Override
     public double buySignalStrength(Map<String, Object> params) {
         double curPrice = (double)params.get("curPrice");
-        TradingWindow curTradingWindow = (TradingWindow)params.get("curTradingWindow");
-        List<TradingWindow> lookbehindTradingWindows = (List)params.get("lookbehindTradingWindows");
+        Repository repository = (Repository)params.get("repository");
         long curTimestamp = (long)params.get("curTimestamp");
         String mode = (String)params.get("mode");
+
+        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
+        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimestamp);
 
         if(mode.equals("LONG")) {
             return this.longBuySignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimestamp);
         } else {
+            LOGGER.error("Unknown mode was given. Returning 0 buySignalStrength");
             return 0;
         }
+    }
+
+    public boolean checkPrecondition(Map<String, Object> params) {
+        Repository repository = (Repository)params.get("repository");
+        long curTimestamp = (long)params.get("curTimestamp");
+
+        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
+        if(curTradingWindow == null) {
+            LOGGER.debug("curTradingWindow is null");
+            return false;
+        }
+
+        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimestamp);
+        if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
+            LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
+            return false;
+        }
+        return true;
     }
 }

@@ -55,6 +55,7 @@ public class SimulatorAppMain implements CommandLineRunner {
                 parsedBBInput.get(CmdLine.OBV_LOOK_BEHIND).intValue(),
                 parsedBBInput.get(CmdLine.OBV_BUY_SIGNAL_THRESHOLD).intValue(),
                 parsedBBInput.get(CmdLine.OBV_SELL_SIGNAL_THRESHOLD).intValue()
+
         );
         return pvtobv;
     }
