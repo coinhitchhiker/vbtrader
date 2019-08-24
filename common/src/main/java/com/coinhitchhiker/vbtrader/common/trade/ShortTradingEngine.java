@@ -1,15 +1,12 @@
 package com.coinhitchhiker.vbtrader.common.trade;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
-import com.coinhitchhiker.vbtrader.common.strategy.Strategy;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
+import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,7 +15,7 @@ import static org.joda.time.DateTimeZone.UTC;
 
 public class ShortTradingEngine implements TradingEngine {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LongTradingEngine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VBLongTradingEngine.class);
 
     private final Repository repository;
     private final Exchange exchange;
@@ -35,7 +32,6 @@ public class ShortTradingEngine implements TradingEngine {
 
     private DateTime lastClosestMin = DateTime.now();
 
-    private Strategy strategy;
     private PVTOBV pvtobv;
 
     public ShortTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
@@ -106,7 +102,8 @@ public class ShortTradingEngine implements TradingEngine {
             return null;
         }
 
-        double signalStrength = strategy.sellSignalStrength(params);
+//        double signalStrength = strategy.sellSignalStrength(params);
+        double signalStrength = 0;
 
         if(signalStrength == 0) return null;
 
@@ -194,8 +191,4 @@ public class ShortTradingEngine implements TradingEngine {
         return tradeResult;
     }
 
-    @Autowired
-    public void setStrategy(Strategy strategy) {
-        this.strategy = strategy;
-    }
 }

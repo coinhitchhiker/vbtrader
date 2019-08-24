@@ -1,18 +1,13 @@
-package com.coinhitchhiker.vbtrader.common.strategy;
+package com.coinhitchhiker.vbtrader.common.strategy.vb;
 
-import com.coinhitchhiker.vbtrader.common.model.Repository;
 import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
-import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static org.joda.time.DateTimeZone.UTC;
-
-public class VolatilityBreakout implements Strategy {
+public class VolatilityBreakout  {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VolatilityBreakout.class);
 
@@ -31,7 +26,7 @@ public class VolatilityBreakout implements Strategy {
         this.VOLUME_MA_WEIGHT = VOLUME_MA_WEIGHT;
     }
 
-    private double getPriceMAScore(
+    public static double getPriceMAScore(
             final List<TradingWindow> lookbehindTradingWindows
             , final double curPrice
             , final int MA_MIN
@@ -70,7 +65,7 @@ public class VolatilityBreakout implements Strategy {
         return (aboveMaCnt * 1.0) / (TRADING_WINDOW_LOOK_BEHIND - MA_MIN + 1);
     }
 
-    public double getVolumeMAScore_aggresive(final List<TradingWindow> lookbehindTradingWindows,
+    public static double getVolumeMAScore_aggresive(final List<TradingWindow> lookbehindTradingWindows,
                                                     final TradingWindow curTradingWindow,
                                                     final int MA_MIN,
                                                     final int TRADING_WINDOW_LOOK_BEHIND,
@@ -124,52 +119,8 @@ public class VolatilityBreakout implements Strategy {
         return (aboveMaCnt * 1.0) / (TRADING_WINDOW_LOOK_BEHIND - MA_MIN + 1);
     }
 
-    private double getKValue(List<TradingWindow> lookbehindTradingWindows) {
+    public static double getKValue(List<TradingWindow> lookbehindTradingWindows) {
         return lookbehindTradingWindows.stream().mapToDouble(TradingWindow::getNoiseRatio).average().getAsDouble();
-    }
-
-    private double longBuySignalStrength(double curPrice,
-                                         TradingWindow curTradingWindow,
-                                         List<TradingWindow> lookbehindTradingWindows,
-                                         long curTimeStamp) {
-
-        if(curTradingWindow.getHighPrice() == 0 || curTradingWindow.getLowPrice() == 0) return 0;
-
-        double k = this.getKValue(lookbehindTradingWindows);
-
-        boolean priceBreakout = curPrice > curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange();
-
-        if(!priceBreakout) {
-            LOGGER.info("[---------------------NO BUY SIGNAL DETECTED----------------------------]");
-            LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
-                    curPrice ,
-                    curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
-                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-            return 0;
-        }
-
-//        double volume = curTradingWindow.getVolume();
-//        double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-        double priceMAScore = this.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-        double volumeMAScore = this.getVolumeMAScore_aggresive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimeStamp);
-        double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
-
-        if(weightedMAScore > 0) {
-            LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
-            LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
-                    curPrice,
-                    curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange(),
-                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-        } else {
-            LOGGER.info("[-----------------BUY SIGNAL DETECTED BUT COST IS 0------------------------]");
-            LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
-                    curPrice ,
-                    curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
-                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-            LOGGER.info("tradingWindow endTime {}", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
-        }
-
-        return weightedMAScore;
     }
 
     private double shortSellSignalStrength(double curPrice,
@@ -210,61 +161,5 @@ public class VolatilityBreakout implements Strategy {
         }
 
         return weightedMAScore;
-    }
-
-    @Override
-    public double sellSignalStrength(Map<String, Object> params) {
-        long curTimestamp = (long)params.get("curTimestamp");
-        String mode = (String)params.get("mode");
-        Repository repository = (Repository)params.get("repository");
-
-        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
-        if(curTradingWindow.getBuyOrder() == null) return 0;
-
-        // VB SELLING LOGIC
-        if(mode.equals("LONG") && curTimestamp > curTradingWindow.getEndTimeStamp()) {
-            return 1.0;
-        } else {
-            LOGGER.error("Unknown mode was given. Returning 0 sellSignalStrength");
-            return 0;
-        }
-    }
-
-    @Override
-    public double buySignalStrength(Map<String, Object> params) {
-        double curPrice = (double)params.get("curPrice");
-        Repository repository = (Repository)params.get("repository");
-        long curTimestamp = (long)params.get("curTimestamp");
-        String mode = (String)params.get("mode");
-
-        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
-
-        // load one more trading window to
-        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND, curTimestamp);
-
-        if(mode.equals("LONG")) {
-            return this.longBuySignalStrength(curPrice, curTradingWindow, lookbehindTradingWindows, curTimestamp);
-        } else {
-            LOGGER.error("Unknown mode was given. Returning 0 buySignalStrength");
-            return 0;
-        }
-    }
-
-    public boolean checkPrecondition(Map<String, Object> params) {
-        Repository repository = (Repository)params.get("repository");
-        long curTimestamp = (long)params.get("curTimestamp");
-
-        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
-        if(curTradingWindow == null) {
-            LOGGER.debug("curTradingWindow is null");
-            return false;
-        }
-
-        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimestamp);
-        if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
-            LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
-            return false;
-        }
-        return true;
     }
 }

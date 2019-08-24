@@ -53,6 +53,11 @@ public class SimulatorExchange implements Exchange {
 
     @Override
     public OrderInfo placeOrder(OrderInfo orderInfo) {
+        if(orderInfo.getStopPrice() > 0) {
+            orderInfo.setOrderStatus(OrderStatus.PENDING);
+            return orderInfo;
+        }
+
         orderInfo.setAmountExecuted(orderInfo.getAmount());
         orderInfo.setOrderStatus(OrderStatus.COMPLETE);
         orderInfo.setExecTimestamp(this.curTimestamp);
@@ -69,9 +74,9 @@ public class SimulatorExchange implements Exchange {
                 }
             }
         } else {
-            double tralingStopPrice = repository.getCurrentTradingWindow(curTimestamp).getTrailingStopPrice();
-            if(tralingStopPrice > 0.0) {
-                orderInfo.setPriceExecuted(tralingStopPrice * (1-SLIPPAGE));
+            double trailingStopPrice = repository.getCurrentTradingWindow(curTimestamp).getTrailingStopPrice();
+            if(trailingStopPrice > 0.0) {
+                orderInfo.setPriceExecuted(trailingStopPrice * (1-SLIPPAGE));
             } else {
                 double stopLossPrice = repository.getCurrentTradingWindow(curTimestamp).getStopLossPrice();
                 if(stopLossPrice > 0) {
@@ -91,7 +96,41 @@ public class SimulatorExchange implements Exchange {
 
     @Override
     public OrderInfo getOrder(OrderInfo orderInfo) {
-        return null;
+        double stopLossPrice = orderInfo.getStopPrice();
+        if(stopLossPrice > 0) {
+            if(orderInfo.getOrderStatus() == OrderStatus.PENDING) {
+                if(curPrice < orderInfo.getPrice()) {
+                    double rnd = Math.random();
+                    if(rnd > 0.5) {
+                        orderInfo.setOrderStatus(OrderStatus.COMPLETE);
+                        orderInfo.setAmountExecuted(orderInfo.getAmount());
+                        orderInfo.setExecTimestamp(this.curTimestamp);
+                    } else {
+                        orderInfo.setOrderStatus(OrderStatus.PARTIALLY_FILLED);
+                        orderInfo.setAmountExecuted(orderInfo.getAmount()/2);
+                        orderInfo.setExecTimestamp(this.curTimestamp);
+                    }
+                    return orderInfo;
+                } else {
+                    return orderInfo;
+                }
+            } else if(orderInfo.getOrderStatus() == OrderStatus.PARTIALLY_FILLED) {
+                if(curPrice > orderInfo.getStopPrice()) {
+                    double rnd = Math.random();
+                    if(rnd > 0.5) {
+                        orderInfo.setOrderStatus(OrderStatus.COMPLETE);
+                        orderInfo.setAmountExecuted(orderInfo.getAmount());
+                        orderInfo.setExecTimestamp(this.curTimestamp);
+                    } else {
+                        orderInfo.setOrderStatus(OrderStatus.PARTIALLY_FILLED);
+                        orderInfo.setAmountExecuted(orderInfo.getAmount()/2);
+                        orderInfo.setExecTimestamp(this.curTimestamp);
+                    }
+                    return orderInfo;
+                }
+            }
+        }
+        return orderInfo;
     }
 
     @Override

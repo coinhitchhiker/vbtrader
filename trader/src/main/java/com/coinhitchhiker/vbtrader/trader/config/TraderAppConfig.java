@@ -1,11 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
-import com.coinhitchhiker.vbtrader.common.strategy.Strategy;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
-import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
-import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceOrderBookCache;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceRepository;
@@ -39,44 +35,28 @@ public class TraderAppConfig {
     @Value("${trading.volume.weight}") private double VOLUME_MA_WEIGHT;
     @Value("${trading.limit.order.premium}") private double LIMIT_ORDER_PREMIUM;
     @Value("${trading.fee.rate}") private double FEE_RATE;
-    @Value("${trading.strategy}") private String strategy;
-    @Value("${trading.ts.enabled}") private boolean trailingStopEnabled;
+    @Value("${trading.strategy}") private String STRATEGY;
+    @Value("${trading.ts.enabled}") private boolean TRAILING_STOP_ENABLED;
 
     @Bean
     public TradingEngine tradeEngine() {
-        if(MODE.equals("LONG")) {
-            return new LongTradingEngine(repository(),
+        if(MODE.equals("LONG") && STRATEGY.equals("VB")) {
+            return new VBLongTradingEngine(repository(),
                     exchange(),
                     orderBookCache(),
                     TRADING_WINDOW_LOOK_BEHIND,
+                    TRADING_WINDOW_SIZE,
+                    PRICE_MA_WEIGHT,
+                    VOLUME_MA_WEIGHT,
                     SYMBOL,
                     QUOTE_CURRENCY,
                     LIMIT_ORDER_PREMIUM,
                     exchange,
                     FEE_RATE,
                     tradingEnabled,
-                    trailingStopEnabled);
+                    TRAILING_STOP_ENABLED);
         } else {
-            return new ShortTradingEngine(repository(),
-                    exchange(),
-                    orderBookCache(),
-                    TRADING_WINDOW_LOOK_BEHIND,
-                    SYMBOL,
-                    QUOTE_CURRENCY,
-                    LIMIT_ORDER_PREMIUM,
-                    exchange,
-                    FEE_RATE,
-                    tradingEnabled,
-                    trailingStopEnabled);
-        }
-    }
-
-    @Bean
-    public Strategy strategy() {
-        if(this.strategy.equals("VB")) {
-            return new VolatilityBreakout(TRADING_WINDOW_LOOK_BEHIND, 3, TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT);
-        } else {
-            throw new RuntimeException("Unsupported strategy was given. " + this.strategy);
+            throw new UnsupportedOperationException("Not yet supported");
         }
     }
 
