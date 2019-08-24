@@ -78,7 +78,7 @@ public class LongTradingEngine implements TradingEngine {
             lastClosestMin = curClosestMin;
         }
 
-        if(curTradingWindow.getBuyOrder() != null && strategy.sellSignalStrength(params) > 0) {
+        if(strategy.sellSignalStrength(params) > 0) {
             TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
             repository.refreshTradingWindows();
             return tradeResult;
