@@ -145,6 +145,8 @@ public class VolatilityBreakout implements Strategy {
                     curPrice ,
                     curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
                     curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            LOGGER.info("curTimestamp {} curTradingWindow ends at {}", new DateTime(curTimeStamp, UTC),
+                    new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
             return 0;
         }
 
@@ -166,7 +168,8 @@ public class VolatilityBreakout implements Strategy {
                     curPrice ,
                     curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
                     curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-            LOGGER.info("tradingWindow endTime {}", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
+            LOGGER.info("curTimestamp {} curTradingWindow ends at {}", new DateTime(curTimeStamp, UTC),
+                    new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
         }
 
         return weightedMAScore;
@@ -218,14 +221,17 @@ public class VolatilityBreakout implements Strategy {
         String mode = (String)params.get("mode");
         Repository repository = (Repository)params.get("repository");
 
+        if(!mode.equals("LONG")) {
+            LOGGER.error("Unsupported mode was given: " + mode);
+            return 0;
+        }
+
         TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
-        if(curTradingWindow.getBuyOrder() == null) return 0;
 
         // VB SELLING LOGIC
-        if(mode.equals("LONG") && curTimestamp > curTradingWindow.getEndTimeStamp()) {
+        if(curTimestamp > curTradingWindow.getEndTimeStamp()) {
             return 1.0;
         } else {
-            LOGGER.error("Unknown mode was given. Returning 0 sellSignalStrength");
             return 0;
         }
     }
