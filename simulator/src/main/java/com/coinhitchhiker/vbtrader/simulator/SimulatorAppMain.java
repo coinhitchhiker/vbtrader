@@ -1,7 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
+import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.vb.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;

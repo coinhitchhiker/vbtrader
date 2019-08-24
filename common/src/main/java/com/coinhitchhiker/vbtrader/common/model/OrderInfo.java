@@ -11,6 +11,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
     private String exchange;
     private String symbol;
     private OrderSide orderSide;
+    private double stopPrice;
     private double price;
     private double amount;
     private String externalOrderId;
@@ -36,6 +37,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
         o.setOrderStatus(orderStatus);
         o.setAmountExecuted(amountExecuted);
         o.setPriceExecuted(priceExecuted);
+        o.setStopPrice(stopPrice);
         return o;
     }
 
@@ -121,6 +123,14 @@ public class OrderInfo implements Comparable<OrderInfo> {
         this.feeCurrency = feeCurrency;
     }
 
+    public double getStopPrice() {
+        return stopPrice;
+    }
+
+    public void setStopPrice(double stopPrice) {
+        this.stopPrice = stopPrice;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -136,25 +146,26 @@ public class OrderInfo implements Comparable<OrderInfo> {
 
     @Override
     public int hashCode() {
-        return Objects.hash(exchange, symbol, orderSide, price, amount, externalOrderId);
+        return Objects.hash(exchange, symbol, orderSide, stopPrice, price, amount, externalOrderId, execTimestamp, orderStatus, amountExecuted, priceExecuted, feePaid, feeCurrency);
     }
 
     @Override
     public String toString() {
         return "OrderInfo{" +
-            "exchange=" + exchange +
-            ", symbol='" + symbol + '\'' +
-            ", orderSide=" + orderSide +
-            ", price=" + price +
-            ", amount=" + amount +
-            ", externalOrderId='" + externalOrderId + '\'' +
-            ", execTimestamp=" + new DateTime(execTimestamp).withZone(UTC) +
-            ", orderStatus=" + orderStatus +
-            ", amountExecuted=" + amountExecuted +
-            ", priceExecuted=" + priceExecuted +
-            ", fee=" + feePaid +
-            ", feeCurrency=" + feeCurrency +
-            '}';
+                "exchange='" + exchange + '\'' +
+                ", symbol='" + symbol + '\'' +
+                ", orderSide=" + orderSide +
+                ", stopPrice=" + stopPrice +
+                ", price=" + price +
+                ", amount=" + amount +
+                ", externalOrderId='" + externalOrderId + '\'' +
+                ", execTimestamp=" + execTimestamp +
+                ", orderStatus=" + orderStatus +
+                ", amountExecuted=" + amountExecuted +
+                ", priceExecuted=" + priceExecuted +
+                ", feePaid=" + feePaid +
+                ", feeCurrency='" + feeCurrency + '\'' +
+                '}';
     }
 
     @Override

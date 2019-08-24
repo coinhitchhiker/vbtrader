@@ -2,10 +2,9 @@ package com.coinhitchhiker.vbtrader.simulator.test;
 
 import com.coinhitchhiker.vbtrader.common.model.Repository;
 import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
+import com.coinhitchhiker.vbtrader.common.strategy.vb.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.simulator.SimulatorRepositoryImpl;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
-import org.junit.BeforeClass;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

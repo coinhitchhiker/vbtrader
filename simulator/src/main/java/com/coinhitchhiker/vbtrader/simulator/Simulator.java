@@ -1,9 +1,9 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
-import com.coinhitchhiker.vbtrader.common.trade.LongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBV;
+import com.coinhitchhiker.vbtrader.common.strategy.vb.VolatilityBreakout;
+import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
@@ -97,12 +97,24 @@ public class Simulator {
 
         TradingEngine tradingEngine = null;
         if(this.MODE.equals("LONG")) {
-            tradingEngine = new LongTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true, true);
+            tradingEngine = new VBLongTradingEngine(repository,
+                    exchange,
+                    orderBookCache,
+                    TRADING_WINDOW_LOOK_BEHIND,
+                    TRADING_WINDOW_SIZE_IN_MIN,
+                    PRICE_MA_WEIGHT,
+                    VOLUME_MA_WEIGHT,
+                    SYMBOL,
+                    QUOTE_CURRRENCY,
+                    0.0,
+                    EXCHANGE,
+                    FEE_RATE,
+                    true,
+                    true);
         } else {
             tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true, true);
         }
         tradingEngine.setPVTOBV(this.pvtobv);
-        tradingEngine.setStrategy(this.vbRules);
 
         long curTimestamp = 0; double curPrice = 0;
 

@@ -14,14 +14,12 @@ public interface Repository {
 
     List<TradingWindow> getLastNTradingWindow(int n, long curTimestamp);
 
+    default List<Candle> getLastNCandle(int n, long curTimestamp) {
+        return null;
+    }
+
     TradingWindow getCurrentTradingWindow(long curTimestamp);
 
-    default double getPVT(long currentTimestamp) {
-        return 0;
-    }
-
-    default double getOBV(long curTimestamp) {
-        return 0;
-    }
+    Candle getCurrentCandle(long curTimestamp);
 
 }

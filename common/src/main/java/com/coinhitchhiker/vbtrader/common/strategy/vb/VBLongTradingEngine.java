@@ -1,26 +1,17 @@
-package com.coinhitchhiker.vbtrader.common.trade;
+package com.coinhitchhiker.vbtrader.common.strategy.vb;
 
-import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
-import com.coinhitchhiker.vbtrader.common.strategy.Strategy;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
 import org.joda.time.DateTime;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import static org.joda.time.DateTimeZone.UTC;
 
-public class LongTradingEngine implements TradingEngine {
+public class VBLongTradingEngine implements TradingEngine {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(LongTradingEngine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VBLongTradingEngine.class);
     private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
 
     private final Repository repository;
@@ -28,6 +19,9 @@ public class LongTradingEngine implements TradingEngine {
     private final OrderBookCache orderBookCache;
 
     private final int TRADING_WINDOW_LOOK_BEHIND;
+    private final int TRADING_WINDOW_SIZE;
+    private final double PRICE_MA_WEIGHT;
+    private final double VOLUME_MA_WEIGHT;
     private final String SYMBOL;
     private final String QUOTE_CURRENCY;
     private final double LIMIT_ORDER_PREMIUM;
@@ -36,18 +30,18 @@ public class LongTradingEngine implements TradingEngine {
     private final boolean TRADING_ENABLED;
     private final boolean TRAILING_STOP_ENABLED;
 
-    private DateTime lastClosestMin = DateTime.now();
-
-    private Strategy strategy;
-
-    public LongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
-                             int TRADING_WINDOW_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM,
-                             String EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED) {
+    public VBLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
+                               int TRADING_WINDOW_LOOK_BEHIND, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT,
+                               String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, String EXCHANGE, double FEE_RATE,
+                               boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED) {
         this.repository = repository;
         this.exchange = exchange;
         this.orderBookCache = orderBookCache;
 
         this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
+        this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
+        this.PRICE_MA_WEIGHT = PRICE_MA_WEIGHT;
+        this.VOLUME_MA_WEIGHT = VOLUME_MA_WEIGHT;
         this.SYMBOL = SYMBOL;
         this.QUOTE_CURRENCY = QUOTE_CURRENCY;
         this.LIMIT_ORDER_PREMIUM = LIMIT_ORDER_PREMIUM;
@@ -60,25 +54,19 @@ public class LongTradingEngine implements TradingEngine {
     @Override
     public TradeResult run(double curPrice, long curTimestamp) {
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("repository", this.repository);
-        params.put("curTimestamp", curTimestamp);
-        params.put("curPrice", curPrice);
-        params.put("mode", "LONG");
-        if(!strategy.checkPrecondition(params)) {
+        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
+        if(curTradingWindow == null) {
+            LOGGER.debug("curTradingWindow is null");
             return null;
         }
 
-        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);
-
-        // Digest curTimestamp & curPrice to collect any technical indicator that the strategy may rely on
-        DateTime curClosestMin = Util.getClosestMin(new DateTime(curTimestamp, UTC));
-        if(!lastClosestMin.equals(curClosestMin)) {
-            strategy.buildMinuteTechnicalIndicator(params);
-            lastClosestMin = curClosestMin;
+        List<TradingWindow> lookbehindTradingWindows = repository.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1, curTimestamp);
+        if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
+            LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
+            return null;
         }
 
-        if(curTradingWindow.getBuyOrder() != null && strategy.sellSignalStrength(params) > 0) {
+        if(curTradingWindow.getBuyOrder() != null && curTimestamp > curTradingWindow.getEndTimeStamp()) {
             TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
             repository.refreshTradingWindows();
             return tradeResult;
@@ -101,19 +89,50 @@ public class LongTradingEngine implements TradingEngine {
             return null;
         }
 
-        double buySignalStrength = strategy.buySignalStrength(params);
+        double k = VolatilityBreakout.getKValue(lookbehindTradingWindows);
+        boolean priceBreakout = curPrice > curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange();
 
-        if(buySignalStrength == 0) return null;
+        if(!priceBreakout) {
+            LOGGER.info("[---------------------NO BUY SIGNAL DETECTED----------------------------]");
+            LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
+                    curPrice ,
+                    curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
+                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            return null;
+        }
+
+//        double volume = curTradingWindow.getVolume();
+//        double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+        double priceMAScore = VolatilityBreakout.getPriceMAScore(lookbehindTradingWindows, curPrice, 3, TRADING_WINDOW_LOOK_BEHIND);
+        double volumeMAScore = VolatilityBreakout.getVolumeMAScore_aggresive(lookbehindTradingWindows, curTradingWindow, 3, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimestamp);
+        double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
+
+        if(weightedMAScore > 0) {
+            LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
+            LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
+                    curPrice,
+                    curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange(),
+                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+        } else {
+            LOGGER.info("[-----------------BUY SIGNAL DETECTED BUT COST IS 0------------------------]");
+            LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
+                    curPrice ,
+                    curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
+                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            LOGGER.info("tradingWindow endTime {}", new DateTime(curTradingWindow.getEndTimeStamp(), UTC));
+            return null;
+        }
 
         double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
         double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
-        double cost = availableBalance * buySignalStrength;
+        double cost = availableBalance * weightedMAScore;
         double amount = cost / buyPrice;
         OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
 
         try {
             if(!this.TRADING_ENABLED) {
-                LOGGER.info("TRADING DISABLED!");
+                LOGGER.info("-------------------TRADING DISABLED!-------------------");
+                LOGGER.info("[PREPARED BUYORDER] {}", buyOrder.toString());
                 return null;
             }
 
@@ -181,10 +200,5 @@ public class LongTradingEngine implements TradingEngine {
         }
 
         return tradeResult;
-    }
-
-    @Autowired
-    public void setStrategy(Strategy strategy) {
-        this.strategy = strategy;
     }
 }

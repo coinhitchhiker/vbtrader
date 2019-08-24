@@ -78,20 +78,9 @@ public class SimulatorRepositoryImpl implements Repository {
         return -1;
     }
 
-    @Override
-    public double getPVT(long curTimestamp) {
-        // in simulation mode we already have candle data. we start out previous candle
-        // to simulate we are looking at past data
-        int curCandleIndex = getCurrentCandleIndex(curTimestamp) - 1;
-
-        return allCandles.get(curCandleIndex).getPvt();
-    }
-
-    @Override
-    public double getOBV(long curTimestamp) {
-        int curCandleIndex = getCurrentCandleIndex(curTimestamp) - 1;
-
-        return allCandles.get(curCandleIndex).getObv();
+    public Candle getCurrentCandle(long curTimestamp) {
+        int curCandleIndex = getCurrentCandleIndex(curTimestamp);
+        return allCandles.get(curCandleIndex);
     }
 
     private List<Candle> loadCandlesFromDB(String exchange, String symbol, long simulStart, long simulEnd) {
