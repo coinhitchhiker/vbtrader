@@ -89,7 +89,7 @@ public class LongTradingEngine implements TradingEngine {
            TradeResult tradeResult = sellAtMarketPrice(curTimestamp);
             LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", curTradingWindow.getTrailingStopPrice(), curPrice);
             LOGGERBUYSELL.info("---------------LONG TRAILING STOP HIT------------------------");
-            curTradingWindow.clearOutOrders();
+            repository.refreshTradingWindows();
             return tradeResult;
         }
 

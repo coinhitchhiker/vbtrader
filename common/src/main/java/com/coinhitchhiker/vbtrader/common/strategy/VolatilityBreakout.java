@@ -158,6 +158,7 @@ public class VolatilityBreakout implements Strategy {
 
         if(weightedMAScore > 0) {
             LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
+            LOGGER.info("priceMAScore {} volumeMAScore {} weightedMAScore{}", priceMAScore, volumeMAScore, weightedMAScore);
             LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
                     curPrice,
                     curTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange(),
