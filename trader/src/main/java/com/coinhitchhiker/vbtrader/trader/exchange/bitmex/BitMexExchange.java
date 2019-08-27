@@ -190,13 +190,13 @@ public class BitMexExchange implements Exchange {
     @Override
     public double getCurrentPrice(String symbol) {
         // We do XBTUSD on bitmex. symbol is no-op here.
-        TradeEvent e = bitMexRepository.getCurrentTradingWindow(0).getPrevTradeEvent();
-        if(e != null) {
-            return e.getPrice();
-        } else {
-            LOGGER.warn("prevTradeEvent was not received. Returning default 10000...");
+//        TradeEvent e = bitMexRepository.getCurrentTradingWindow(0).getPrevTradeEvent();
+//        if(e != null) {
+//            return e.getPrice();
+//        } else {
+//            LOGGER.warn("prevTradeEvent was not received. Returning default 10000...");
             return 0.0D;
-        }
+//        }
     }
 
     @Override

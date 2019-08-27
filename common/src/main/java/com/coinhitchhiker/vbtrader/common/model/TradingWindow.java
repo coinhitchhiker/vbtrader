@@ -29,20 +29,9 @@ public class TradingWindow {
 
     private long curTimeStamp;
 
-    private OrderInfo buyOrder;
-    private OrderInfo sellOrder;
-    private double trailingStopPrice;
-    private double stopLossPrice;
     private TradeEvent prevTradeEvent;
 
-    private double buyFee;
-    private double sellFee;
-    private double profit;
-    private double netProfit;
-
     private List<Candle> candles;
-
-    private TradingWindow prevWindow;
 
     public TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
         this.symbol = symbol;
@@ -86,10 +75,6 @@ public class TradingWindow {
         return  1 - Math.abs(openPrice - closePrice) / (highPrice - lowPrice);
     }
 
-    public boolean isBetween(long timestamp) {
-        return startTimeStamp <= timestamp && timestamp <= endTimeStamp;
-    }
-
     public double getRange() {
         return highPrice - lowPrice;
     }
@@ -107,84 +92,71 @@ public class TradingWindow {
             } else if(e.getPrice() < this.prevTradeEvent.getPrice()) {
                 this.sellVolume += e.getAmount();
             }
-            this.updateTrailingStop(e.getPrice());
-            this.updateStopLoss(e.getPrice());
         }
 
         this.prevTradeEvent = e;
     }
-
-    private void updateStopLoss(double curPrice) {
-        if(this.buyOrder != null) {
-            double buyPriceExecuted = buyOrder.getPriceExecuted();
-            if(this.stopLossPrice == 0) {
-                double stopLossPrice = buyPriceExecuted * (1 + (0.045 + 0.045 + 0.1)/100.0);
-                if(curPrice > stopLossPrice) {
-                    this.stopLossPrice = stopLossPrice;
-                }
-            }
-        }
-
-        if(this.sellOrder != null) {
-            double sellPriceExecuted = sellOrder.getPriceExecuted();
-            if(this.stopLossPrice == 0) {
-                double stopLossPrice = sellPriceExecuted * (1 - (0.045 + 0.045 + 0.1)/100.0);
-                if(curPrice < stopLossPrice) {
-                    this.stopLossPrice = stopLossPrice;
-                }
-            }
-        }
-    }
-
-    private void updateTrailingStop(double curPrice) {
-        double prevPrice = this.prevTradeEvent.getPrice();
-
-        if(this.buyOrder != null) {
-            if(this.trailingStopPrice == 0) {
-                if(curPrice > buyOrder.getPriceExecuted() * (100.0 + TS_TRIGGER_PCT)/100) {
-                    LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
-                    this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
-                }
-            } else {
-                if(curPrice > prevPrice) {
-                    if(this.trailingStopPrice < curPrice * (100.0 - TS_PCT)/100.0) {
-                        LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
-                        this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
-                    }
-                }
-            }
-        }
-
-        if(this.sellOrder != null) {
-            if(this.trailingStopPrice == 0) {
-                if(curPrice < sellOrder.getPriceExecuted() * (100.0 - TS_TRIGGER_PCT)/100.0) {
-                    LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
-                    this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
-                }
-            } else {
-                if(curPrice < prevPrice) {
-                    if(this.trailingStopPrice > curPrice * (100.0 + TS_PCT)/100.0) {
-                        LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
-                        this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
-                    }
-                }
-            }
-        }
-    }
+//
+//    private void updateStopLoss(double curPrice) {
+//        if(this.buyOrder != null) {
+//            double buyPriceExecuted = buyOrder.getPriceExecuted();
+//            if(this.stopLossPrice == 0) {
+//                double stopLossPrice = buyPriceExecuted * (1 + (0.045 + 0.045 + 0.1)/100.0);
+//                if(curPrice > stopLossPrice) {
+//                    this.stopLossPrice = stopLossPrice;
+//                }
+//            }
+//        }
+//
+//        if(this.sellOrder != null) {
+//            double sellPriceExecuted = sellOrder.getPriceExecuted();
+//            if(this.stopLossPrice == 0) {
+//                double stopLossPrice = sellPriceExecuted * (1 - (0.045 + 0.045 + 0.1)/100.0);
+//                if(curPrice < stopLossPrice) {
+//                    this.stopLossPrice = stopLossPrice;
+//                }
+//            }
+//        }
+//    }
+//
+//    private void updateTrailingStop(double curPrice) {
+//        double prevPrice = this.prevTradeEvent.getPrice();
+//
+//        if(this.buyOrder != null) {
+//            if(this.trailingStopPrice == 0) {
+//                if(curPrice > buyOrder.getPriceExecuted() * (100.0 + TS_TRIGGER_PCT)/100) {
+//                    LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
+//                    this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
+//                }
+//            } else {
+//                if(curPrice > prevPrice) {
+//                    if(this.trailingStopPrice < curPrice * (100.0 - TS_PCT)/100.0) {
+//                        LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
+//                        this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
+//                    }
+//                }
+//            }
+//        }
+//
+//        if(this.sellOrder != null) {
+//            if(this.trailingStopPrice == 0) {
+//                if(curPrice < sellOrder.getPriceExecuted() * (100.0 - TS_TRIGGER_PCT)/100.0) {
+//                    LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
+//                    this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
+//                }
+//            } else {
+//                if(curPrice < prevPrice) {
+//                    if(this.trailingStopPrice > curPrice * (100.0 + TS_PCT)/100.0) {
+//                        LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
+//                        this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
+//                    }
+//                }
+//            }
+//        }
+//    }
 
     public TradeEvent getPrevTradeEvent() {
         return prevTradeEvent;
-    }
-
-    public void clearOutOrders() {
-        this.buyFee = 0.0D;
-        this.buyOrder = null;
-        this.netProfit = 0.0D;
-        this.profit = 0.0D;
-        this.sellFee = 0.0D;
-        this.sellOrder = null;
-        this.trailingStopPrice = 0.0D;
-        this.stopLossPrice = 0.0D;
     }
 
     // for simulation use
@@ -199,58 +171,6 @@ public class TradingWindow {
     }
 
     //----------------------------------------------------------------------------------------------------------------
-
-    public double getTrailingStopPrice() {
-        return trailingStopPrice;
-    }
-
-    public void setBuyOrder(OrderInfo orderInfo) {
-        this.buyOrder = orderInfo;
-    }
-
-    public OrderInfo getBuyOrder() {
-        return this.buyOrder;
-    }
-
-    public OrderInfo getSellOrder() {
-        return sellOrder;
-    }
-
-    public void setSellOrder(OrderInfo sellOrder) {
-        this.sellOrder = sellOrder;
-    }
-
-    public double getBuyFee() {
-        return buyFee;
-    }
-
-    public void setBuyFee(double buyFee) {
-        this.buyFee = buyFee;
-    }
-
-    public double getSellFee() {
-        return sellFee;
-    }
-
-    public void setSellFee(double sellFee) {
-        this.sellFee = sellFee;
-    }
-
-    public double getProfit() {
-        return profit;
-    }
-
-    public void setProfit(double profit) {
-        this.profit = profit;
-    }
-
-    public double getNetProfit() {
-        return netProfit;
-    }
-
-    public void setNetProfit(double netProfit) {
-        this.netProfit = netProfit;
-    }
 
     public List<Candle> getCandles() {
         return candles;
@@ -292,14 +212,7 @@ public class TradingWindow {
                 ", sellVolume=" + sellVolume +
                 ", buyVolume=" + buyVolume +
                 ", curTimeStamp=" + new DateTime(curTimeStamp, DateTimeZone.UTC).toString() +
-                ", buyOrder=" + buyOrder +
-                ", sellOrder=" + sellOrder +
-                ", trailingStopPrice=" + trailingStopPrice +
                 ", prevTradeEvent=" + prevTradeEvent +
-                ", buyFee=" + buyFee +
-                ", sellFee=" + sellFee +
-                ", profit=" + profit +
-                ", netProfit=" + netProfit +
                 '}';
     }
 
@@ -353,11 +266,4 @@ public class TradingWindow {
         return volume;
     }
 
-    public double getStopLossPrice() {
-        return stopLossPrice;
-    }
-
-    public void setStopLossPrice(double stopLossPrice) {
-        this.stopLossPrice = stopLossPrice;
-    }
 }

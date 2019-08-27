@@ -65,7 +65,7 @@ public class VolatilityBreakout  {
         return (aboveMaCnt * 1.0) / (TRADING_WINDOW_LOOK_BEHIND - MA_MIN + 1);
     }
 
-    public static double getVolumeMAScore_aggresive(final List<TradingWindow> lookbehindTradingWindows,
+    public static double getVolumeMAScore_aggressive(final List<TradingWindow> lookbehindTradingWindows,
                                                     final TradingWindow curTradingWindow,
                                                     final int MA_MIN,
                                                     final int TRADING_WINDOW_LOOK_BEHIND,
@@ -143,7 +143,7 @@ public class VolatilityBreakout  {
 //        double volume = curTradingWindow.getVolume();
 //        double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
         double priceMAScore = this.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-        double volumeMAScore = this.getVolumeMAScore_aggresive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimeStamp);
+        double volumeMAScore = this.getVolumeMAScore_aggressive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimeStamp);
         double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
         if(weightedMAScore > 0) {

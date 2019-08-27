@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBVLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceOrderBookCache;
@@ -37,6 +38,8 @@ public class TraderAppConfig {
     @Value("${trading.fee.rate}") private double FEE_RATE;
     @Value("${trading.strategy}") private String STRATEGY;
     @Value("${trading.ts.enabled}") private boolean TRAILING_STOP_ENABLED;
+    @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
+    @Value("${trading.ts.pct}") private double TS_PCT;
 
     @Bean
     public TradingEngine tradeEngine() {
@@ -54,7 +57,9 @@ public class TraderAppConfig {
                     exchange,
                     FEE_RATE,
                     tradingEnabled,
-                    TRAILING_STOP_ENABLED);
+                    TRAILING_STOP_ENABLED,
+                    TS_TRIGGER_PCT,
+                    TS_PCT);
         } else {
             throw new UnsupportedOperationException("Not yet supported");
         }

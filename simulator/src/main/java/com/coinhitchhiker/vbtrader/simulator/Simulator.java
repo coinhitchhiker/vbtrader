@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.List;
 
 public class Simulator {
 
@@ -36,6 +37,7 @@ public class Simulator {
     private SimulatorExchange exchange;
     private SimulatorOrderBookCache orderBookCache;
     private SimulatorDAO simulatorDAO;
+    private TradingEngine tradingEngine;
     private VolatilityBreakout vbRules;
     private PVTOBV pvtobv;
 
@@ -84,17 +86,14 @@ public class Simulator {
     }
 
     public void init() {
-        this.repository = new SimulatorRepositoryImpl(EXCHANGE, SYMBOL, SIMUL_START, SIMUL_END, TRADING_WINDOW_SIZE_IN_MIN, TS_TRIGGER_PCT, TS_PCT, simulatorDAO);
+        this.repository = new SimulatorRepositoryImpl(EXCHANGE, SYMBOL, SIMUL_START, SIMUL_END, simulatorDAO);
         this.orderBookCache = new SimulatorOrderBookCache();
         this.exchange = new SimulatorExchange(this.repository, this.orderBookCache, SLIPPAGE);
+        this.tradingEngine = createTradingEngine();
+        ((SimulatorExchange)this.exchange).setTradingEngine(this.tradingEngine);
     }
 
-    public void runSimul() throws IOException {
-
-        if(this.repository == null) throw new RuntimeException("call init() first");
-        if(this.exchange == null) throw new RuntimeException("call init() first");
-        if(this.orderBookCache == null) throw new RuntimeException("call init() first");
-
+    private TradingEngine createTradingEngine() {
         TradingEngine tradingEngine = null;
         if(this.MODE.equals("LONG")) {
             tradingEngine = new VBLongTradingEngine(repository,
@@ -110,40 +109,52 @@ public class Simulator {
                     EXCHANGE,
                     FEE_RATE,
                     true,
-                    true);
+                    true,
+                    TS_TRIGGER_PCT,
+                    TS_PCT);
         } else {
             tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true, true);
         }
-        tradingEngine.setPVTOBV(this.pvtobv);
+
+        tradingEngine.init(SIMUL_START + 60_000L);
+        return tradingEngine;
+    }
+
+    public void runSimul() throws IOException {
+
+        if(this.repository == null) throw new RuntimeException("call init() first");
+        if(this.exchange == null) throw new RuntimeException("call init() first");
+        if(this.orderBookCache == null) throw new RuntimeException("call init() first");
+        if(this.tradingEngine == null) throw new RuntimeException("call init() first");
+
+        List<Candle> allCandles = this.repository.getCandles(SYMBOL, SIMUL_START, SIMUL_END);
 
         long curTimestamp = 0; double curPrice = 0;
 
-        for(TradingWindow tradingWindow : this.repository.getTradingWindows()) {
-            for(Candle candle : tradingWindow.getCandles()) {
-                // trade open price point
-                curTimestamp = candle.getOpenTime(); curPrice = candle.getOpenPrice();
-                tradeWith(curPrice, curTimestamp, tradingEngine);
+        for(Candle candle : allCandles) {
+            // trade open price point
+            curTimestamp = candle.getOpenTime(); curPrice = candle.getOpenPrice();
+            tradeWith(curPrice, curTimestamp, tradingEngine);
 
-                long timeDiff = candle.getCloseTime() - candle.getOpenTime();
+            long timeDiff = candle.getCloseTime() - candle.getOpenTime();
 
-                // high  price point comes next
-                curTimestamp = 2*timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getHighPrice();
-                tradeWith(curPrice, curTimestamp, tradingEngine);
+            // high  price point comes first
+            curTimestamp = timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getHighPrice();
+            tradeWith(curPrice, curTimestamp, tradingEngine);
 
-                // assume low price point comes first
-                curTimestamp = timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getLowPrice();
-                tradeWith(curPrice, curTimestamp, tradingEngine);
+            // assume low price point comes second
+            curTimestamp = 2*timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getLowPrice();
+            tradeWith(curPrice, curTimestamp, tradingEngine);
 
-                // trade close price
-                curTimestamp = candle.getCloseTime(); curPrice = candle.getClosePrice();
-                tradeWith(curPrice, curTimestamp, tradingEngine);
-            }
+            // trade close price
+            curTimestamp = candle.getCloseTime(); curPrice = candle.getClosePrice();
+            tradeWith(curPrice, curTimestamp, tradingEngine);
         }
     }
 
     private void tradeWith(double curPrice, long curTimestamp, TradingEngine tradingEngine) {
         this.exchange.setTimestampAndPrice(curTimestamp, curPrice);
-        TradeResult tradeResult = tradingEngine.run(curPrice, curTimestamp);
+        TradeResult tradeResult = tradingEngine.trade(curPrice, curTimestamp);
         if(tradeResult != null) {
             Balance balance = this.exchange.getBalance().get(QUOTE_CURRRENCY);
             balance.setAvailableForTrade(balance.getAvailableForTrade() + tradeResult.getNetProfit());
