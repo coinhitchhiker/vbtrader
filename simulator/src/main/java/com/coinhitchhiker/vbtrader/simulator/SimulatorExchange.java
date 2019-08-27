@@ -15,6 +15,7 @@ public class SimulatorExchange implements Exchange {
     private double SLIPPAGE;
     private Map<String, Balance> balanceMap = new HashMap<>();
     private double START_BALANCE = 10000;
+    private TradingEngine tradingEngine;
 
     public SimulatorExchange(SimulatorRepositoryImpl repository, SimulatorOrderBookCache orderBookCache, double SLIPPAGE) {
         this.repository = repository;
@@ -48,7 +49,7 @@ public class SimulatorExchange implements Exchange {
         orderBookCache.setCurPrice(curPrice);
 
         TradeEvent e = new TradeEvent("SIMUL", "SIMULSYMBOL", curPrice, curTimestamp, 0, null, null, null);
-        repository.getCurrentTradingWindow(curTimestamp).updateWindowData(e);
+        tradingEngine.onTradeEvent(e);
     }
 
     @Override
@@ -62,11 +63,11 @@ public class SimulatorExchange implements Exchange {
         orderInfo.setOrderStatus(OrderStatus.COMPLETE);
         orderInfo.setExecTimestamp(this.curTimestamp);
         if(orderInfo.getOrderSide() == OrderSide.BUY) {
-            double trailingStopPrice = repository.getCurrentTradingWindow(curTimestamp).getTrailingStopPrice();
+            double trailingStopPrice = tradingEngine.getTrailingStopPrice();
             if(trailingStopPrice > 0) {
                 orderInfo.setPriceExecuted(trailingStopPrice * (1+SLIPPAGE));
             } else {
-                double stopLossPrice = repository.getCurrentTradingWindow(curTimestamp).getStopLossPrice();
+                double stopLossPrice = tradingEngine.getStopLossPrice();
                 if(stopLossPrice > 0) {
                     orderInfo.setPriceExecuted(stopLossPrice * (1+SLIPPAGE));
                 } else {
@@ -74,11 +75,11 @@ public class SimulatorExchange implements Exchange {
                 }
             }
         } else {
-            double trailingStopPrice = repository.getCurrentTradingWindow(curTimestamp).getTrailingStopPrice();
+            double trailingStopPrice = tradingEngine.getTrailingStopPrice();
             if(trailingStopPrice > 0.0) {
                 orderInfo.setPriceExecuted(trailingStopPrice * (1-SLIPPAGE));
             } else {
-                double stopLossPrice = repository.getCurrentTradingWindow(curTimestamp).getStopLossPrice();
+                double stopLossPrice = tradingEngine.getStopLossPrice();
                 if(stopLossPrice > 0) {
                     orderInfo.setPriceExecuted(stopLossPrice * (1-SLIPPAGE));
                 } else {
@@ -155,5 +156,13 @@ public class SimulatorExchange implements Exchange {
 
     public double getSTART_BALANCE() {
         return START_BALANCE;
+    }
+
+    public TradingEngine getTradingEngine() {
+        return tradingEngine;
+    }
+
+    public void setTradingEngine(TradingEngine tradingEngine) {
+        this.tradingEngine = tradingEngine;
     }
 }

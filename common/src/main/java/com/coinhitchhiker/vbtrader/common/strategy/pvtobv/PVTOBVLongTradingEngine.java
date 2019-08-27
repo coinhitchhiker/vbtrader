@@ -57,9 +57,14 @@ public class PVTOBVLongTradingEngine implements TradingEngine {
     }
 
     @Override
-    public TradeResult run(double curPrice, long curTimestamp) {
+    public void init(long curTimestamp) {
+        return;
+    }
 
-        if(buySignal(curPrice, curTimestamp)) {
+    @Override
+    public TradeResult trade(double curPrice, long curTimestamp) {
+
+        if(buySignalStrength(curPrice, curTimestamp) > 0) {
             double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
             double buyPremiumPrice = curPrice * (1+LIMIT_PRICE_PREMIUM/100D);
             double amount = availableBalance / buyPremiumPrice;
@@ -157,9 +162,24 @@ public class PVTOBVLongTradingEngine implements TradingEngine {
     }
 
     @Override
-    public boolean buySignal(double curPrice, long curTimestamp) {
+    public void onTradeEvent(TradeEvent e) {
+
+    }
+
+    @Override
+    public double getTrailingStopPrice() {
+        return 0;
+    }
+
+    @Override
+    public double getStopLossPrice() {
+        return 0;
+    }
+
+    @Override
+    public double buySignalStrength(double curPrice, long curTimestamp) {
         if(this.placedBuyOrder != null) {
-            return false;
+            return 0;
         }
 
         List<Candle> pastNCandles = new ArrayList<>();
@@ -173,8 +193,10 @@ public class PVTOBVLongTradingEngine implements TradingEngine {
         Candle latestCandle = pastNCandles.get(0);
         Candle oldestCandle = pastNCandles.get(pastNCandles.size()-1);
 
-        return (latestCandle.getPvt() - oldestCandle.getPvt()) < PVTOBV_DROP_THRESHOLD &&
+        boolean buy = (latestCandle.getPvt() - oldestCandle.getPvt()) < PVTOBV_DROP_THRESHOLD &&
                 (latestCandle.getObv() - oldestCandle.getObv()) < PVTOBV_DROP_THRESHOLD &&
                 (curPrice - oldestCandle.getClosePrice()) < PRICE_DROP_THRESHOLD;
+
+        return buy ? 1 : 0;
     }
 }

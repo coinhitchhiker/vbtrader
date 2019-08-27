@@ -42,59 +42,6 @@ public class BitMexRepository implements Repository {
     @Autowired
     OrderBookCache orderBookCache;
 
-    @PostConstruct
-    public void init() {
-
-        if(TS_TRIGGER_PCT <= TS_PCT) {
-            throw new RuntimeException(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", TS_TRIGGER_PCT, TS_PCT));
-        }
-
-        this.refreshTradingWindows();
-    }
-    @Override
-    public List<TradingWindow> getLastNTradingWindow(int n, long curTimestamp) {
-        return this.pastTradingWindows.stream().limit(n).collect(Collectors.toList());
-    }
-
-    @Override
-    public TradingWindow getCurrentTradingWindow(long curTimestamp) {
-        return this.currentTradingWindow;
-    }
-
-    @Override
-    public void refreshTradingWindows() {
-        this.refreshingTradingWindows = true;
-        LOGGER.debug("refreshingTradingWindows is set to TRUE");
-
-        DateTime now = DateTime.now(DateTimeZone.UTC);
-        DateTime closestMin = getClosestMin(now);
-
-        this.currentTradingWindow = constructTradingWindow(closestMin);
-        LOGGER.debug("Refreshed curTW {}", this.currentTradingWindow.toString());
-
-        this.pastTradingWindows = new ArrayList<>();
-        long curTimestamp = closestMin.getMillis();
-
-        long windowEnd = curTimestamp - 1000;
-        long windowStart = windowEnd - TRADING_WINDOW_SIZE * 60 * 1000;
-
-        for(int i = 0; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
-            List<Candle> candles = getCandles(TRADING_SYMBOL, windowStart, windowEnd);
-            TradingWindow tw = TradingWindow.of(candles);
-            LOGGER.debug("{}/{} {}", i, TRADING_WINDOW_LOOK_BEHIND, tw.toString());
-            pastTradingWindows.add(tw);
-            windowEnd -= TRADING_WINDOW_SIZE * 60 * 1000;
-            windowStart -= TRADING_WINDOW_SIZE * 60 * 1000;
-            try {Thread.sleep(300L);} catch(Exception e) {}
-        }
-        this.refreshingTradingWindows = false;
-
-        LOGGER.debug("-----------CURRENT TRADING WINDOW REFRESHED-----------------------");
-        LOGGER.debug("curTimestamp {}", now);
-        LOGGER.debug("{}", this.currentTradingWindow);
-        LOGGER.debug("refreshingTradingWindows is set to FALSE");
-    }
-
     public void onTradeEvent(List<Map<String, Object>> trades) {
         List<TradeEvent> converted = new ArrayList<>();
         for(Map<String, Object> trade : trades) {
@@ -165,6 +112,11 @@ public class BitMexRepository implements Repository {
             result.setLowPrice(price);
         }
         return result;
+    }
+
+    @Override
+    public Candle getCurrentCandle(long curTimestamp) {
+        return null;
     }
 
     public List<Candle> getCandles(String symbol, long windowStart, long windowEnd) {

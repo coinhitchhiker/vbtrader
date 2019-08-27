@@ -1,13 +1,19 @@
 package com.coinhitchhiker.vbtrader.common.model;
 
-import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBV;
-
 public interface TradingEngine {
 
-    TradeResult run(double curPrice, long curTimeStamp);
+    void init(long curTimestamp);
 
-    boolean buySignal(double curPrice, long curTimestamp);
+    TradeResult trade(double curPrice, long curTimestamp);
+
+    double buySignalStrength(double curPrice, long curTimestamp);
 
     boolean sellSignal(double curPrice, long curTimestamp);
+
+    void onTradeEvent(TradeEvent e);
+
+    double getTrailingStopPrice();
+
+    double getStopLossPrice();
 
 }

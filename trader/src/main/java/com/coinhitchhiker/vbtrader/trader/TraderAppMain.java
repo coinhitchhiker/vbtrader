@@ -38,7 +38,7 @@ public class TraderAppMain implements CommandLineRunner {
         long timestamp = DateTime.now(UTC).getMillis();
         double curPrice = exchange.getCurrentPrice(SYMBOL);
 
-        tradingEngine.run(curPrice, timestamp);
+        tradingEngine.trade(curPrice, timestamp);
     }
 
 }
