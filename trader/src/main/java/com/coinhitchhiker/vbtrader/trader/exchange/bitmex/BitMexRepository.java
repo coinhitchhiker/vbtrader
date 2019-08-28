@@ -32,13 +32,6 @@ public class BitMexRepository implements Repository {
     private boolean refreshingTradingWindows = false;
     private double pendingTradeVol = 0.0D;
 
-    @Value("${trading.symbol}") private String TRADING_SYMBOL;
-    @Value("${trading.window.size}") private int TRADING_WINDOW_SIZE;
-    @Value("${trading.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
-    @Value("${trading.iceberg.order}") private boolean doIcebergOrder;
-    @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
-    @Value("${trading.ts.pct}") private double TS_PCT;
-
     @Autowired
     OrderBookCache orderBookCache;
 
@@ -73,45 +66,6 @@ public class BitMexRepository implements Repository {
                 this.currentTradingWindow.updateWindowData(e);
             }
         }
-    }
-
-    private DateTime getClosestMin(DateTime now) {
-        int y = now.getYear();
-        int m = now.getMonthOfYear();
-        int d = now.getDayOfMonth();
-        int h = now.getHourOfDay();
-        int mm = now.getMinuteOfHour();
-
-        DateTime closestMin = new DateTime(y,m,d,h,mm, DateTimeZone.UTC);
-        return closestMin;
-    }
-
-    private TradingWindow constructTradingWindow(DateTime startTime) {
-
-        long timestamp = startTime.getMillis();
-
-        TradingWindow result =  new TradingWindow(this.TRADING_SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000, 0.0D);
-        result.setTS_TRIGGER_PCT(TS_TRIGGER_PCT);
-        result.setTS_PCT(TS_PCT);
-
-        List<Candle> candles = getCandles(TRADING_SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
-        if(candles.size() > 0) {
-            TradingWindow twFromBinanceData = TradingWindow.of(candles);
-            result.setHighPrice(twFromBinanceData.getHighPrice());
-            result.setOpenPrice(twFromBinanceData.getOpenPrice());
-            result.setLowPrice(twFromBinanceData.getLowPrice());
-        } else {
-            // wait for 10s to ensure receiving orderbook data
-            try {Thread.sleep(10_000L); } catch(Exception e) {}
-            double price = orderBookCache.getMidPrice();
-            if(price == 0.0) {
-                throw new RuntimeException("orderbook mid price is 0.0!!!!!");
-            }
-            result.setOpenPrice(price);
-            result.setHighPrice(price);
-            result.setLowPrice(price);
-        }
-        return result;
     }
 
     @Override

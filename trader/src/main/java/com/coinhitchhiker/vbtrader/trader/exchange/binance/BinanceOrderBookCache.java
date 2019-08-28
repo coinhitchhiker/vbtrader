@@ -3,6 +3,7 @@ package com.coinhitchhiker.vbtrader.trader.exchange.binance;
 import com.coinhitchhiker.vbtrader.common.model.OrderBookCache;
 import com.coinhitchhiker.vbtrader.common.RESTAPIResponseErrorHandler;
 import com.coinhitchhiker.vbtrader.common.model.Repository;
+import com.coinhitchhiker.vbtrader.common.model.TradeEvent;
 import com.google.gson.Gson;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketExtension;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
@@ -38,8 +40,8 @@ public class BinanceOrderBookCache implements OrderBookCache {
     private RestTemplate restTemplate = new RestTemplateBuilder().setConnectTimeout(Duration.ofMillis(1000L)).setReadTimeout(Duration.ofMillis(5000L)).build();
 
     @Value("${trading.symbol}") private String TRADING_SYMBOL;
-
     @Autowired private Repository binanceRepository;
+    @Autowired private ApplicationEventPublisher applicationEventPublisher;
 
     @PostConstruct
     public void init() {
@@ -70,9 +72,16 @@ public class BinanceOrderBookCache implements OrderBookCache {
     }
 
     public void onTradeEvent(Map<String, Object> trade) {
-        if(binanceRepository != null) {
-            ((BinanceRepository)binanceRepository).onTradeEvent(trade);
-        }
+        double price = Double.parseDouble(((String)trade.get("p")));
+        long tradeTime = ((Double)trade.get("T")).longValue();
+        double amount = Double.parseDouble((String)trade.get("q"));
+        String tradeId = String.valueOf(((Double)trade.get("t")).longValue());
+        String buyOrderId = String.valueOf(((Double)trade.get("b")).longValue());
+        String sellOrderId = String.valueOf(((Double)trade.get("a")).longValue());
+
+        TradeEvent e = new TradeEvent("BINANCE", this.TRADING_SYMBOL, price, tradeTime , amount, tradeId, buyOrderId, sellOrderId);
+
+        this.applicationEventPublisher.publishEvent(e);
     }
 
     protected void updateOrderBook(long timestamp, List<List<String>> bidData, List<List<String>> askData) {

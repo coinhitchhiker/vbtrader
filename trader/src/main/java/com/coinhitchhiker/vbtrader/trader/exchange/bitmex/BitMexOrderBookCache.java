@@ -2,6 +2,7 @@ package com.coinhitchhiker.vbtrader.trader.exchange.bitmex;
 
 import com.coinhitchhiker.vbtrader.common.model.OrderBookCache;
 import com.coinhitchhiker.vbtrader.common.model.Repository;
+import com.coinhitchhiker.vbtrader.common.model.TradeEvent;
 import com.google.gson.Gson;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketExtension;
@@ -12,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 
 import javax.annotation.PostConstruct;
 import java.math.BigDecimal;
@@ -34,6 +36,7 @@ public class BitMexOrderBookCache implements OrderBookCache {
     @Value("${trading.symbol}") private String TRADING_SYMBOL;
 
     @Autowired private Repository bitmexRepository;
+    @Autowired private ApplicationEventPublisher applicationEventPublisher;
 
     @PostConstruct
     public void init() {
@@ -61,9 +64,19 @@ public class BitMexOrderBookCache implements OrderBookCache {
     }
 
     public void onTradeEvent(List<Map<String, Object>> trades) {
-        if(bitmexRepository != null) {
-            ((BitMexRepository)bitmexRepository).onTradeEvent(trades);
+
+        for(Map<String, Object> trade : trades) {
+            String symbol = (String)trade.get("symbol");
+            double price = (double)trade.get("price");
+            long tradeTime = new DateTime((String)trade.get("timestamp"), DateTimeZone.UTC).getMillis();
+            double amount = (double)trade.get("size");
+            String tradeId = (String)trade.get("trdMatchID");
+
+            TradeEvent e = new TradeEvent("BITMEX", symbol, price, tradeTime, amount, tradeId, null, null);
+
+            this.applicationEventPublisher.publishEvent(e);
         }
+
     }
 
     public void onOrderBookUpdate(List<Map<String, Object>> orderbook) {

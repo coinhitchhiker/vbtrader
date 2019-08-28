@@ -30,10 +30,10 @@ public class TraderAppConfig {
     @Value("${trading.exchange}") private String EXCHANGE;
     @Value("${trading.symbol}") private String SYMBOL;
     @Value("${trading.quote.currency}") private String QUOTE_CURRENCY;
-    @Value("${trading.window.size}") private int TRADING_WINDOW_SIZE;
-    @Value("${trading.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
-    @Value("${trading.price.weight}") private double PRICE_MA_WEIGHT;
-    @Value("${trading.volume.weight}") private double VOLUME_MA_WEIGHT;
+    @Value("${trading.vb.window.size}") private int TRADING_WINDOW_SIZE;
+    @Value("${trading.vb.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
+    @Value("${trading.vb.price.weight}") private double PRICE_MA_WEIGHT;
+    @Value("${trading.vb.volume.weight}") private double VOLUME_MA_WEIGHT;
     @Value("${trading.limit.order.premium}") private double LIMIT_ORDER_PREMIUM;
     @Value("${trading.fee.rate}") private double FEE_RATE;
     @Value("${trading.strategy}") private String STRATEGY;

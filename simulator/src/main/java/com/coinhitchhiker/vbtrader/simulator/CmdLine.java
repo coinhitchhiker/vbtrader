@@ -58,6 +58,10 @@ public class CmdLine {
         quoteCurrency.setRequired(true);
         options.addOption(quoteCurrency);
 
+        Option strategy = new Option("str", "strategy", true, "Trading strategy (VB/PVTOBV)");
+        strategy.setRequired(true);
+        options.addOption(strategy);
+
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
@@ -79,7 +83,8 @@ public class CmdLine {
                 cmd.getOptionValue("ex"),
                 cmd.hasOption("v"),
                 cmd.getOptionValue("m"),
-                cmd.getOptionValue("q")
+                cmd.getOptionValue("q"),
+                cmd.getOptionValue("str")
         );
     }
 
@@ -93,6 +98,7 @@ public class CmdLine {
         private boolean validation;
         private String mode;
         private String quoteCurrency;
+        private String strategy;
 
         public CommandLineOptions(String blackboxInput
                 , String simulStart
@@ -101,7 +107,8 @@ public class CmdLine {
                 , String exchange
                 , boolean validation
                 , String mode
-                , String quoteCurrency) {
+                , String quoteCurrency
+                , String strategy) {
             this.blackboxInput = blackboxInput;
             this.simulStart = simulStart;
             this.simulEnd = simulEnd;
@@ -110,6 +117,7 @@ public class CmdLine {
             this.validation = validation;
             this.mode = mode;
             this.quoteCurrency = quoteCurrency;
+            this.strategy = strategy;
         }
 
         public String getBlackboxInput() {
@@ -142,6 +150,14 @@ public class CmdLine {
 
         public String getQuoteCurrency() {
             return quoteCurrency;
+        }
+
+        public String getStrategy() {
+            return strategy;
+        }
+
+        public void setStrategy(String strategy) {
+            this.strategy = strategy;
         }
     }
 

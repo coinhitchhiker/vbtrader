@@ -57,11 +57,6 @@ public class PVTOBVLongTradingEngine implements TradingEngine {
     }
 
     @Override
-    public void init(long curTimestamp) {
-        return;
-    }
-
-    @Override
     public TradeResult trade(double curPrice, long curTimestamp) {
 
         if(buySignalStrength(curPrice, curTimestamp) > 0) {

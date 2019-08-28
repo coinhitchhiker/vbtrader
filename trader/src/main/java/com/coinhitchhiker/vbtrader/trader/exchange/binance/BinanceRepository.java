@@ -4,8 +4,6 @@ import com.coinhitchhiker.vbtrader.common.*;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.trader.db.TraderDAO;
 import com.google.gson.Gson;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,8 +18,6 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class BinanceRepository implements Repository {
 
@@ -90,30 +86,4 @@ public class BinanceRepository implements Repository {
         return candles;
     }
 
-    public void onTradeEvent(Map<String, Object> trade) {
-
-        if(this.refreshingTradingWindows) {
-            pendingTradeVol += Double.parseDouble((String)trade.get("q"));
-            LOGGER.debug("RefreshingTradingWindows is ongoing. PendingTradeVol {}", pendingTradeVol);
-            return;
-        }
-
-        double price = Double.parseDouble(((String)trade.get("p")));
-        long tradeTime = ((Double)trade.get("T")).longValue();
-        double amount = Double.parseDouble((String)trade.get("q"));
-        String tradeId = String.valueOf(((Double)trade.get("t")).longValue());
-        String buyOrderId = String.valueOf(((Double)trade.get("b")).longValue());
-        String sellOrderId = String.valueOf(((Double)trade.get("a")).longValue());
-
-        if(pendingTradeVol > 0) {
-            amount += pendingTradeVol;
-            LOGGER.debug("pendingTradeVol {} was added to the TradeEvent", pendingTradeVol);
-            pendingTradeVol = 0.0D;
-        }
-
-        TradeEvent e = new TradeEvent("BINANCE", this.TRADING_SYMBOL, price, tradeTime , amount, tradeId, buyOrderId, sellOrderId);
-
-        this.currentTradingWindow.updateWindowData(e);
-
-    }
 }

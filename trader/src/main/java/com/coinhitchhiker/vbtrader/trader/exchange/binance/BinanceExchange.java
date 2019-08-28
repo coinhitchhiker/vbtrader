@@ -50,9 +50,8 @@ public class BinanceExchange implements Exchange {
     private boolean apiSecretEncryptionEnabled;
 
     @Value("${trading.symbol}") private String TRADING_SYMBOL;
-    @Value("${trading.window.size}") private int TRADING_WINDOW_SIZE;
-    @Value("${trading.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
-    @Value("${trading.iceberg.order}") private boolean doIcebergOrder;
+    @Value("${trading.vb.window.size}") private int TRADING_WINDOW_SIZE;
+    @Value("${trading.vb.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
 
     @Autowired private ApplicationEventPublisher eventPublisher;
     @Autowired private EncryptorHelper encryptorHelper;
@@ -91,11 +90,6 @@ public class BinanceExchange implements Exchange {
             newOrder = NewOrder.limitBuy(symbol, TimeInForce.GTC, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
         } else {
             newOrder = NewOrder.limitSell(symbol, TimeInForce.GTC, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
-        }
-
-        if(doIcebergOrder) {
-            String icebergQty = coinInfo.getCanonicalAmount(orderInfo.getAmount()/10);
-            newOrder = newOrder.icebergQty(icebergQty);
         }
 
         long serverTime = client.getServerTime() - 500;

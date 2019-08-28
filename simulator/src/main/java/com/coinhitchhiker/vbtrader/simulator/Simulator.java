@@ -15,31 +15,28 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 public class Simulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Simulator.class);
 
-    private int TRADING_WINDOW_SIZE_IN_MIN;
-    private int TRADING_WINDOW_LOOK_BEHIND;
-    private double PRICE_MA_WEIGHT;
-    private double VOLUME_MA_WEIGHT;
-    private long SIMUL_START;
-    private long SIMUL_END;
-    private String EXCHANGE;
-    private String SYMBOL;
-    private double TS_TRIGGER_PCT;
-    private double TS_PCT;
-    private String MODE;
-    private String QUOTE_CURRRENCY;
+    private final long SIMUL_START;
+    private final long SIMUL_END;
+    private final String EXCHANGE;
+    private final String SYMBOL;
+    private final double TS_TRIGGER_PCT;
+    private final double TS_PCT;
+    private final String MODE;
+    private final String QUOTE_CURRRENCY;
+    private final String STRATEGY;
+    private final Map<String, Double> STRATEGY_PARAMS;
 
     private SimulatorRepositoryImpl repository;
     private SimulatorExchange exchange;
     private SimulatorOrderBookCache orderBookCache;
     private SimulatorDAO simulatorDAO;
     private TradingEngine tradingEngine;
-    private VolatilityBreakout vbRules;
-    private PVTOBV pvtobv;
 
     private final double SLIPPAGE = 0.01/100.0D;
     private static final int MA_MIN = 3;
@@ -51,10 +48,6 @@ public class Simulator {
     private double profit = 0.0D, loss = 0.0D;
 
     public Simulator(SimulatorDAO simulatorDAO,
-                     int TRADING_WINDOW_SIZE_IN_MIN,
-                     int TRADING_WINDOW_LOOK_BEHIND,
-                     double PRICE_MA_WEIGHT,
-                     double VOLUME_MA_WEIGHT,
                      long SIMUL_START,
                      long SIMUL_END,
                      String EXCHANGE,
@@ -63,15 +56,10 @@ public class Simulator {
                      double TS_PCT,
                      String mode,
                      String QUOTE_CURRENCY,
-                     VolatilityBreakout vbRules,
-                     PVTOBV pvtobv)  {
+                     String strategy,
+                     Map<String, Double> strategyParams)  {
 
         this.simulatorDAO = simulatorDAO;
-
-        this.TRADING_WINDOW_SIZE_IN_MIN = TRADING_WINDOW_SIZE_IN_MIN;
-        this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
-        this.PRICE_MA_WEIGHT = PRICE_MA_WEIGHT;
-        this.VOLUME_MA_WEIGHT = VOLUME_MA_WEIGHT;
         this.SIMUL_START = SIMUL_START;
         this.SIMUL_END = SIMUL_END;
         this.EXCHANGE = EXCHANGE;
@@ -80,29 +68,36 @@ public class Simulator {
         this.TS_PCT = TS_PCT;
         this.MODE = mode;
         this.QUOTE_CURRRENCY = QUOTE_CURRENCY;
-
-        this.vbRules = vbRules;
-        this.pvtobv = pvtobv;
+        this.STRATEGY = strategy;
+        this.STRATEGY_PARAMS = strategyParams;
     }
 
     public void init() {
         this.repository = new SimulatorRepositoryImpl(EXCHANGE, SYMBOL, SIMUL_START, SIMUL_END, simulatorDAO);
         this.orderBookCache = new SimulatorOrderBookCache();
         this.exchange = new SimulatorExchange(this.repository, this.orderBookCache, SLIPPAGE);
-        this.tradingEngine = createTradingEngine();
+        this.tradingEngine = createTradingEngine(this.STRATEGY_PARAMS);
         ((SimulatorExchange)this.exchange).setTradingEngine(this.tradingEngine);
+
+        if(this.STRATEGY.equals("VB")) {
+
+        } else if(this.STRATEGY.equals("PVTOBV")) {
+
+        } else {
+            throw new RuntimeException("Unknown startegy was given: " + this.STRATEGY);
+        }
     }
 
-    private TradingEngine createTradingEngine() {
+    private TradingEngine createTradingEngine(Map<String, Double> strategyParams) {
         TradingEngine tradingEngine = null;
         if(this.MODE.equals("LONG")) {
             tradingEngine = new VBLongTradingEngine(repository,
                     exchange,
                     orderBookCache,
-                    TRADING_WINDOW_LOOK_BEHIND,
-                    TRADING_WINDOW_SIZE_IN_MIN,
-                    PRICE_MA_WEIGHT,
-                    VOLUME_MA_WEIGHT,
+                    strategyParams.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
+                    strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
+                    (double)strategyParams.get(CmdLine.PRICE_MA_WEIGHT),
+                    (double)strategyParams.get(CmdLine.VOLUME_MA_WEIGHT),
                     SYMBOL,
                     QUOTE_CURRRENCY,
                     0.0,
@@ -113,10 +108,19 @@ public class Simulator {
                     TS_TRIGGER_PCT,
                     TS_PCT);
         } else {
-            tradingEngine = new ShortTradingEngine(repository, exchange, orderBookCache, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE, true, true);
+            tradingEngine = new ShortTradingEngine(repository,
+                    exchange,
+                    orderBookCache,
+                    strategyParams.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
+                    SYMBOL,
+                    QUOTE_CURRRENCY,
+                    0.0,
+                    EXCHANGE,
+                    FEE_RATE,
+                    true,
+                    true);
         }
 
-        tradingEngine.init(SIMUL_START + 60_000L);
         return tradingEngine;
     }
 
@@ -179,19 +183,24 @@ public class Simulator {
         LOGGER.info("END_USD_BALANCE {}", exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
         LOGGER.info("WINNING RATE {} (w {} / l {})", String.format("%.2f", (win*1.0 / (win+lose)) * 100.0), win, lose);
         LOGGER.info("P/L RATIO {} (P {} / L {})", String.format("%.2f", Math.abs(profit / loss)), String.format("%.2f",profit), String.format("%.2f",loss));
-        LOGGER.info("TRADING_WINDOW_SIZE_IN_MIN {}", TRADING_WINDOW_SIZE_IN_MIN);
-        LOGGER.info("TRADING_WINDOW_LOOK_BEHIND {}", TRADING_WINDOW_LOOK_BEHIND);
-        LOGGER.info("PRICE_MA_WEIGHT {}", PRICE_MA_WEIGHT);
-        LOGGER.info("VOLUME_MA_WEIGHT {}", VOLUME_MA_WEIGHT);
         LOGGER.info("MA_MIN {}", MA_MIN);
         LOGGER.info("SLIPPAGE {}", SLIPPAGE);
         LOGGER.info("TS_TRIGGER_PCT {}", TS_TRIGGER_PCT);
         LOGGER.info("TS_PCT {}", TS_PCT);
-        LOGGER.info("PVT_LOOK_BEHIND {}", pvtobv.getPVT_LOOK_BEHIND());
-        LOGGER.info("PVT_SIGNAL_THRESHOLD {}", pvtobv.getPVT_SIGNAL_THRESHOLD());
-        LOGGER.info("OBV_LOOK_BEHIND {}", pvtobv.getOBV_LOOK_BEHIND());
-        LOGGER.info("OBV_BUY_SIGNAL_THRESHOLD {}", pvtobv.getOBV_BUY_SIGNAL_THRESHOLD());
-        LOGGER.info("OBV_SELL_SIGNAL_THRESHOLD {}", pvtobv.getOBV_SELL_SIGNAL_THRESHOLD());
+
+        if(this.STRATEGY.equals("VB")) {
+            LOGGER.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND));
+            LOGGER.info("TRADING_WINDOW_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
+            LOGGER.info("PRICE_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.PRICE_MA_WEIGHT));
+            LOGGER.info("VOLUME_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.VOLUME_MA_WEIGHT));
+        } else if(this.STRATEGY.equals("PVTOBV")) {
+            LOGGER.info("PVT_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.PVT_LOOK_BEHIND));
+            LOGGER.info("PVT_SIGNAL_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PVT_SIGNAL_THRESHOLD));
+            LOGGER.info("OBV_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.OBV_LOOK_BEHIND));
+            LOGGER.info("OBV_BUY_SIGNAL_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.OBV_BUY_SIGNAL_THRESHOLD));
+            LOGGER.info("OBV_SELL_SIGNAL_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.OBV_SELL_SIGNAL_THRESHOLD));
+        }
+
         LOGGER.info("----------------------------------------------------------------");
 
         System.out.println((-1)*exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
@@ -204,25 +213,25 @@ public class Simulator {
                 DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, DateTimeZone.UTC)));
 
         result.setPeriodId(id);
-        result.setVOLUME_MA_WEIGHT(this.VOLUME_MA_WEIGHT);
-        result.setTRADING_WINDOW_SIZE_IN_MIN(this.TRADING_WINDOW_SIZE_IN_MIN);
-        result.setTRADING_WINDOW_LOOK_BEHIND(this.TRADING_WINDOW_LOOK_BEHIND);
+        result.setVOLUME_MA_WEIGHT(STRATEGY_PARAMS.get(CmdLine.VOLUME_MA_WEIGHT));
+        result.setTRADING_WINDOW_SIZE_IN_MIN(STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue());
+        result.setTRADING_WINDOW_LOOK_BEHIND(STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue());
+        result.setPRICE_MA_WEIGHT(STRATEGY_PARAMS.get(CmdLine.PRICE_MA_WEIGHT));
         result.setSTART_USD_BALANCE(exchange.getSTART_BALANCE());
         result.setSLIPPAGE(this.SLIPPAGE);
         result.setSIMUL_START(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_START, DateTimeZone.UTC)));
         result.setSIMUL_END(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, DateTimeZone.UTC)));
-        result.setPRICE_MA_WEIGHT(this.PRICE_MA_WEIGHT);
         result.setMA_MIN(this.MA_MIN);
         result.setEND_USD_BALANCE(exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
         result.setWINNING_RATE((win*1.0 / (win+lose)) * 100.0);
         result.setTS_TRIGGER_PCT(TS_TRIGGER_PCT);
         result.setTS_PCT(TS_PCT);
         result.setMODE(MODE);
-        result.setPVT_LOOK_BEHIND(pvtobv.getPVT_LOOK_BEHIND());
-        result.setPVT_SIGNAL_THRESHOLD(pvtobv.getPVT_SIGNAL_THRESHOLD());
-        result.setOBV_LOOK_BEHIND(pvtobv.getOBV_LOOK_BEHIND());
-        result.setOBV_BUY_SIGNAL_THRESHOLD(pvtobv.getOBV_BUY_SIGNAL_THRESHOLD());
-        result.setOBV_SELL_SIGNAL_THRESHOLD(pvtobv.getOBV_SELL_SIGNAL_THRESHOLD());
+        result.setPVT_LOOK_BEHIND(STRATEGY_PARAMS.get(CmdLine.PVT_LOOK_BEHIND).intValue());
+        result.setPVT_SIGNAL_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.PVT_SIGNAL_THRESHOLD).intValue());
+        result.setOBV_LOOK_BEHIND(STRATEGY_PARAMS.get(CmdLine.OBV_LOOK_BEHIND).intValue());
+        result.setOBV_BUY_SIGNAL_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.OBV_BUY_SIGNAL_THRESHOLD).intValue());
+        result.setOBV_SELL_SIGNAL_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.OBV_SELL_SIGNAL_THRESHOLD).intValue());
 
         return result;
     }

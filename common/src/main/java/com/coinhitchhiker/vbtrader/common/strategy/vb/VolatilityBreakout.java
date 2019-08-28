@@ -11,21 +11,6 @@ public class VolatilityBreakout  {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VolatilityBreakout.class);
 
-    private final int TRADING_WINDOW_LOOK_BEHIND;
-    private final int MA_MIN;
-    private final int TRADING_WINDOW_SIZE;
-    private final double PRICE_MA_WEIGHT;
-    private final double VOLUME_MA_WEIGHT;
-
-    public VolatilityBreakout(int TRADING_WINDOW_LOOK_BEHIND, int MA_MIN, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT) {
-
-        this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
-        this.MA_MIN = MA_MIN;
-        this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
-        this.PRICE_MA_WEIGHT = PRICE_MA_WEIGHT;
-        this.VOLUME_MA_WEIGHT = VOLUME_MA_WEIGHT;
-    }
-
     public static double getPriceMAScore(
             final List<TradingWindow> lookbehindTradingWindows
             , final double curPrice
@@ -123,43 +108,43 @@ public class VolatilityBreakout  {
         return lookbehindTradingWindows.stream().mapToDouble(TradingWindow::getNoiseRatio).average().getAsDouble();
     }
 
-    private double shortSellSignalStrength(double curPrice,
-                                          TradingWindow curTradingWindow,
-                                          List<TradingWindow> lookbehindTradingWindows,
-                                          long curTimeStamp) {
-        if(curTradingWindow.getHighPrice() == 0 || curTradingWindow.getLowPrice() == 0) return 0;
-
-        double k = this.getKValue(lookbehindTradingWindows);
-        boolean priceBreakout =  curPrice < curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange();
-        if(!priceBreakout) {
-            LOGGER.info("[---------------------NO SELL SIGNAL DETECTED----------------------------]");
-            LOGGER.info("curPrice {} > {} (openPrice {} - k {} * prevRange {})",
-                    curPrice ,
-                    curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
-                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-            return 0;
-        }
-
-//        double volume = curTradingWindow.getVolume();
-//        double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-        double priceMAScore = this.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
-        double volumeMAScore = this.getVolumeMAScore_aggressive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimeStamp);
-        double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
-
-        if(weightedMAScore > 0) {
-            LOGGER.info("[---------------------SELL SIGNAL DETECTED----------------------------]");
-            LOGGER.info("curPrice {} < {} (openPrice {} - k {} * prevRange {})",
-                    curPrice ,
-                    curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
-                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-        } else {
-            LOGGER.info("[-----------------SELL SIGNAL DETECTED BUT COST IS 0------------------------]");
-            LOGGER.info("curPrice {} < {} (openPrice {} - k {} * prevRange {})",
-                    curPrice ,
-                    curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
-                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-        }
-
-        return weightedMAScore;
-    }
+//    private double shortSellSignalStrength(double curPrice,
+//                                          TradingWindow curTradingWindow,
+//                                          List<TradingWindow> lookbehindTradingWindows,
+//                                          long curTimeStamp) {
+//        if(curTradingWindow.getHighPrice() == 0 || curTradingWindow.getLowPrice() == 0) return 0;
+//
+//        double k = this.getKValue(lookbehindTradingWindows);
+//        boolean priceBreakout =  curPrice < curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange();
+//        if(!priceBreakout) {
+//            LOGGER.info("[---------------------NO SELL SIGNAL DETECTED----------------------------]");
+//            LOGGER.info("curPrice {} > {} (openPrice {} - k {} * prevRange {})",
+//                    curPrice ,
+//                    curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
+//                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+//            return 0;
+//        }
+//
+////        double volume = curTradingWindow.getVolume();
+////        double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+//        double priceMAScore = this.getPriceMAScore(lookbehindTradingWindows, curPrice, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+//        double volumeMAScore = this.getVolumeMAScore_aggressive(lookbehindTradingWindows, curTradingWindow, MA_MIN, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimeStamp);
+//        double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
+//
+//        if(weightedMAScore > 0) {
+//            LOGGER.info("[---------------------SELL SIGNAL DETECTED----------------------------]");
+//            LOGGER.info("curPrice {} < {} (openPrice {} - k {} * prevRange {})",
+//                    curPrice ,
+//                    curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
+//                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+//        } else {
+//            LOGGER.info("[-----------------SELL SIGNAL DETECTED BUT COST IS 0------------------------]");
+//            LOGGER.info("curPrice {} < {} (openPrice {} - k {} * prevRange {})",
+//                    curPrice ,
+//                    curTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
+//                    curTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+//        }
+//
+//        return weightedMAScore;
+//    }
 }

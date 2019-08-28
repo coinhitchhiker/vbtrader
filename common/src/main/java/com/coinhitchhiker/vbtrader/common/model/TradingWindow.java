@@ -12,9 +12,6 @@ public class TradingWindow {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TradingWindow.class);
 
-    private double TS_TRIGGER_PCT = 0.7D; // trailing when 0.7% profit is gained (default)
-    private double TS_PCT = 0.2D; // run trailing stop order when 0.2% loss from highest price (default)
-
     private final String symbol;
     private final long startTimeStamp;    // unix epoch in millis
     private final long endTimeStamp;
@@ -119,41 +116,6 @@ public class TradingWindow {
 //        }
 //    }
 //
-//    private void updateTrailingStop(double curPrice) {
-//        double prevPrice = this.prevTradeEvent.getPrice();
-//
-//        if(this.buyOrder != null) {
-//            if(this.trailingStopPrice == 0) {
-//                if(curPrice > buyOrder.getPriceExecuted() * (100.0 + TS_TRIGGER_PCT)/100) {
-//                    LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
-//                    this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
-//                }
-//            } else {
-//                if(curPrice > prevPrice) {
-//                    if(this.trailingStopPrice < curPrice * (100.0 - TS_PCT)/100.0) {
-//                        LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
-//                        this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
-//                    }
-//                }
-//            }
-//        }
-//
-//        if(this.sellOrder != null) {
-//            if(this.trailingStopPrice == 0) {
-//                if(curPrice < sellOrder.getPriceExecuted() * (100.0 - TS_TRIGGER_PCT)/100.0) {
-//                    LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
-//                    this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
-//                }
-//            } else {
-//                if(curPrice < prevPrice) {
-//                    if(this.trailingStopPrice > curPrice * (100.0 + TS_PCT)/100.0) {
-//                        LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
-//                        this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
-//                    }
-//                }
-//            }
-//        }
-//    }
 
     public TradeEvent getPrevTradeEvent() {
         return prevTradeEvent;
@@ -180,27 +142,13 @@ public class TradingWindow {
         this.candles = candles;
     }
 
-    public double getTS_TRIGGER_PCT() {
-        return TS_TRIGGER_PCT;
-    }
-
-    public void setTS_TRIGGER_PCT(double TS_TRIGGER_PCT) {
-        this.TS_TRIGGER_PCT = TS_TRIGGER_PCT;
-    }
-
-    public double getTS_PCT() {
-        return TS_PCT;
-    }
-
-    public void setTS_PCT(double TS_PCT) {
-        this.TS_PCT = TS_PCT;
+    public void setVolume(double volume) {
+        this.volume = volume;
     }
 
     @Override
     public String toString() {
         return "TradingWindow{" +
-                "TS_TRIGGER_PCT=" + TS_TRIGGER_PCT +
-                ", TS_PCT=" + TS_PCT +
                 ", symbol='" + symbol + '\'' +
                 ", startTimeStamp=" + new DateTime(startTimeStamp, DateTimeZone.UTC).toString() +
                 ", endTimeStamp=" + new DateTime(endTimeStamp, DateTimeZone.UTC).toString() +
