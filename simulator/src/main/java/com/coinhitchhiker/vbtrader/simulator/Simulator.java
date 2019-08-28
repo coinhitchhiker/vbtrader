@@ -153,11 +153,10 @@ public class Simulator {
 
             if(tradeResult.getNetProfit() > 0) {
                 win++;
-                this.profit += tradeResult.getNetProfit();
+//                this.profit += tradeResult.getNetProfit();
             } else {
                 lose++;
-                // Loss penalty is 150%
-                this.loss += tradeResult.getNetProfit() * 1.5;
+                this.loss += tradeResult.getNetProfit();
             }
         }
     }
