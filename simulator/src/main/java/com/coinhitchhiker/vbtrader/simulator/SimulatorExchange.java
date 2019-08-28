@@ -68,7 +68,7 @@ public class SimulatorExchange implements Exchange {
                 orderInfo.setPriceExecuted(trailingStopPrice * (1+SLIPPAGE));
             } else {
                 double stopLossPrice = tradingEngine.getStopLossPrice();
-                if(stopLossPrice > 0) {
+                if(stopLossPrice < Double.MAX_VALUE) {
                     orderInfo.setPriceExecuted(stopLossPrice * (1+SLIPPAGE));
                 } else {
                     orderInfo.setPriceExecuted(orderInfo.getPrice() * (1+SLIPPAGE));
@@ -80,7 +80,7 @@ public class SimulatorExchange implements Exchange {
                 orderInfo.setPriceExecuted(trailingStopPrice * (1-SLIPPAGE));
             } else {
                 double stopLossPrice = tradingEngine.getStopLossPrice();
-                if(stopLossPrice > 0) {
+                if(stopLossPrice < Double.MAX_VALUE) {
                     orderInfo.setPriceExecuted(stopLossPrice * (1-SLIPPAGE));
                 } else {
                     orderInfo.setPriceExecuted(orderInfo.getPrice() * (1-SLIPPAGE));

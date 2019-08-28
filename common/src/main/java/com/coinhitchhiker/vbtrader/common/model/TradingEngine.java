@@ -4,9 +4,13 @@ public interface TradingEngine {
 
     TradeResult trade(double curPrice, long curTimestamp);
 
-    double buySignalStrength(double curPrice, long curTimestamp);
+    default double buySignalStrength(double curPrice, long curTimestamp) {
+        return 0.0;
+    }
 
-    boolean sellSignal(double curPrice, long curTimestamp);
+    default double sellSignalStrength(double curPrice, long curTimestamp) {
+        return 0.0;
+    }
 
     default void onTradeEvent(TradeEvent e) {
         return;
