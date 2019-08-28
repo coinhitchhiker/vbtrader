@@ -153,7 +153,7 @@ public class Simulator {
 
             if(tradeResult.getNetProfit() > 0) {
                 win++;
-//                this.profit += tradeResult.getNetProfit();
+                this.profit += tradeResult.getNetProfit();
             } else {
                 lose++;
                 this.loss += tradeResult.getNetProfit();

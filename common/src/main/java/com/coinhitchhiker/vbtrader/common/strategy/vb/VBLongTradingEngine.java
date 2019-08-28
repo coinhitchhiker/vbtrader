@@ -35,7 +35,7 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
                                boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT) {
 
         super(repository, exchange, orderBookCache, "LONG", SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
-                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.0D);
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.5D);
 
         this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
         this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
@@ -74,13 +74,21 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
             return tradeResult;
         }
 
-        // TRAILING STOP
         if(trailingStopHit(curPrice)) {
             double prevTSPrice = super.trailingStopPrice;
             TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
             this.refreshTradingWindows(curTimestamp);
             LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", prevTSPrice, curPrice);
             LOGGERBUYSELL.info("---------------LONG TRAILING STOP HIT------------------------");
+            return tradeResult;
+        }
+
+        if(stopLossHit(curPrice)) {
+            double prevSLPrice = super.stopLossPrice;
+            TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
+            LOGGERBUYSELL.info("stopLossPrice {} > curPrice {}", prevSLPrice, curPrice);
+            LOGGERBUYSELL.info("---------------LONG STOP LOSS HIT------------------------");
+            this.refreshTradingWindows(curTimestamp);
             return tradeResult;
         }
 

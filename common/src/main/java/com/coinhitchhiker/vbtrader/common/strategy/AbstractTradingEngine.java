@@ -225,14 +225,14 @@ public class AbstractTradingEngine {
     private void setStopLoss() {
         if(MODE.equals("LONG") && STOP_LOSS_ENABLED && this.placedBuyOrder != null) {
             double buyPriceExecuted = placedBuyOrder.getPriceExecuted();
-            if(this.stopLossPrice == 0) {
+            if(this.stopLossPrice == Double.MAX_VALUE) {
                 this.stopLossPrice = buyPriceExecuted * (1 - STOP_LOSS_PCT/100.0);
             }
         }
 
         if(MODE.equals("SHORT") && STOP_LOSS_ENABLED && this.placedSellOrder != null) {
             double sellPriceExecuted = placedSellOrder.getPriceExecuted();
-            if(this.stopLossPrice == 0) {
+            if(this.stopLossPrice == Double.MAX_VALUE) {
                 double stopLossPrice = sellPriceExecuted * (1 + STOP_LOSS_PCT/100.0);
                 this.stopLossPrice = stopLossPrice;
             }
@@ -251,16 +251,16 @@ public class AbstractTradingEngine {
 
     public boolean stopLossHit(double curPrice) {
         if(MODE.equals("LONG"))
-            return STOP_LOSS_ENABLED && this.placedBuyOrder != null && curPrice < this.stopLossPrice;
+            return STOP_LOSS_ENABLED && this.placedBuyOrder != null && curPrice < this.stopLossPrice && this.stopLossPrice < Double.MAX_VALUE;
         else
-            return STOP_LOSS_ENABLED && this.placedSellOrder != null && curPrice > this.stopLossPrice;
+            return STOP_LOSS_ENABLED && this.placedSellOrder != null && curPrice > this.stopLossPrice && this.stopLossPrice < Double.MAX_VALUE;
     }
 
     public boolean trailingStopHit(double curPrice) {
         if(MODE.equals("LONG"))
-            return TRAILING_STOP_ENABLED && placedBuyOrder != null && curPrice < this.trailingStopPrice;
+            return TRAILING_STOP_ENABLED && placedBuyOrder != null && curPrice < this.trailingStopPrice && this.trailingStopPrice > 0.0;
         else    // SHORT
-            return TRAILING_STOP_ENABLED && placedSellOrder != null && curPrice > this.trailingStopPrice;
+            return TRAILING_STOP_ENABLED && placedSellOrder != null && curPrice > this.trailingStopPrice && this.trailingStopPrice > 0.0;
     }
 
     public double getTrailingStopPrice() {

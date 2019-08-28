@@ -64,11 +64,11 @@ public class SimulatorExchange implements Exchange {
         orderInfo.setExecTimestamp(this.curTimestamp);
         if(orderInfo.getOrderSide() == OrderSide.BUY) {
             double trailingStopPrice = tradingEngine.getTrailingStopPrice();
-            if(trailingStopPrice > 0) {
+            if(curPrice >= trailingStopPrice && trailingStopPrice > 0) {
                 orderInfo.setPriceExecuted(trailingStopPrice * (1+SLIPPAGE));
             } else {
                 double stopLossPrice = tradingEngine.getStopLossPrice();
-                if(stopLossPrice < Double.MAX_VALUE) {
+                if(curPrice >= stopLossPrice && stopLossPrice < Double.MAX_VALUE) {
                     orderInfo.setPriceExecuted(stopLossPrice * (1+SLIPPAGE));
                 } else {
                     orderInfo.setPriceExecuted(orderInfo.getPrice() * (1+SLIPPAGE));
@@ -76,11 +76,11 @@ public class SimulatorExchange implements Exchange {
             }
         } else {
             double trailingStopPrice = tradingEngine.getTrailingStopPrice();
-            if(trailingStopPrice > 0.0) {
+            if(curPrice < trailingStopPrice) {
                 orderInfo.setPriceExecuted(trailingStopPrice * (1-SLIPPAGE));
             } else {
                 double stopLossPrice = tradingEngine.getStopLossPrice();
-                if(stopLossPrice < Double.MAX_VALUE) {
+                if(this.curPrice < stopLossPrice && stopLossPrice < Double.MAX_VALUE) {
                     orderInfo.setPriceExecuted(stopLossPrice * (1-SLIPPAGE));
                 } else {
                     orderInfo.setPriceExecuted(orderInfo.getPrice() * (1-SLIPPAGE));
