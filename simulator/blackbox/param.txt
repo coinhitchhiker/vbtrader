@@ -4,8 +4,13 @@
 # VOLUME_MA_WEIGHT
 # TS_TRIGGER_PCT
 # TS_PCT
+# PVT_LOOK_BEHIND
+# PVT_SIGNAL_THRESHOLD
+# OBV_LOOK_BEHIND
+# OBV_BUY_SIGNAL_THRESHOLD
+# OBV_SELL_SIGNAL_THRESHOLD
 
-DIMENSION      6              # number of variables
+DIMENSION      11              # number of variables
 
 BB_EXE         "$python bb.py"          # 'bb.exe' is a program that
 BB_OUTPUT_TYPE OBJ            # takes in argument the name of
@@ -24,12 +29,12 @@ BB_OUTPUT_TYPE OBJ            # takes in argument the name of
                               #  detailed parameters list)
 
 
-X0             ( 40 12 0 1 0.7 0.2)  # starting point
+X0             ( 119.1 19 1 0.1 4 0.05 8 3.91 12 110 30 )  # starting point
 
-LOWER_BOUND    ( 3 3 0 0 0.1 0.05 )
-UPPER_BOUND    ( 10080 45 1 1 1 1 )
+LOWER_BOUND    ( 20  3  0.0 0.1 1.00 0.05 5  2  5  2  2  )
+UPPER_BOUND    ( 360 30 1.0 1.0 10.1 8.01 20 15 20 1000  1000)
 
-MAX_BB_EVAL    1500           # the algorithm terminates when
+MAX_BB_EVAL    300            # the algorithm terminates when
                               # 100 black-box evaluations have
                               # been made
 
@@ -47,3 +52,4 @@ DISPLAY_STATS BBE ( SOL ) OBJ # Display the number of evaluation (BBE),
 							  # the current solution ( SOL ) and the objective
 
 STATS_FILE test.txt BBE ( SOL ) OBJ
+

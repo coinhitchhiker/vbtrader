@@ -48,9 +48,9 @@ public class BitMexExchange implements Exchange {
     private boolean verboseHttp;
 
     @Value("${trading.symbol}") private String TRADING_SYMBOL;
-    @Value("${trading.window.size}") private int TRADING_WINDOW_SIZE;
-    @Value("${trading.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
-    @Value("${trading.iceberg.order}") private boolean doIcebergOrder;
+    @Value("${trading.vb.window.size}") private int TRADING_WINDOW_SIZE;
+    @Value("${trading.vb.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
+    @Value("${trading.vb.iceberg.order}") private boolean doIcebergOrder;
     @Value("${trading.bitmex.env}") private String BITMEX_ENV;
 
     @Autowired private EncryptorHelper encryptorHelper;

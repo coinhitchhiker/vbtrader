@@ -69,14 +69,13 @@ public class SimulatorRepositoryImpl implements Repository {
     }
 
     public List<Candle> getCandles(String symbol, long startTime, long endTime) {
-        if(exchange.equals("BINANCE")) {
-//            return this.loadCandlesFromDB("BINANCE", symbol, startTime, endTime);
-            return this.loadCandlesFromBinance(symbol, startTime, endTime);
-        } else if(exchange.equals("BITMEX")) {
-            return this.loadCandlesFromBitMex(symbol, startTime, endTime);
-        } else {
-            throw new RuntimeException("Unsupported exchange was given");
+        List<Candle> result = new ArrayList<>();
+        for(Candle candle : this.allCandles) {
+            if(startTime <= candle.getOpenTime() && candle.getOpenTime() < endTime) {
+                result.add(candle);
+            }
         }
+        return result;
     }
 
     public Candle getCurrentCandle(long curTimestamp) {
@@ -172,50 +171,6 @@ public class SimulatorRepositoryImpl implements Repository {
         }
         return arraylist;
     }
-
-//
-//    @Override
-//    public List<TradingWindow> getLastNTradingWindow(int n, long curTimestamp) {
-//        List<TradingWindow> result = new ArrayList();
-//        for(int i = this.tradingWindows.size()-1; i >= 0; i--) {
-//            TradingWindow curTw = this.tradingWindows.get(i);
-//            if(curTw.getEndTimeStamp() < curTimestamp) {
-//                result.add(curTw);
-//                if(result.size() == n) {
-//                    break;
-//                }
-//            }
-//        }
-//        return result;
-//    }
-//
-//    @Override
-//    public void refreshTradingWindows() {
-//        DateTime now = new DateTime(this.currentTimestamp, DateTimeZone.UTC);
-//        DateTime closestMin = Util.getClosestMin(now);
-//        long timestamp = closestMin.getMillis();
-//
-//        for(TradingWindow tradingWindow : tradingWindows) {
-//            if(tradingWindow.isBetween(timestamp)) {
-//                //TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
-//                TradingWindow tw = new TradingWindow(tradingWindow.getSymbol(),
-//                        tradingWindow.getStartTimeStamp(),
-//                        tradingWindow.getEndTimeStamp(),
-//                        tradingWindow.getOpenPrice(),
-//                        tradingWindow.getHighPrice(),
-//                        tradingWindow.getClosePrice(),
-//                        tradingWindow.getLowPrice(),
-//                        tradingWindow.getVolume());
-//                tw.setCandles(tradingWindow.getCandles());
-//                tw.setTS_TRIGGER_PCT(tsTriggerPct);
-//                tw.setTS_PCT(tsPct);
-//                this.currentTradingWindow = tw;
-//                return;
-//            }
-//        }
-//
-//        throw new RuntimeException("unreachable code path");
-//    }
 
     public void setCurrentTimestamp(long currentTimestamp) {
         this.currentTimestamp = currentTimestamp;

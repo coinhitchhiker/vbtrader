@@ -52,11 +52,6 @@ public class ShortTradingEngine implements TradingEngine {
     }
 
     @Override
-    public void init(long curTimestamp) {
-
-    }
-
-    @Override
     public TradeResult trade(double curPrice, long curTimestamp) {
 //
 //        TradingWindow curTradingWindow = repository.getCurrentTradingWindow(curTimestamp);

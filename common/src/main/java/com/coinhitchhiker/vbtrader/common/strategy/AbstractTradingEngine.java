@@ -118,6 +118,9 @@ public class AbstractTradingEngine {
             LOGGER.error("Placing sell order error", e);
         }
 
+        // clear out saved order status in the trading engine
+        this.clearOutOrders();
+
         return tradeResult;
     }
 
@@ -157,7 +160,7 @@ public class AbstractTradingEngine {
         this.prevPrice = curPrice;
     }
 
-    protected void clearOutOrders() {
+    private void clearOutOrders() {
         this.placedBuyOrder = null;
         this.placedSellOrder = null;
         this.buyFee = 0;
