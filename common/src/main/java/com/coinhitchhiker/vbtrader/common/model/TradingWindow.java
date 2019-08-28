@@ -93,33 +93,6 @@ public class TradingWindow {
 
         this.prevTradeEvent = e;
     }
-//
-//    private void updateStopLoss(double curPrice) {
-//        if(this.buyOrder != null) {
-//            double buyPriceExecuted = buyOrder.getPriceExecuted();
-//            if(this.stopLossPrice == 0) {
-//                double stopLossPrice = buyPriceExecuted * (1 + (0.045 + 0.045 + 0.1)/100.0);
-//                if(curPrice > stopLossPrice) {
-//                    this.stopLossPrice = stopLossPrice;
-//                }
-//            }
-//        }
-//
-//        if(this.sellOrder != null) {
-//            double sellPriceExecuted = sellOrder.getPriceExecuted();
-//            if(this.stopLossPrice == 0) {
-//                double stopLossPrice = sellPriceExecuted * (1 - (0.045 + 0.045 + 0.1)/100.0);
-//                if(curPrice < stopLossPrice) {
-//                    this.stopLossPrice = stopLossPrice;
-//                }
-//            }
-//        }
-//    }
-//
-
-    public TradeEvent getPrevTradeEvent() {
-        return prevTradeEvent;
-    }
 
     // for simulation use
     public double getCurTradingWindowVol(long currentTimestamp) {

@@ -1,10 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBV;
-import com.coinhitchhiker.vbtrader.common.strategy.vb.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
-import com.coinhitchhiker.vbtrader.common.trade.ShortTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
@@ -96,8 +93,8 @@ public class Simulator {
                     orderBookCache,
                     strategyParams.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
                     strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
-                    (double)strategyParams.get(CmdLine.PRICE_MA_WEIGHT),
-                    (double)strategyParams.get(CmdLine.VOLUME_MA_WEIGHT),
+                    strategyParams.get(CmdLine.PRICE_MA_WEIGHT),
+                    strategyParams.get(CmdLine.VOLUME_MA_WEIGHT),
                     SYMBOL,
                     QUOTE_CURRRENCY,
                     0.0,
@@ -108,17 +105,7 @@ public class Simulator {
                     TS_TRIGGER_PCT,
                     TS_PCT);
         } else {
-            tradingEngine = new ShortTradingEngine(repository,
-                    exchange,
-                    orderBookCache,
-                    strategyParams.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
-                    SYMBOL,
-                    QUOTE_CURRRENCY,
-                    0.0,
-                    EXCHANGE,
-                    FEE_RATE,
-                    true,
-                    true);
+            throw new UnsupportedOperationException();
         }
 
         return tradingEngine;
@@ -169,28 +156,30 @@ public class Simulator {
                 this.profit += tradeResult.getNetProfit();
             } else {
                 lose++;
-                this.loss += tradeResult.getNetProfit();
+                // Loss penalty is 150%
+                this.loss += tradeResult.getNetProfit() * 1.5;
             }
         }
     }
 
     public SimulResult collectSimulResult() {
         LOGGER.info("----------------------------------------------------------------");
+        LOGGER.info("STRATEGY {}", STRATEGY);
         LOGGER.info("SIMUL_START {}", new DateTime(SIMUL_START, DateTimeZone.UTC));
         LOGGER.info("SIMUL_END {}", new DateTime(SIMUL_END, DateTimeZone.UTC));
         LOGGER.info("MODE {}", MODE);
         LOGGER.info("START_USD_BALANCE {}", exchange.getSTART_BALANCE());
         LOGGER.info("END_USD_BALANCE {}", exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
         LOGGER.info("WINNING RATE {} (w {} / l {})", String.format("%.2f", (win*1.0 / (win+lose)) * 100.0), win, lose);
-        LOGGER.info("P/L RATIO {} (P {} / L {})", String.format("%.2f", Math.abs(profit / loss)), String.format("%.2f",profit), String.format("%.2f",loss));
+        LOGGER.info("P/L RATIO {} (P {} / L {})", String.format("%.2f", Math.abs(profit / (loss+0.00001))), String.format("%.2f",profit), String.format("%.2f",loss));
         LOGGER.info("MA_MIN {}", MA_MIN);
         LOGGER.info("SLIPPAGE {}", SLIPPAGE);
         LOGGER.info("TS_TRIGGER_PCT {}", TS_TRIGGER_PCT);
         LOGGER.info("TS_PCT {}", TS_PCT);
 
         if(this.STRATEGY.equals("VB")) {
-            LOGGER.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND));
-            LOGGER.info("TRADING_WINDOW_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
+            LOGGER.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
+            LOGGER.info("TRADING_WINDOW_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND));
             LOGGER.info("PRICE_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.PRICE_MA_WEIGHT));
             LOGGER.info("VOLUME_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.VOLUME_MA_WEIGHT));
         } else if(this.STRATEGY.equals("PVTOBV")) {

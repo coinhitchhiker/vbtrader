@@ -1,174 +1,76 @@
 package com.coinhitchhiker.vbtrader.common.strategy.pvtobv;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class PVTOBVLongTradingEngine implements TradingEngine {
+public class PVTOBVLongTradingEngine extends AbstractTradingEngine implements TradingEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(PVTOBVLongTradingEngine.class);
     private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
 
-    private final Repository repository;
-    private final Exchange exchange;
-
     private final int MIN_CANDLE_LOOK_BEHIND;
-    private final String SYMBOL;
-    private final String QUOTE_CURRENCY;
-    private final String EXCHANGE;
-    private final double FEE_RATE;
-    private final boolean TRADING_ENABLED;
-    private final double TS_TRIGGER_PCT;
-    private final double TS_PCT;
     private final double PVTOBV_DROP_THRESHOLD;
     private final double PRICE_DROP_THRESHOLD;
-    private final double LIMIT_PRICE_PREMIUM;
     private final double STOP_LOSS_PCT;
 
-    private OrderInfo placedBuyOrder = null;
-    private double trailingStopPrice = 0.0D;
-    private double stopLossPrice = 0.0D;
-    private double prevPrice = Double.MAX_VALUE;
+    public PVTOBVLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
+                                   String SYMBOL, String QUOTE_CURRENCY, String EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED,
+                                   boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, double LIMIT_PRICE_PREMIUM,
+                                   int MIN_CANDLE_LOOK_BEHIND, double PVTOBV_DROP_THRESHOLD, double PRICE_DROP_THRESHOLD, double STOP_LOSS_PCT) {
 
-    public PVTOBVLongTradingEngine(Repository repository, Exchange exchange, double LIMIT_PRICE_PREMIUM,
-                                   int MIN_CANDLE_LOOK_BEHIND, String SYMBOL, String QUOTE_CURRENCY, String EXCHANGE,
-                                   double FEE_RATE, boolean TRADING_ENABLED, double TS_TRIGGER_PCT, double TS_PCT,
-                                   double PVTOBV_DROP_THRESHOLD, double PRICE_DROP_THRESHOLD, double STOP_LOSS_PCT) {
-
-        this.repository = repository;
-        this.exchange = exchange;
+        super(repository, exchange, orderBookCache, "LONG", SYMBOL, QUOTE_CURRENCY, LIMIT_PRICE_PREMIUM, EXCHANGE,
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true, 0.1);
 
         this.MIN_CANDLE_LOOK_BEHIND = MIN_CANDLE_LOOK_BEHIND;
         this.PVTOBV_DROP_THRESHOLD = PVTOBV_DROP_THRESHOLD;
         this.PRICE_DROP_THRESHOLD = PRICE_DROP_THRESHOLD;
-        this.LIMIT_PRICE_PREMIUM = LIMIT_PRICE_PREMIUM;
         this.STOP_LOSS_PCT = STOP_LOSS_PCT;
 
-        this.SYMBOL = SYMBOL;
-        this.QUOTE_CURRENCY = QUOTE_CURRENCY;
-        this.EXCHANGE = EXCHANGE;
-        this.FEE_RATE = FEE_RATE;
-        this.TRADING_ENABLED =  TRADING_ENABLED;
-        this.TS_PCT = TS_PCT;
-        this.TS_TRIGGER_PCT = TS_TRIGGER_PCT;
     }
 
     @Override
     public TradeResult trade(double curPrice, long curTimestamp) {
 
-        if(buySignalStrength(curPrice, curTimestamp) > 0) {
-            double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
-            double buyPremiumPrice = curPrice * (1+LIMIT_PRICE_PREMIUM/100D);
-            double amount = availableBalance / buyPremiumPrice;
-
-            try {
-                OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPremiumPrice, amount);
-                if(!this.TRADING_ENABLED) {
-                    LOGGER.info("-------------------TRADING DISABLED!-------------------");
-                    LOGGER.info("[PREPARED BUYORDER] {}", buyOrder.toString());
-                    return null;
-                }
-                OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
-                this.stopLossPrice = placedBuyOrder.getPriceExecuted() * (1-(STOP_LOSS_PCT/100));
-                this.placedBuyOrder = placedBuyOrder;
-                LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
-                LOGGERBUYSELL.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
-            } catch(Exception e) {
-                LOGGER.error("Placing buy order failed", e);
-            } finally {
-                return null;
-            }
+        TradeResult tradeResult = null;
+        double buySignalStrength = buySignalStrength(curPrice, curTimestamp);
+        if(buySignalStrength > 0) {
+            this.placeBuyOrder(curPrice, buySignalStrength);
+            return null;
         }
 
-        if(hitStopLoss(curPrice)) {
-            double amount = this.placedBuyOrder.getAmountExecuted();
-            double price = this.stopLossPrice*(1-LIMIT_PRICE_PREMIUM/100D);
-            OrderInfo stopLossOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, price, amount);
-            try {
-                OrderInfo placedStopLossOrder = exchange.placeOrder(stopLossOrder);
-                TradeResult tradeResult = new TradeResult(EXCHANGE, SYMBOL, QUOTE_CURRENCY, 0,0,0,0,0,0);
-                initEngineState();
-                LOGGER.info("[STOP LOSS HIT] {}", placedStopLossOrder.toString());
-                LOGGERBUYSELL.info("[STOP LOSS HIT] {}", placedStopLossOrder.toString());
-                return tradeResult;
-            } catch(Exception e) {
-                LOGGER.error("Placing stopLossOrder failed", e);
-                this.prevPrice = curPrice;
-                return null;
-            }
+        if(stopLossHit(curPrice)) {
+            tradeResult = placeSellOrder(curPrice, 1.0D);
+            LOGGERBUYSELL.info("-------------------STOP LOSS HIT-------------------");
+            return tradeResult;
         }
 
-        updateTrailingStopPrice(curPrice);
-
-        if(sellSignal(curPrice, curTimestamp)) {
-            double sellPremiumPrice = curPrice * (1-LIMIT_PRICE_PREMIUM/100D);
-            OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPremiumPrice, placedBuyOrder.getAmountExecuted());
-            try {
-                OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
-                TradeResult tradeResult = new TradeResult(EXCHANGE, SYMBOL, QUOTE_CURRENCY, 0,0,0,0,0,0);
-                initEngineState();
-                LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
-                LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
-                return tradeResult;
-            } catch (Exception e) {
-                LOGGER.error("Placing sell order failed", e);
-                this.prevPrice = curPrice;
-                return null;
-            }
+        if(trailingStopHit(curPrice)) {
+            double prevTSPrice = super.trailingStopPrice;
+            tradeResult = placeSellOrder(curPrice, 1.0D);
+            LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", prevTSPrice, curPrice);
+            LOGGERBUYSELL.info("---------------LONG TRAILING STOP HIT------------------------");
+            return tradeResult;
         }
 
-        this.prevPrice = curPrice;
-        return null;
-    }
-
-    private void updateTrailingStopPrice(double curPrice) {
-        if(this.trailingStopPrice == 0) {
-            if(curPrice > placedBuyOrder.getPriceExecuted() * (100.0 + TS_TRIGGER_PCT)/100) {
-                LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
-                this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
-            }
-        } else {
-            if(curPrice > prevPrice) {
-                if(this.trailingStopPrice < curPrice * (100.0 - TS_PCT)/100.0) {
-                    LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
-                    this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
-                }
-            }
+        // if a buy order was placed and no trailing stop price has been touched
+        // we do nothing until price hits either stop loss or trailing stop
+        if(placedBuyOrder != null) {
+            LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
+            return null;
         }
+
+        return tradeResult;
     }
 
-    private void initEngineState() {
-        this.placedBuyOrder = null;
-        this.stopLossPrice = 0;
-        this.trailingStopPrice = 0;
-        this.prevPrice = Double.MAX_VALUE;
-    }
-
-    private boolean hitStopLoss(double curPrice) {
-        return this.placedBuyOrder != null && curPrice < this.stopLossPrice;
-    }
-
-    @Override
-    public boolean sellSignal(double curPrice, long curTimestamp) {
-        return this.placedBuyOrder != null && this.trailingStopPrice > 0 && curPrice < this.trailingStopPrice;
-    }
-
-    @Override
+    @EventListener
     public void onTradeEvent(TradeEvent e) {
-
-    }
-
-    @Override
-    public double getTrailingStopPrice() {
-        return 0;
-    }
-
-    @Override
-    public double getStopLossPrice() {
-        return 0;
+        this.updateTrailingStopPrice(e.getPrice());
     }
 
     @Override
