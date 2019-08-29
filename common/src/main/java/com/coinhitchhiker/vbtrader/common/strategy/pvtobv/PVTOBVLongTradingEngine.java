@@ -84,15 +84,19 @@ public class PVTOBVLongTradingEngine extends AbstractTradingEngine implements Tr
         for(int i = 0; i < MIN_CANDLE_LOOK_BEHIND; i++) {
             // we must look for complete past candles.. so we go back by 60 seconds to ensure candles are complete.
             long timestamp = curTimestamp - (i+1)*60_000L;
+            Candle candle = repository.getCurrentCandle(timestamp);
+            if(candle == null) return 0;
             pastNCandles.add(repository.getCurrentCandle(timestamp));
         }
+
+        if(pastNCandles.size() < MIN_CANDLE_LOOK_BEHIND) return 0;
 
         Candle latestCandle = pastNCandles.get(0);
         Candle oldestCandle = pastNCandles.get(pastNCandles.size()-1);
 
         boolean buy = (latestCandle.getPvt() - oldestCandle.getPvt()) < PVTOBV_DROP_THRESHOLD &&
                 (latestCandle.getObv() - oldestCandle.getObv()) < PVTOBV_DROP_THRESHOLD &&
-                (curPrice - oldestCandle.getClosePrice()) < PRICE_DROP_THRESHOLD;
+                (curPrice - oldestCandle.getClosePrice()) / oldestCandle.getClosePrice() * 100 < PRICE_DROP_THRESHOLD;
 
         return buy ? 1 : 0;
     }

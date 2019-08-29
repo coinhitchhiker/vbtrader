@@ -20,11 +20,10 @@ public class SimulResult {
     private double TS_TRIGGER_PCT;
     private double TS_PCT;
     private String MODE;
-    private int PVT_LOOK_BEHIND;
-    private int PVT_SIGNAL_THRESHOLD;
-    private int OBV_LOOK_BEHIND;
-    private int OBV_BUY_SIGNAL_THRESHOLD;
-    private int OBV_SELL_SIGNAL_THRESHOLD;
+    private int MIN_CANDLE_LOOK_BEHIND;
+    public double PVTOBV_DROP_THRESHOLD;
+    public double PRICE_DROP_THRESHOLD;
+    public double STOP_LOSS_PCT;
 
     public double getVersion() {
         return version;
@@ -150,43 +149,35 @@ public class SimulResult {
         this.MODE = MODE;
     }
 
-    public int getPVT_LOOK_BEHIND() {
-        return PVT_LOOK_BEHIND;
+    public int getMIN_CANDLE_LOOK_BEHIND() {
+        return MIN_CANDLE_LOOK_BEHIND;
     }
 
-    public void setPVT_LOOK_BEHIND(int PVT_LOOK_BEHIND) {
-        this.PVT_LOOK_BEHIND = PVT_LOOK_BEHIND;
+    public void setMIN_CANDLE_LOOK_BEHIND(int MIN_CANDLE_LOOK_BEHIND) {
+        this.MIN_CANDLE_LOOK_BEHIND = MIN_CANDLE_LOOK_BEHIND;
     }
 
-    public int getPVT_SIGNAL_THRESHOLD() {
-        return PVT_SIGNAL_THRESHOLD;
+    public double getPVTOBV_DROP_THRESHOLD() {
+        return PVTOBV_DROP_THRESHOLD;
     }
 
-    public void setPVT_SIGNAL_THRESHOLD(int PVT_SIGNAL_THRESHOLD) {
-        this.PVT_SIGNAL_THRESHOLD = PVT_SIGNAL_THRESHOLD;
+    public void setPVTOBV_DROP_THRESHOLD(double PVTOBV_DROP_THRESHOLD) {
+        this.PVTOBV_DROP_THRESHOLD = PVTOBV_DROP_THRESHOLD;
     }
 
-    public int getOBV_LOOK_BEHIND() {
-        return OBV_LOOK_BEHIND;
+    public double getPRICE_DROP_THRESHOLD() {
+        return PRICE_DROP_THRESHOLD;
     }
 
-    public void setOBV_LOOK_BEHIND(int OBV_LOOK_BEHIND) {
-        this.OBV_LOOK_BEHIND = OBV_LOOK_BEHIND;
+    public void setPRICE_DROP_THRESHOLD(double PRICE_DROP_THRESHOLD) {
+        this.PRICE_DROP_THRESHOLD = PRICE_DROP_THRESHOLD;
     }
 
-    public int getOBV_BUY_SIGNAL_THRESHOLD() {
-        return OBV_BUY_SIGNAL_THRESHOLD;
+    public double getSTOP_LOSS_PCT() {
+        return STOP_LOSS_PCT;
     }
 
-    public void setOBV_BUY_SIGNAL_THRESHOLD(int OBV_BUY_SIGNAL_THRESHOLD) {
-        this.OBV_BUY_SIGNAL_THRESHOLD = OBV_BUY_SIGNAL_THRESHOLD;
-    }
-
-    public int getOBV_SELL_SIGNAL_THRESHOLD() {
-        return OBV_SELL_SIGNAL_THRESHOLD;
-    }
-
-    public void setOBV_SELL_SIGNAL_THRESHOLD(int OBV_SELL_SIGNAL_THRESHOLD) {
-        this.OBV_SELL_SIGNAL_THRESHOLD = OBV_SELL_SIGNAL_THRESHOLD;
+    public void setSTOP_LOSS_PCT(double STOP_LOSS_PCT) {
+        this.STOP_LOSS_PCT = STOP_LOSS_PCT;
     }
 }
