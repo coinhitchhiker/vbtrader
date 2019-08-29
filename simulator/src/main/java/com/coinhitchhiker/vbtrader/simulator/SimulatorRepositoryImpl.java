@@ -27,6 +27,7 @@ public class SimulatorRepositoryImpl implements Repository {
 
     private long currentTimestamp;
     private String exchange;
+    private boolean REPO_USE_DB;
 
     private List<Candle> allCandles = new ArrayList<>();
     private SimulatorDAO simulatorDAO;
@@ -35,23 +36,27 @@ public class SimulatorRepositoryImpl implements Repository {
                                    String symbol,
                                    long simulStart,
                                    long simulEnd,
-                                   SimulatorDAO simulatorDAO)  {
+                                   SimulatorDAO simulatorDAO,
+                                   boolean REPO_USE_DB)  {
 
         this.currentTimestamp = simulStart;
         this.simulatorDAO = simulatorDAO;
         this.exchange = exchange;
+        this.REPO_USE_DB = REPO_USE_DB;
 
-        List<Candle> result = deserCandles(makeFileName(exchange, symbol, simulStart, simulEnd));
+        List<Candle> result = deserCandles(makeFileName(exchange, symbol, simulStart, simulEnd, REPO_USE_DB));
         if(result != null && result.size() > 0) {
             allCandles.addAll(result);
         } else {
             if(this.exchange.equals("BINANCE")) {
-                result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
-//                result = loadCandlesFromDB(exchange, symbol, simulStart, simulEnd);
+                if(REPO_USE_DB)
+                    result = loadCandlesFromDB(exchange, symbol, simulStart, simulEnd);
+                else
+                    result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
             } else if(this.exchange.equals("BITMEX")) {
                 result = loadCandlesFromBitMex(symbol, simulStart, simulEnd);
             }
-            serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd));
+            serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd, REPO_USE_DB));
             allCandles.addAll(result);
         }
     }
@@ -80,6 +85,7 @@ public class SimulatorRepositoryImpl implements Repository {
 
     public Candle getCurrentCandle(long curTimestamp) {
         int curCandleIndex = getCurrentCandleIndex(curTimestamp);
+        if(curCandleIndex == -1) return null;
         return allCandles.get(curCandleIndex);
     }
 
@@ -141,8 +147,8 @@ public class SimulatorRepositoryImpl implements Repository {
         return candles;
     }
 
-    private String makeFileName(String exchange, String symbol, long simulStart, long simulEnd) {
-        return exchange + "-" + symbol + "-" + simulStart + "-" + simulEnd;
+    private String makeFileName(String exchange, String symbol, long simulStart, long simulEnd, boolean REPO_USE_DB) {
+        return exchange + "-" + symbol + "-" + simulStart + "-" + simulEnd + (REPO_USE_DB ? "_DB" : "");
     }
 
     private void serCandles(List<Candle> candles, String filename) {

@@ -50,7 +50,7 @@ public class SimulatorAppMain implements CommandLineRunner {
             throw new RuntimeException("BINANCE supports long only");
         }
 
-        Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput());
+        Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput(), opts.getStrategy());
 
         if(opts.getValidation()) {
             Gson gson = new Gson();
@@ -67,7 +67,8 @@ public class SimulatorAppMain implements CommandLineRunner {
                         mode,
                         opts.getQuoteCurrency(),
                         opts.getStrategy(),
-                        parsedBBInput);
+                        parsedBBInput,
+                        opts.isRepoUseDB());
 
                 simulator.init();
                 simulator.runSimul();
@@ -95,7 +96,8 @@ public class SimulatorAppMain implements CommandLineRunner {
                     mode,
                     opts.getQuoteCurrency(),
                     opts.getStrategy(),
-                    parsedBBInput);
+                    parsedBBInput,
+                    opts.isRepoUseDB());
 
             simulator.init();
             simulator.runSimul();
