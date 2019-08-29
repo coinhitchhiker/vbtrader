@@ -19,6 +19,7 @@ public class ITDBTest extends BaseIT {
     private TraderDAO traderDAO;
 
     @Test
+    @Ignore
     public void validateDBConnection() {
         int i = traderDAO.validateConnection();
         assertThat(i).isEqualTo(1);
@@ -26,6 +27,7 @@ public class ITDBTest extends BaseIT {
 
 
     @Test
+    @Ignore
     public void testLogCompleteTransaction() {
         TradingWindow tw = new TradingWindow("BTCUSDT", 100, 100, 100.0D);
         OrderInfo buyOrder = new OrderInfo("BINANCE", "BTCUSDT", OrderSide.BUY, 100.0D, 100.0D);
@@ -36,12 +38,6 @@ public class ITDBTest extends BaseIT {
         buyOrder.setExternalOrderId("waoiejfwe");
         buyOrder.setOrderStatus(OrderStatus.COMPLETE);
         buyOrder.setPriceExecuted(100.0D);
-
-        tw.setBuyOrder(buyOrder);
-        tw.setBuyFee(0.001D);
-        tw.setSellFee(0.001D);
-        tw.setProfit(1.0D);
-        tw.setNetProfit(0.01D);
 
         traderDAO.logCompleteTransaction(new Gson().toJson(tw));
     }

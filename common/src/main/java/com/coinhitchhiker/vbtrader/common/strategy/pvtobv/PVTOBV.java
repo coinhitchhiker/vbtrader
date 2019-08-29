@@ -1,6 +1,5 @@
-package com.coinhitchhiker.vbtrader.common.strategy;
+package com.coinhitchhiker.vbtrader.common.strategy.pvtobv;
 
-import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.model.Repository;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
@@ -145,8 +144,8 @@ public class PVTOBV {
 
         try {
             // now 1min passed... build indicator for the 1min candle
-            pvt = repository.getPVT(curTimestamp);
-            obv = repository.getOBV(curTimestamp);
+//            pvt = repository.getPVT(curTimestamp);
+//            obv = repository.getOBV(curTimestamp);
 
             this.addPvtValue(pvt);
             this.addObvValue(obv);

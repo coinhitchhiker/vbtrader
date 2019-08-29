@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import org.apache.commons.cli.*;
+import org.springframework.boot.autoconfigure.web.ResourceProperties;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -17,11 +18,11 @@ public class CmdLine {
     public static String VOLUME_MA_WEIGHT = "4";
     public static String TS_TRIGGER_PCT = "5";
     public static String TS_PCT = "6";
-    public static String PVT_LOOK_BEHIND = "7";
-    public static String PVT_SIGNAL_THRESHOLD = "8";
-    public static String OBV_LOOK_BEHIND = "9";
-    public static String OBV_BUY_SIGNAL_THRESHOLD = "10";
-    public static String OBV_SELL_SIGNAL_THRESHOLD = "11";
+    public static String MIN_CANDLE_LOOK_BEHIND = "7";
+    public static String PVTOBV_DROP_THRESHOLD = "8";
+    public static String PRICE_DROP_THRESHOLD = "9";
+    public static String STOP_LOSS_PCT = "10";
+
 
     public static CmdLine.CommandLineOptions parseCommandLine(String... args) {
         Options options = new Options();
@@ -58,6 +59,14 @@ public class CmdLine {
         quoteCurrency.setRequired(true);
         options.addOption(quoteCurrency);
 
+        Option strategy = new Option("str", "strategy", true, "Trading strategy (VB/PVTOBV)");
+        strategy.setRequired(true);
+        options.addOption(strategy);
+
+        Option repoUseDB = new Option("db", "repo-db", false, "SimulatorRepo should use DB");
+        repoUseDB.setRequired(false);
+        options.addOption(repoUseDB);
+
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
@@ -79,7 +88,9 @@ public class CmdLine {
                 cmd.getOptionValue("ex"),
                 cmd.hasOption("v"),
                 cmd.getOptionValue("m"),
-                cmd.getOptionValue("q")
+                cmd.getOptionValue("q"),
+                cmd.getOptionValue("str"),
+                cmd.hasOption("db")
         );
     }
 
@@ -93,6 +104,8 @@ public class CmdLine {
         private boolean validation;
         private String mode;
         private String quoteCurrency;
+        private String strategy;
+        private boolean repoUseDB;
 
         public CommandLineOptions(String blackboxInput
                 , String simulStart
@@ -101,7 +114,9 @@ public class CmdLine {
                 , String exchange
                 , boolean validation
                 , String mode
-                , String quoteCurrency) {
+                , String quoteCurrency
+                , String strategy
+                , boolean repoUseDB) {
             this.blackboxInput = blackboxInput;
             this.simulStart = simulStart;
             this.simulEnd = simulEnd;
@@ -110,6 +125,8 @@ public class CmdLine {
             this.validation = validation;
             this.mode = mode;
             this.quoteCurrency = quoteCurrency;
+            this.strategy = strategy;
+            this.repoUseDB = repoUseDB;
         }
 
         public String getBlackboxInput() {
@@ -143,29 +160,46 @@ public class CmdLine {
         public String getQuoteCurrency() {
             return quoteCurrency;
         }
+
+        public String getStrategy() {
+            return strategy;
+        }
+
+        public boolean isRepoUseDB() {
+            return repoUseDB;
+        }
     }
 
-    public static Map<String, Double> parseBlackboxInput(String filePath) throws IOException {
+    public static Map<String, Double> parseBlackboxInput(String filePath, String strategy) throws IOException {
         try(BufferedReader br = Files.newBufferedReader(Paths.get(filePath))) {
             String[] params = br.readLine().split(" ");
-            if(params.length != 11) {
-                throw new RuntimeException("Invalid format was given. (Format: TRADING_WINDOW_SIZE_IN_MIN(int) TRADING_WINDOW_LOOK_BEHIND(int) PRICE_MA_WEIGHT(double) VOLUME_MA_WEIGHT(double) TS_TRIGGER_PCT(double < 1) TS_PCT(double < 1))");
-            }
-
             Map<String, Double> result = new HashMap<>();
-            result.put(CmdLine.TRADING_WINDOW_SIZE_IN_MIN, Double.valueOf(params[0]));
-            result.put(CmdLine.TRADING_WINDOW_LOOK_BEHIND, Double.valueOf(params[1]));
-            result.put(CmdLine.PRICE_MA_WEIGHT, Double.valueOf(params[2]));
-            result.put(CmdLine.VOLUME_MA_WEIGHT, Double.valueOf(params[3]));
-            result.put(CmdLine.TS_TRIGGER_PCT, Double.valueOf(params[4]));
-            result.put(CmdLine.TS_PCT, Double.valueOf(params[5]));
-            result.put(CmdLine.PVT_LOOK_BEHIND, Double.valueOf(params[6]));
-            result.put(CmdLine.PVT_SIGNAL_THRESHOLD, Double.valueOf(params[7]));
-            result.put(CmdLine.OBV_LOOK_BEHIND, Double.valueOf(params[8]));
-            result.put(CmdLine.OBV_BUY_SIGNAL_THRESHOLD, Double.valueOf(params[9]));
-            result.put(CmdLine.OBV_SELL_SIGNAL_THRESHOLD, Double.valueOf(params[10]));
 
+            if(strategy.equals("VB")) {
+                if(params.length != 6) {
+                    throw new RuntimeException("Invalid format was given. (Format: TRADING_WINDOW_SIZE_IN_MIN(int) TRADING_WINDOW_LOOK_BEHIND(int) PRICE_MA_WEIGHT(double) VOLUME_MA_WEIGHT(double) TS_TRIGGER_PCT(double < 1) TS_PCT(double < 1))");
+                }
+                result.put(CmdLine.TRADING_WINDOW_SIZE_IN_MIN, Double.valueOf(params[0]));
+                result.put(CmdLine.TRADING_WINDOW_LOOK_BEHIND, Double.valueOf(params[1]));
+                result.put(CmdLine.PRICE_MA_WEIGHT, Double.valueOf(params[2]));
+                result.put(CmdLine.VOLUME_MA_WEIGHT, Double.valueOf(params[3]));
+                result.put(CmdLine.TS_TRIGGER_PCT, Double.valueOf(params[4]));
+                result.put(CmdLine.TS_PCT, Double.valueOf(params[5]));
+            } else if(strategy.equals("PVTOBV")) {
+                if(params.length != 6) {
+                    throw new RuntimeException("Invalid format was given. (Format: MIN_CANDLE_LOOK_BEHIND(int) PVTOBV_DROP_THRESHOLD(double) PRICE_DROP_THRESHOLD(double) STOP_LOSS_PCT(double) TS_TRIGGER_PCT(double < 1) TS_PCT(double < 1))");
+                }
+                result.put(CmdLine.MIN_CANDLE_LOOK_BEHIND, Double.valueOf(params[0]));
+                result.put(CmdLine.PVTOBV_DROP_THRESHOLD, Double.valueOf(params[1]));
+                result.put(CmdLine.PRICE_DROP_THRESHOLD, Double.valueOf(params[2]));
+                result.put(CmdLine.STOP_LOSS_PCT, Double.valueOf(params[3]));
+                result.put(CmdLine.TS_TRIGGER_PCT, Double.valueOf(params[4]));
+                result.put(CmdLine.TS_PCT, Double.valueOf(params[5]));
+            } else {
+                throw new RuntimeException("Unsupported strategy was given: " + strategy);
+            }
             return result;
         }
     }
 }
+

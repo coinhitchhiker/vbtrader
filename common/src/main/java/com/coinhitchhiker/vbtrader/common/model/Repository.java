@@ -4,24 +4,16 @@ import java.util.List;
 
 public interface Repository {
 
-    default void refreshTradingWindows() {
-        return;
-    }
-
     default void logCompleteTradingWindow(TradingWindow tradingWindow) {
         return;
     }
 
-    List<TradingWindow> getLastNTradingWindow(int n, long curTimestamp);
-
-    TradingWindow getCurrentTradingWindow(long curTimestamp);
-
-    default double getPVT(long currentTimestamp) {
-        return 0;
+    default List<Candle> getLastNCandle(int n, long curTimestamp) {
+        return null;
     }
 
-    default double getOBV(long curTimestamp) {
-        return 0;
-    }
+    Candle getCurrentCandle(long curTimestamp);
+
+    List<Candle> getCandles(String symbol, long startTime, long endTime);
 
 }
