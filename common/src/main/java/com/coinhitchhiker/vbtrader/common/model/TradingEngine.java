@@ -1,22 +1,23 @@
 package com.coinhitchhiker.vbtrader.common.model;
 
-import com.coinhitchhiker.vbtrader.common.strategy.PVTOBV;
-import com.coinhitchhiker.vbtrader.common.strategy.Strategy;
-import com.coinhitchhiker.vbtrader.common.strategy.VolatilityBreakout;
-
 public interface TradingEngine {
 
-    TradeResult run(double curPrice, long curTimeStamp);
+    TradeResult trade(double curPrice, long curTimestamp);
 
-    default void setVBRules(VolatilityBreakout vbRules) {
-        return;
+    default double buySignalStrength(double curPrice, long curTimestamp) {
+        return 0.0;
     }
 
-    default void setPVTOBV(PVTOBV pvtobv) {
-        return;
+    default double sellSignalStrength(double curPrice, long curTimestamp) {
+        return 0.0;
     }
 
-    default void setStrategy(Strategy strategy) {
+    default void onTradeEvent(TradeEvent e) {
         return;
-    }
+    };
+
+    double getTrailingStopPrice();
+
+    double getStopLossPrice();
+
 }

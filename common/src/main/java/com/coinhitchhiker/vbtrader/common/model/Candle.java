@@ -149,4 +149,21 @@ public class Candle implements Serializable {
     public void setObv(double obv) {
         this.obv = obv;
     }
+
+    @Override
+    public String toString() {
+        return "Candle{" +
+                "symbol='" + symbol + '\'' +
+                ", interval='" + interval + '\'' +
+                ", openTime=" + new DateTime(openTime, UTC) +
+                ", closeTime=" + new DateTime(closeTime, UTC) +
+                ", openPrice=" + openPrice +
+                ", highPrice=" + highPrice +
+                ", lowPrice=" + lowPrice +
+                ", closePrice=" + closePrice +
+                ", volume=" + volume +
+                ", pvt=" + pvt +
+                ", obv=" + obv +
+                '}';
+    }
 }

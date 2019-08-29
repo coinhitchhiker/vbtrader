@@ -24,11 +24,10 @@ import static org.joda.time.DateTimeZone.UTC;
 public class SimulatorRepositoryImpl implements Repository {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImpl.class);
-    private List<TradingWindow> tradingWindows = new ArrayList<>();
-    private TradingWindow currentTradingWindow = null;
+
     private long currentTimestamp;
-    private double tsTriggerPct;
-    private double tsPct;
+    private String exchange;
+    private boolean REPO_USE_DB;
 
     private List<Candle> allCandles = new ArrayList<>();
     private SimulatorDAO simulatorDAO;
@@ -37,33 +36,29 @@ public class SimulatorRepositoryImpl implements Repository {
                                    String symbol,
                                    long simulStart,
                                    long simulEnd,
-                                   int tradingWindowSizeInMinutes,
-                                   double tsTriggerPct,
-                                   double tsPct,
-                                   SimulatorDAO simulatorDAO)  {
+                                   SimulatorDAO simulatorDAO,
+                                   boolean REPO_USE_DB)  {
 
         this.currentTimestamp = simulStart;
-        this.tsTriggerPct = tsTriggerPct;
-        this.tsPct = tsPct;
         this.simulatorDAO = simulatorDAO;
+        this.exchange = exchange;
+        this.REPO_USE_DB = REPO_USE_DB;
 
-        List<Candle> result = deserCandles(makeFileName(exchange, symbol, simulStart, simulEnd));
+        List<Candle> result = deserCandles(makeFileName(exchange, symbol, simulStart, simulEnd, REPO_USE_DB));
         if(result != null && result.size() > 0) {
-            convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
             allCandles.addAll(result);
         } else {
-            if(exchange.equals("BINANCE")) {
-//                result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
-                result = loadCandlesFromDB(exchange, symbol, simulStart, simulEnd);
-            } else if(exchange.equals("BITMEX")) {
+            if(this.exchange.equals("BINANCE")) {
+                if(REPO_USE_DB)
+                    result = loadCandlesFromDB(exchange, symbol, simulStart, simulEnd);
+                else
+                    result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
+            } else if(this.exchange.equals("BITMEX")) {
                 result = loadCandlesFromBitMex(symbol, simulStart, simulEnd);
             }
-            serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd));
-            convertCandleListToTradingWindows(result, tradingWindowSizeInMinutes);
+            serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd, REPO_USE_DB));
             allCandles.addAll(result);
         }
-
-        this.refreshTradingWindows();
     }
 
     private int getCurrentCandleIndex(long curTimestamp) {
@@ -78,20 +73,20 @@ public class SimulatorRepositoryImpl implements Repository {
         return -1;
     }
 
-    @Override
-    public double getPVT(long curTimestamp) {
-        // in simulation mode we already have candle data. we start out previous candle
-        // to simulate we are looking at past data
-        int curCandleIndex = getCurrentCandleIndex(curTimestamp) - 1;
-
-        return allCandles.get(curCandleIndex).getPvt();
+    public List<Candle> getCandles(String symbol, long startTime, long endTime) {
+        List<Candle> result = new ArrayList<>();
+        for(Candle candle : this.allCandles) {
+            if(startTime <= candle.getOpenTime() && candle.getOpenTime() < endTime) {
+                result.add(candle);
+            }
+        }
+        return result;
     }
 
-    @Override
-    public double getOBV(long curTimestamp) {
-        int curCandleIndex = getCurrentCandleIndex(curTimestamp) - 1;
-
-        return allCandles.get(curCandleIndex).getObv();
+    public Candle getCurrentCandle(long curTimestamp) {
+        int curCandleIndex = getCurrentCandleIndex(curTimestamp);
+        if(curCandleIndex == -1) return null;
+        return allCandles.get(curCandleIndex);
     }
 
     private List<Candle> loadCandlesFromDB(String exchange, String symbol, long simulStart, long simulEnd) {
@@ -152,8 +147,8 @@ public class SimulatorRepositoryImpl implements Repository {
         return candles;
     }
 
-    private String makeFileName(String exchange, String symbol, long simulStart, long simulEnd) {
-        return exchange + "-" + symbol + "-" + simulStart + "-" + simulEnd;
+    private String makeFileName(String exchange, String symbol, long simulStart, long simulEnd, boolean REPO_USE_DB) {
+        return exchange + "-" + symbol + "-" + simulStart + "-" + simulEnd + (REPO_USE_DB ? "_DB" : "");
     }
 
     private void serCandles(List<Candle> candles, String filename) {
@@ -181,81 +176,6 @@ public class SimulatorRepositoryImpl implements Repository {
             LOGGER.info("deserCandles Exception", e);
         }
         return arraylist;
-    }
-
-    private void convertCandleListToTradingWindows(List<Candle> candles, int tradingWindowSizeInMin) {
-        List<Candle> tempList = new ArrayList<>();
-        for(int i = 1; i <= candles.size(); i++) {
-            tempList.add(candles.get(i-1));
-            if(i % tradingWindowSizeInMin == 0) {
-                TradingWindow tw = TradingWindow.of(tempList);
-                tw.setTS_TRIGGER_PCT(tsTriggerPct);
-                tw.setTS_PCT(tsPct);
-
-                this.tradingWindows.add(tw);
-                tempList = new ArrayList<>();
-            }
-        }
-
-        // residual candles
-        if(tempList.size() > 0) {
-            TradingWindow tw = TradingWindow.of(tempList);
-            tw.setTS_TRIGGER_PCT(this.tsTriggerPct);
-            tw.setTS_PCT(this.tsPct);
-            this.tradingWindows.add(tw);
-        }
-    }
-
-    public List<TradingWindow> getTradingWindows() {
-        return this.tradingWindows;
-    }
-
-    @Override
-    public List<TradingWindow> getLastNTradingWindow(int n, long curTimestamp) {
-        List<TradingWindow> result = new ArrayList();
-        for(int i = this.tradingWindows.size()-1; i >= 0; i--) {
-            TradingWindow curTw = this.tradingWindows.get(i);
-            if(curTw.getEndTimeStamp() < curTimestamp) {
-                result.add(curTw);
-                if(result.size() == n) {
-                    break;
-                }
-            }
-        }
-        return result;
-    }
-
-    @Override
-    public TradingWindow getCurrentTradingWindow(long curTimestamp) {
-        return this.currentTradingWindow;
-    }
-
-    @Override
-    public void refreshTradingWindows() {
-        DateTime now = new DateTime(this.currentTimestamp, DateTimeZone.UTC);
-        DateTime closestMin = Util.getClosestMin(now);
-        long timestamp = closestMin.getMillis();
-
-        for(TradingWindow tradingWindow : tradingWindows) {
-            if(tradingWindow.isBetween(timestamp)) {
-                //TradingWindow(String symbol, long startTimeStamp, long endTimeStamp, double openPrice, double highPrice, double closePrice, double lowPrice, double volume) {
-                TradingWindow tw = new TradingWindow(tradingWindow.getSymbol(),
-                        tradingWindow.getStartTimeStamp(),
-                        tradingWindow.getEndTimeStamp(),
-                        tradingWindow.getOpenPrice(),
-                        tradingWindow.getHighPrice(),
-                        tradingWindow.getClosePrice(),
-                        tradingWindow.getLowPrice(),
-                        tradingWindow.getVolume());
-                tw.setCandles(tradingWindow.getCandles());
-                tw.setTS_TRIGGER_PCT(tsTriggerPct);
-                tw.setTS_PCT(tsPct);
-                this.currentTradingWindow = tw;
-                return;
-            }
-        }
-
-        throw new RuntimeException("unreachable code path");
     }
 
     public void setCurrentTimestamp(long currentTimestamp) {

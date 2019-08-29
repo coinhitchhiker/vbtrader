@@ -48,13 +48,13 @@ public class ITBitMex extends BaseIT {
     }
 
     @Test
-//    @Ignore
+    @Ignore
     public void getBalance() {
         LOGGER.info(bitmexExchange.getBalance().toString());
     }
 
     @Test
-//    @Ignore
+    @Ignore
     public void getCurrentPrice() {
         // wait for some secs for the orderbookcache receives WS stream
         double xbtPrice;
