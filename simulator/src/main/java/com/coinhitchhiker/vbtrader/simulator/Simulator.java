@@ -18,6 +18,7 @@ import java.util.Map;
 public class Simulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Simulator.class);
+    private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
 
     private final long SIMUL_START;
     private final long SIMUL_END;
@@ -183,34 +184,33 @@ public class Simulator {
     }
 
     public SimulResult collectSimulResult() {
-        LOGGER.info("----------------------------------------------------------------");
-        LOGGER.info("STRATEGY {}", STRATEGY);
-        LOGGER.info("SIMUL_START {}", new DateTime(SIMUL_START, DateTimeZone.UTC));
-        LOGGER.info("SIMUL_END {}", new DateTime(SIMUL_END, DateTimeZone.UTC));
-        LOGGER.info("MODE {}", MODE);
-        LOGGER.info("START_USD_BALANCE {}", exchange.getSTART_BALANCE());
-        LOGGER.info("END_USD_BALANCE {}", exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
-        LOGGER.info("WINNING RATE {} (w {} / l {})", String.format("%.2f", (win*1.0 / (win+lose)) * 100.0), win, lose);
-        LOGGER.info("P/L RATIO {} (P {} / L {})", String.format("%.2f", Math.abs(profit / (loss+0.00001))), String.format("%.2f",profit), String.format("%.2f",loss));
-        LOGGER.info("MA_MIN {}", MA_MIN);
-        LOGGER.info("SLIPPAGE {}", SLIPPAGE);
-        LOGGER.info("TS_TRIGGER_PCT {}", TS_TRIGGER_PCT);
-        LOGGER.info("TS_PCT {}", TS_PCT);
+        LOGGERBUYSELL.info("----------------------------------------------------------------");
+        LOGGERBUYSELL.info("STRATEGY {}", STRATEGY);
+        LOGGERBUYSELL.info("SIMUL_START {}", new DateTime(SIMUL_START, DateTimeZone.UTC));
+        LOGGERBUYSELL.info("SIMUL_END {}", new DateTime(SIMUL_END, DateTimeZone.UTC));
+        LOGGERBUYSELL.info("MODE {}", MODE);
+        LOGGERBUYSELL.info("START_USD_BALANCE {}", exchange.getSTART_BALANCE());
+        LOGGERBUYSELL.info("END_USD_BALANCE {}", exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
+        LOGGERBUYSELL.info("WINNING RATE {} (w {} / l {})", String.format("%.2f", (win*1.0 / (win+lose)) * 100.0), win, lose);
+        LOGGERBUYSELL.info("P/L RATIO {} (P {} / L {})", String.format("%.2f", Math.abs(profit / (loss+0.00001))), String.format("%.2f",profit), String.format("%.2f",loss));
+        LOGGERBUYSELL.info("MA_MIN {}", MA_MIN);
+        LOGGERBUYSELL.info("SLIPPAGE {}", SLIPPAGE);
+        LOGGERBUYSELL.info("TS_TRIGGER_PCT {}", TS_TRIGGER_PCT);
+        LOGGERBUYSELL.info("TS_PCT {}", TS_PCT);
 
         if(this.STRATEGY.equals("VB")) {
-            LOGGER.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
-            LOGGER.info("TRADING_WINDOW_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND));
-            LOGGER.info("PRICE_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.PRICE_MA_WEIGHT));
-            LOGGER.info("VOLUME_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.VOLUME_MA_WEIGHT));
+            LOGGERBUYSELL.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
+            LOGGERBUYSELL.info("TRADING_WINDOW_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND));
+            LOGGERBUYSELL.info("PRICE_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.PRICE_MA_WEIGHT));
+            LOGGERBUYSELL.info("VOLUME_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.VOLUME_MA_WEIGHT));
         } else if(this.STRATEGY.equals("PVTOBV")) {
-            LOGGER.info("MIN_CANDLE_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.MIN_CANDLE_LOOK_BEHIND));
-            LOGGER.info("PVTOBV_DROP_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PVTOBV_DROP_THRESHOLD));
-            LOGGER.info("PRICE_DROP_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PRICE_DROP_THRESHOLD));
-            LOGGER.info("STOP_LOSS_PCT {}", STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
+            LOGGERBUYSELL.info("MIN_CANDLE_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.MIN_CANDLE_LOOK_BEHIND));
+            LOGGERBUYSELL.info("PVTOBV_DROP_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PVTOBV_DROP_THRESHOLD));
+            LOGGERBUYSELL.info("PRICE_DROP_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PRICE_DROP_THRESHOLD));
+            LOGGERBUYSELL.info("STOP_LOSS_PCT {}", STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
         }
 
-
-        LOGGER.info("----------------------------------------------------------------");
+        LOGGERBUYSELL.info("----------------------------------------------------------------");
 
         System.out.println((-1)*exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
 

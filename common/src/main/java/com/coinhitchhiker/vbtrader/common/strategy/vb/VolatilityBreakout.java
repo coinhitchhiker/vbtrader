@@ -31,7 +31,7 @@ public class VolatilityBreakout  {
         return (aboveMaCnt * 1.0) / (TRADING_WINDOW_LOOK_BEHIND - MA_MIN + 1);
     }
 
-    private double getVolumeMAScore_conservative(final List<TradingWindow> lookbehindTradingWindows
+    public static double getVolumeMAScore_conservative(final List<TradingWindow> lookbehindTradingWindows
             , final double curVolume
             , final int MA_MIN
             , final int TRADING_WINDOW_LOOK_BEHIND) {
