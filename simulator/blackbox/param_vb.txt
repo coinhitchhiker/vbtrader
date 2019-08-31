@@ -24,7 +24,7 @@ BB_OUTPUT_TYPE OBJ            # takes in argument the name of
                               #  detailed parameters list)
 
 
-X0             ( 119.1 19 1 0.1 4 0.05 )  # starting point
+X0             ( 1440 20 0 1 4 0.05 )  # starting point
 
 LOWER_BOUND    ( 20  3  0.0 0.1 1.00 0.05 )
 UPPER_BOUND    ( 1440 30 1.0 1.0 10.1 8.01 )

@@ -138,9 +138,10 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
             return 0;
         }
 
-//        double volume = curTradingWindow.getVolume();
-//        double volumeMAScore = VolatilityBreakoutRules.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, MA_MIN, TRADING_WINDOW_LOOK_BEHIND);
+
         double priceMAScore = VolatilityBreakout.getPriceMAScore(lookbehindTradingWindows, curPrice, 3, TRADING_WINDOW_LOOK_BEHIND);
+//        double volume = currentTradingWindow.getVolume();
+//        double volumeMAScore = VolatilityBreakout.getVolumeMAScore_conservative(lookbehindTradingWindows, volume, 3, TRADING_WINDOW_LOOK_BEHIND);
         double volumeMAScore = VolatilityBreakout.getVolumeMAScore_aggressive(lookbehindTradingWindows, currentTradingWindow, 3, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimestamp);
         double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
