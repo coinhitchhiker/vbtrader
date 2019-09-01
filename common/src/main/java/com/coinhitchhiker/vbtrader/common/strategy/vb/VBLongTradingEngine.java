@@ -120,7 +120,7 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
             return 0;
         }
 
-        List<TradingWindow> lookbehindTradingWindows = this.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1);
+        List<TradingWindow> lookbehindTradingWindows = VolatilityBreakout.getLastNTradingWindow(this.tradingWindows, TRADING_WINDOW_LOOK_BEHIND+1);
         if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
             LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
             return 0;
@@ -178,30 +178,6 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         }
     }
 
-    private TradingWindow constructCurrentTradingWindow(long timestamp) {
-
-        TradingWindow result =  new TradingWindow(SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000, orderBookCache.getMidPrice());
-
-        List<Candle> candles = repository.getCandles(SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
-        if(candles.size() > 0) {
-            TradingWindow twFromBinanceData = TradingWindow.of(candles);
-            result.setHighPrice(twFromBinanceData.getHighPrice());
-            result.setOpenPrice(twFromBinanceData.getOpenPrice());
-            result.setLowPrice(twFromBinanceData.getLowPrice());
-        } else {
-            // wait for 10s to ensure receiving orderbook data
-            try {Thread.sleep(10_000L); } catch(Exception e) {}
-            double price = orderBookCache.getMidPrice();
-            if(price == 0.0) {
-                throw new RuntimeException("orderbook mid price is 0.0!!!!!");
-            }
-            result.setOpenPrice(price);
-            result.setHighPrice(price);
-            result.setLowPrice(price);
-        }
-        return result;
-    }
-
     private void refreshTradingWindows(long curTimestamp) {
         this.refreshingTradingWindows = true;
         LOGGER.debug("refreshingTradingWindows is set to TRUE");
@@ -218,10 +194,6 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         LOGGER.debug("curTimestamp {}", new DateTime(curTimestamp, UTC));
         LOGGER.debug("{}", this.currentTradingWindow);
         LOGGER.debug("refreshingTradingWindows is set to FALSE");
-    }
-
-    private List<TradingWindow> getLastNTradingWindow(int n) {
-        return this.tradingWindows.stream().limit(n).collect(Collectors.toList());
     }
 
 }
