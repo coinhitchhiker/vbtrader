@@ -25,10 +25,10 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
     public IBSLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                 String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
                                 boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT,
-                                int TRADING_WINDOW_SIZE, double IBS_LOWER_THRESHOLD) {
+                                int TRADING_WINDOW_SIZE, double IBS_LOWER_THRESHOLD, boolean VERBOSE) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
-                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.0D);
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.0D, VERBOSE);
 
         this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
         this.IBS_LOWER_THRESHOLD = IBS_LOWER_THRESHOLD;
