@@ -32,3 +32,7 @@ target/
 ./simulator/src/test/resources/com/coinhitchhiker/vbtrader/simulator/*.txt
 
 simulator/blackbox/BTCUSDT-0301-0801.txt
+simulator/blackbox/log.txt
+simulator/blackbox/log-buysell.txt
+simulator/blackbox/BINANCE*
+trader/log*.txt

@@ -2,7 +2,7 @@ package com.coinhitchhiker.vbtrader.common.model;
 
 public class TradeResult {
 
-    private String exchange;
+    private ExchangeEnum exchange;
     private String symbol;
     private String quoteCurrency;
     private double netProfit;
@@ -12,7 +12,7 @@ public class TradeResult {
     private double amountExecuted;
     private double fee;
 
-    public TradeResult(String exchange, String symbol, String quoteCurrency, double netProfit, double profit, double sellPrice, double buyPrice, double amountExecuted, double fee) {
+    public TradeResult(ExchangeEnum exchange, String symbol, String quoteCurrency, double netProfit, double profit, double sellPrice, double buyPrice, double amountExecuted, double fee) {
         this.exchange = exchange;
         this.symbol = symbol;
         this.quoteCurrency = quoteCurrency;
@@ -24,7 +24,7 @@ public class TradeResult {
         this.profit = profit;
     }
 
-    public String getExchange() {
+    public ExchangeEnum getExchange() {
         return exchange;
     }
 

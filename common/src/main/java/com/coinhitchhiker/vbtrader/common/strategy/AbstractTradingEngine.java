@@ -13,11 +13,11 @@ public class AbstractTradingEngine {
     protected final Exchange exchange;
     protected final OrderBookCache orderBookCache;
 
-    protected final String MODE;
+    protected final TradingMode MODE;
     protected final String SYMBOL;
     protected final String QUOTE_CURRENCY;
     protected final double LIMIT_ORDER_PREMIUM;
-    protected final String EXCHANGE;
+    protected final ExchangeEnum EXCHANGE;
     protected final double FEE_RATE;
     protected final boolean TRADING_ENABLED;
 
@@ -36,8 +36,8 @@ public class AbstractTradingEngine {
     protected double stopLossPrice = Double.MAX_VALUE;
     protected double prevPrice = 0;
 
-    public AbstractTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache, String MODE, String SYMBOL,
-                                 String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, String EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED,
+    public AbstractTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache, TradingMode MODE, String SYMBOL,
+                                 String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED,
                                  boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, boolean STOP_LOSS_ENABLED, double STOP_LOSS_PCT) {
         this.repository = repository;
         this.exchange = exchange;
@@ -140,7 +140,7 @@ public class AbstractTradingEngine {
     }
 
     protected TradeResult placeBuyOrder(double curPrice, double buySignalStrength) {
-        if(MODE.equals("LONG")) {
+        if(MODE.equals(TradingMode.LONG)) {
             try {
                 placeBuyOrderLong(curPrice, buySignalStrength);
                 if(STOP_LOSS_ENABLED) setStopLoss();
@@ -164,7 +164,7 @@ public class AbstractTradingEngine {
     }
 
     protected TradeResult placeSellOrder(double curPrice, double sellSignalStrength) {
-        if(MODE.equals("LONG")) {
+        if(MODE.equals(TradingMode.LONG)) {
             if(placedBuyOrder == null) return null;
             try {
                 placeSellOrderLong();
@@ -187,7 +187,7 @@ public class AbstractTradingEngine {
     }
 
     protected void updateTrailingStopPrice(double curPrice) {
-        if(MODE.equals("LONG") && this.placedBuyOrder != null) {
+        if(MODE.equals(TradingMode.LONG) && this.placedBuyOrder != null) {
             if(this.trailingStopPrice == 0) {
                 if(curPrice > placedBuyOrder.getPriceExecuted() * (100.0 + TS_TRIGGER_PCT)/100) {
                     LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
@@ -203,7 +203,7 @@ public class AbstractTradingEngine {
             }
         }
 
-        if(MODE.equals("SHORT") && this.placedSellOrder != null) {
+        if(MODE.equals(TradingMode.SHORT) && this.placedSellOrder != null) {
             if(this.trailingStopPrice == 0) {
                 if(curPrice < placedSellOrder.getPriceExecuted() * (100.0 - TS_TRIGGER_PCT)/100.0) {
                     LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
@@ -223,14 +223,14 @@ public class AbstractTradingEngine {
     }
 
     private void setStopLoss() {
-        if(MODE.equals("LONG") && STOP_LOSS_ENABLED && this.placedBuyOrder != null) {
+        if(MODE.equals(TradingMode.LONG) && STOP_LOSS_ENABLED && this.placedBuyOrder != null) {
             double buyPriceExecuted = placedBuyOrder.getPriceExecuted();
             if(this.stopLossPrice == Double.MAX_VALUE) {
                 this.stopLossPrice = buyPriceExecuted * (1 - STOP_LOSS_PCT/100.0);
             }
         }
 
-        if(MODE.equals("SHORT") && STOP_LOSS_ENABLED && this.placedSellOrder != null) {
+        if(MODE.equals(TradingMode.SHORT) && STOP_LOSS_ENABLED && this.placedSellOrder != null) {
             double sellPriceExecuted = placedSellOrder.getPriceExecuted();
             if(this.stopLossPrice == Double.MAX_VALUE) {
                 double stopLossPrice = sellPriceExecuted * (1 + STOP_LOSS_PCT/100.0);
@@ -250,14 +250,14 @@ public class AbstractTradingEngine {
     }
 
     public boolean stopLossHit(double curPrice) {
-        if(MODE.equals("LONG"))
+        if(MODE.equals(TradingMode.LONG))
             return STOP_LOSS_ENABLED && this.placedBuyOrder != null && curPrice < this.stopLossPrice && this.stopLossPrice < Double.MAX_VALUE;
         else
             return STOP_LOSS_ENABLED && this.placedSellOrder != null && curPrice > this.stopLossPrice && this.stopLossPrice < Double.MAX_VALUE;
     }
 
     public boolean trailingStopHit(double curPrice) {
-        if(MODE.equals("LONG"))
+        if(MODE.equals(TradingMode.LONG))
             return TRAILING_STOP_ENABLED && placedBuyOrder != null && curPrice < this.trailingStopPrice && this.trailingStopPrice > 0.0;
         else    // SHORT
             return TRAILING_STOP_ENABLED && placedSellOrder != null && curPrice > this.trailingStopPrice && this.trailingStopPrice > 0.0;

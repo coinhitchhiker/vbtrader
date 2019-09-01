@@ -1,5 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
+import com.coinhitchhiker.vbtrader.common.model.ExchangeEnum;
+import com.coinhitchhiker.vbtrader.common.model.TradingMode;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBV;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
@@ -60,11 +62,11 @@ public class SimulatorAppMain implements CommandLineRunner {
                 Simulator simulator = new Simulator(simulatorDAO,
                         DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                         DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
-                        opts.getExchange(),
+                        ExchangeEnum.valueOf(opts.getExchange()),
                         opts.getSymbol(),
                         simulResult.getTS_TRIGGER_PCT(),
                         simulResult.getTS_PCT(),
-                        mode,
+                        TradingMode.valueOf(mode),
                         opts.getQuoteCurrency(),
                         opts.getStrategy(),
                         parsedBBInput,
@@ -89,11 +91,11 @@ public class SimulatorAppMain implements CommandLineRunner {
             Simulator simulator = new Simulator(this.simulatorDAO,
                     DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                     DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
-                    opts.getExchange(),
+                    ExchangeEnum.valueOf(opts.getExchange()),
                     opts.getSymbol(),
                     tsTriggerPct,
                     tsPct,
-                    mode,
+                    TradingMode.valueOf(mode),
                     opts.getQuoteCurrency(),
                     opts.getStrategy(),
                     parsedBBInput,
