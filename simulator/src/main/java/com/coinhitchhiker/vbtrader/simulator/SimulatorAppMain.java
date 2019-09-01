@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.ExchangeEnum;
+import com.coinhitchhiker.vbtrader.common.model.StrategyEnum;
 import com.coinhitchhiker.vbtrader.common.model.TradingMode;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBV;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VolatilityBreakout;
@@ -68,7 +69,7 @@ public class SimulatorAppMain implements CommandLineRunner {
                         simulResult.getTS_PCT(),
                         TradingMode.valueOf(mode),
                         opts.getQuoteCurrency(),
-                        opts.getStrategy(),
+                        StrategyEnum.valueOf(opts.getStrategy()),
                         parsedBBInput,
                         opts.isRepoUseDB());
 
@@ -97,7 +98,7 @@ public class SimulatorAppMain implements CommandLineRunner {
                     tsPct,
                     TradingMode.valueOf(mode),
                     opts.getQuoteCurrency(),
-                    opts.getStrategy(),
+                    StrategyEnum.valueOf(opts.getStrategy()),
                     parsedBBInput,
                     opts.isRepoUseDB());
 

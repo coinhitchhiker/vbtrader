@@ -204,37 +204,14 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
 
     private void refreshTradingWindows(long curTimestamp) {
         this.refreshingTradingWindows = true;
-
         LOGGER.debug("refreshingTradingWindows is set to TRUE");
 
         DateTime closestMin = getClosestMin(new DateTime(curTimestamp, UTC));
 
-        this.currentTradingWindow = constructCurrentTradingWindow(closestMin.getMillis());
+        this.currentTradingWindow = VolatilityBreakout.constructCurrentTradingWindow(SYMBOL, TRADING_WINDOW_SIZE, orderBookCache.getMidPrice(), closestMin.getMillis(), repository);
         LOGGER.debug("Refreshed curTW {}", this.currentTradingWindow.toString());
 
-        this.tradingWindows = new ArrayList<>();
-        long closestMinMillis = closestMin.getMillis();
-
-        long windowEnd = closestMinMillis - 1000;
-        long windowStart = windowEnd - TRADING_WINDOW_SIZE * 60 * 1000;
-
-        for(int i = 0; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
-            List<Candle> candles = repository.getCandles(SYMBOL, windowStart, windowEnd);
-            if(candles == null || candles.size() == 0) {
-                LOGGER.warn("No candle data was found from repository");
-            } else {
-                TradingWindow tw = TradingWindow.of(candles);
-                LOGGER.debug("{}/{} {}", i, TRADING_WINDOW_LOOK_BEHIND, tw.toString());
-                this.tradingWindows.add(tw);
-            }
-
-            windowEnd -= TRADING_WINDOW_SIZE * 60 * 1000;
-            windowStart -= TRADING_WINDOW_SIZE * 60 * 1000;
-
-            if(!repository.getClass().getCanonicalName().contains("SimulatorRepositoryImpl")) {
-                try {Thread.sleep(300L);} catch(Exception e) {}
-            }
-        }
+        this.tradingWindows = VolatilityBreakout.constructPastTradingWindows(curTimestamp, TRADING_WINDOW_SIZE, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, repository);
         this.refreshingTradingWindows = false;
 
         LOGGER.debug("-----------CURRENT TRADING WINDOW REFRESHED-----------------------");

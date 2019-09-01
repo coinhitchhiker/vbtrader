@@ -9,6 +9,8 @@ import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
@@ -149,7 +151,11 @@ public class SimulatorRepositoryImpl implements Repository {
     }
 
     private String makeFileName(ExchangeEnum exchange, String symbol, long simulStart, long simulEnd, boolean REPO_USE_DB) {
-        return exchange.name() + "-" + symbol + "-" + simulStart + "-" + simulEnd + (REPO_USE_DB ? "_DB" : "");
+        DateTimeFormatter dtfOut = DateTimeFormat.forPattern("yyyyMMdd");
+
+        String s = dtfOut.print(new DateTime(simulStart, UTC));
+        String e = dtfOut.print(new DateTime(simulEnd, UTC));
+        return exchange.name() + "-" + symbol + "-" + s + "-" + e + (REPO_USE_DB ? "_DB" : "");
     }
 
     private void serCandles(List<Candle> candles, String filename) {

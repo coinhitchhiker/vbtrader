@@ -45,7 +45,7 @@ public class VBShortTradingEngine extends AbstractTradingEngine implements Tradi
 
     @Override
     public double buySignalStrength(double curPrice, long curTimestamp) {
-        return 0;
+        return curTimestamp > this.currentTradingWindow.getEndTimeStamp() ? 1 : 0;
     }
 
     @Override
@@ -55,6 +55,15 @@ public class VBShortTradingEngine extends AbstractTradingEngine implements Tradi
 
     @Override
     public void onTradeEvent(TradeEvent e) {
-
+        if(this.refreshingTradingWindows) {
+            pendingVol += e.getAmount();
+        } else {
+            if(this.currentTradingWindow != null) {
+                this.updateTrailingStopPrice(e.getPrice());
+                double curVol = this.currentTradingWindow.getVolume();
+                this.currentTradingWindow.setVolume(curVol + pendingVol + e.getAmount());
+                pendingVol = 0;
+            }
+        }
     }
 }
