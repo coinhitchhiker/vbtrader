@@ -30,10 +30,10 @@ public class VBShortTradingEngine extends AbstractTradingEngine implements Tradi
     public VBShortTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                 int TRADING_WINDOW_LOOK_BEHIND, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT,
                                 String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
-                                boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT) {
+                                boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, boolean VERBOSE) {
 
         super(repository, exchange, orderBookCache, TradingMode.SHORT, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
-                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.5D);
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.5D, VERBOSE);
 
         this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
         this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
@@ -93,16 +93,20 @@ public class VBShortTradingEngine extends AbstractTradingEngine implements Tradi
         // if a buy order was placed in this trading window and no trailing stop price has been touched
         // we do nothing until this trading window is over
         if(placedSellOrder != null) {
-            LOGGER.info(currentTradingWindow.toString());
-            LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
+            if(VERBOSE) {
+                LOGGER.info(currentTradingWindow.toString());
+                LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
+            }
             return null;
         }
 
-        LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
-                , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
-                , new DateTime(curTimestamp, UTC)
-                , currentTradingWindow.getHighPrice()
-                , currentTradingWindow.getLowPrice());
+        if(VERBOSE) {
+            LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
+                    , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
+                    , new DateTime(curTimestamp, UTC)
+                    , currentTradingWindow.getHighPrice()
+                    , currentTradingWindow.getLowPrice());
+        }
 
         return null;
     }
@@ -133,11 +137,13 @@ public class VBShortTradingEngine extends AbstractTradingEngine implements Tradi
         boolean priceBreakout = curPrice < currentTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange();
 
         if(!priceBreakout) {
-            LOGGER.info("[---------------------NO SELL SIGNAL DETECTED----------------------------]");
-            LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
-                    curPrice ,
-                    currentTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
-                    currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            if(VERBOSE) {
+                LOGGER.info("[---------------------NO SELL SIGNAL DETECTED----------------------------]");
+                LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
+                        curPrice ,
+                        currentTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
+                        currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            }
             return 0;
         }
 
@@ -147,17 +153,19 @@ public class VBShortTradingEngine extends AbstractTradingEngine implements Tradi
         double volumeMAScore = VolatilityBreakout.getVolumeMAScore_aggressive(lookbehindTradingWindows, currentTradingWindow, 3, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimestamp);
         double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
-        if(weightedMAScore > 0.0) {
-            LOGGER.info("[---------------------SELL SIGNAL DETECTED----------------------------]");
-        } else {
-            LOGGER.info("[-----------------SELL SIGNAL DETECTED BUT COST IS 0------------------------]");
+        if(VERBOSE) {
+            if(weightedMAScore > 0.0) {
+                LOGGER.info("[---------------------SELL SIGNAL DETECTED----------------------------]");
+            } else {
+                LOGGER.info("[-----------------SELL SIGNAL DETECTED BUT COST IS 0------------------------]");
+            }
+            LOGGER.info("priceMAScore {} volumeMAScore {} weightedMAScore {}", priceMAScore, volumeMAScore, weightedMAScore);
+            LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
+                    curPrice,
+                    currentTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange(),
+                    currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            LOGGER.info("tradingWindow endTime {}", new DateTime(currentTradingWindow.getEndTimeStamp(), UTC));
         }
-        LOGGER.info("priceMAScore {} volumeMAScore {} weightedMAScore {}", priceMAScore, volumeMAScore, weightedMAScore);
-        LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
-                curPrice,
-                currentTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange(),
-                currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-        LOGGER.info("tradingWindow endTime {}", new DateTime(currentTradingWindow.getEndTimeStamp(), UTC));
         return weightedMAScore;
     }
 

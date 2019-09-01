@@ -22,10 +22,10 @@ public class PVTOBVLongTradingEngine extends AbstractTradingEngine implements Tr
     public PVTOBVLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                    String SYMBOL, String QUOTE_CURRENCY, ExchangeEnum EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED,
                                    boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, double LIMIT_PRICE_PREMIUM,
-                                   int MIN_CANDLE_LOOK_BEHIND, double PVTOBV_DROP_THRESHOLD, double PRICE_DROP_THRESHOLD, double STOP_LOSS_PCT) {
+                                   int MIN_CANDLE_LOOK_BEHIND, double PVTOBV_DROP_THRESHOLD, double PRICE_DROP_THRESHOLD, double STOP_LOSS_PCT, boolean VERBOSE) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, LIMIT_PRICE_PREMIUM, EXCHANGE,
-                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true, 0.1);
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true, 0.1, VERBOSE);
 
         this.MIN_CANDLE_LOOK_BEHIND = MIN_CANDLE_LOOK_BEHIND;
         this.PVTOBV_DROP_THRESHOLD = PVTOBV_DROP_THRESHOLD;

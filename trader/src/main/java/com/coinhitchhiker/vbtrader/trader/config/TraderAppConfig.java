@@ -59,7 +59,8 @@ public class TraderAppConfig {
                     tradingEnabled,
                     TRAILING_STOP_ENABLED,
                     TS_TRIGGER_PCT,
-                    TS_PCT);
+                    TS_PCT,
+                    true);
         } else {
             throw new UnsupportedOperationException("Not yet supported");
         }

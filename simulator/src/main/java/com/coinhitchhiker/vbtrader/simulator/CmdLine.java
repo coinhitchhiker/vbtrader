@@ -70,6 +70,10 @@ public class CmdLine {
         repoUseDB.setRequired(false);
         options.addOption(repoUseDB);
 
+        Option verbose = new Option("vb", "verbose", false, "verbose logging");
+        verbose.setRequired(false);
+        options.addOption(verbose);
+
         CommandLineParser parser = new DefaultParser();
         HelpFormatter formatter = new HelpFormatter();
         CommandLine cmd = null;
@@ -93,7 +97,8 @@ public class CmdLine {
                 TradingMode.valueOf(cmd.getOptionValue("m")),
                 cmd.getOptionValue("q"),
                 StrategyEnum.valueOf(cmd.getOptionValue("str")),
-                cmd.hasOption("db")
+                cmd.hasOption("db"),
+                cmd.hasOption("vb")
         );
     }
 
@@ -109,6 +114,7 @@ public class CmdLine {
         private String quoteCurrency;
         private StrategyEnum strategy;
         private boolean repoUseDB;
+        private boolean verbose;
 
         public CommandLineOptions(String blackboxInput
                 , String simulStart
@@ -119,7 +125,8 @@ public class CmdLine {
                 , TradingMode mode
                 , String quoteCurrency
                 , StrategyEnum strategy
-                , boolean repoUseDB) {
+                , boolean repoUseDB
+                , boolean verbose) {
             this.blackboxInput = blackboxInput;
             this.simulStart = simulStart;
             this.simulEnd = simulEnd;
@@ -130,6 +137,7 @@ public class CmdLine {
             this.quoteCurrency = quoteCurrency;
             this.strategy = strategy;
             this.repoUseDB = repoUseDB;
+            this.verbose = verbose;
         }
 
         public String getBlackboxInput() {
@@ -170,6 +178,10 @@ public class CmdLine {
 
         public boolean isRepoUseDB() {
             return repoUseDB;
+        }
+
+        public boolean isVerbose() {
+            return verbose;
         }
     }
 
