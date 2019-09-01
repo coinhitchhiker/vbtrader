@@ -1,5 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
+import com.coinhitchhiker.vbtrader.common.model.TradingMode;
+
 public class SimulResult {
 
     private final double version = 1.2D;
@@ -19,7 +21,7 @@ public class SimulResult {
     private double SLIPPAGE;
     private double TS_TRIGGER_PCT;
     private double TS_PCT;
-    private String MODE;
+    private TradingMode MODE;
     private int MIN_CANDLE_LOOK_BEHIND;
     public double PVTOBV_DROP_THRESHOLD;
     public double PRICE_DROP_THRESHOLD;
@@ -141,11 +143,11 @@ public class SimulResult {
         this.TS_PCT = TS_PCT;
     }
 
-    public String getMODE() {
+    public TradingMode getMODE() {
         return MODE;
     }
 
-    public void setMODE(String MODE) {
+    public void setMODE(TradingMode MODE) {
         this.MODE = MODE;
     }
 

@@ -5,18 +5,16 @@ import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.event.EventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.coinhitchhiker.vbtrader.common.Util.getClosestMin;
 import static org.joda.time.DateTimeZone.UTC;
 
-public class VBLongTradingEngine extends AbstractTradingEngine implements TradingEngine {
+public class VBShortTradingEngine extends AbstractTradingEngine implements TradingEngine {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(VBLongTradingEngine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VBShortTradingEngine.class);
     private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
 
     private List<TradingWindow> tradingWindows = new ArrayList<>();
@@ -29,20 +27,20 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
     private final double PRICE_MA_WEIGHT;
     private final double VOLUME_MA_WEIGHT;
 
-    public VBLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
-                               int TRADING_WINDOW_LOOK_BEHIND, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT,
-                               String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
-                               boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT) {
+    public VBShortTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
+                                int TRADING_WINDOW_LOOK_BEHIND, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT,
+                                String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
+                                boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT) {
 
-        super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
+        super(repository, exchange, orderBookCache, TradingMode.SHORT, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
                 FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.5D);
 
         this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
         this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
         this.PRICE_MA_WEIGHT = PRICE_MA_WEIGHT;
         this.VOLUME_MA_WEIGHT = VOLUME_MA_WEIGHT;
-
     }
+
 
     @Override
     public TradeResult trade(double curPrice, long curTimestamp) {
@@ -51,10 +49,10 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
             refreshTradingWindows(curTimestamp);
         }
 
-        double buySignalStrength = buySignalStrength(curPrice, curTimestamp);
+        double sellSignalStrength = sellSignalStrength(curPrice, curTimestamp);
 
-        if(buySignalStrength > 0) {
-            placeBuyOrder(curPrice, buySignalStrength);
+        if(sellSignalStrength > 0) {
+            placeSellOrder(curPrice, sellSignalStrength);
 
             LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
                     , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
@@ -65,10 +63,10 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
             return null;
         }
 
-        double sellSignalStrength = sellSignalStrength(curPrice, curTimestamp);
+        double buySignalStrength = buySignalStrength(curPrice, curTimestamp);
 
-        if(sellSignalStrength > 0) {
-            TradeResult tradeResult = placeSellOrder(curPrice, sellSignalStrength);
+        if(buySignalStrength > 0) {
+            TradeResult tradeResult = placeBuyOrder(curPrice, buySignalStrength);
             this.refreshTradingWindows(curTimestamp);
             if(tradeResult != null) LOGGERBUYSELL.info("---------------TRADING WINDOW END HIT------------------------");
             return tradeResult;
@@ -76,17 +74,17 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
 
         if(trailingStopHit(curPrice)) {
             double prevTSPrice = super.trailingStopPrice;
-            TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
+            TradeResult tradeResult = placeBuyOrder(curPrice, 1.0);
             this.refreshTradingWindows(curTimestamp);
-            LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", prevTSPrice, curPrice);
-            LOGGERBUYSELL.info("---------------LONG TRAILING STOP HIT------------------------");
+            LOGGERBUYSELL.info("trailingStopPrice {} < curPrice {}", prevTSPrice, curPrice);
+            LOGGERBUYSELL.info("---------------SHORT TRAILING STOP HIT------------------------");
             return tradeResult;
         }
 
         if(stopLossHit(curPrice)) {
             double prevSLPrice = super.stopLossPrice;
-            TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
-            LOGGERBUYSELL.info("stopLossPrice {} > curPrice {}", prevSLPrice, curPrice);
+            TradeResult tradeResult = placeBuyOrder(curPrice, 1.0);
+            LOGGERBUYSELL.info("stopLossPrice {} < curPrice {}", prevSLPrice, curPrice);
             LOGGERBUYSELL.info("---------------LONG STOP LOSS HIT------------------------");
             this.refreshTradingWindows(curTimestamp);
             return tradeResult;
@@ -94,29 +92,34 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
 
         // if a buy order was placed in this trading window and no trailing stop price has been touched
         // we do nothing until this trading window is over
-        if(placedBuyOrder != null) {
+        if(placedSellOrder != null) {
             LOGGER.info(currentTradingWindow.toString());
             LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
             return null;
         }
 
         LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
-            , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
-            , new DateTime(curTimestamp, UTC)
-            , currentTradingWindow.getHighPrice()
-            , currentTradingWindow.getLowPrice());
+                , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
+                , new DateTime(curTimestamp, UTC)
+                , currentTradingWindow.getHighPrice()
+                , currentTradingWindow.getLowPrice());
 
         return null;
     }
 
     @Override
     public double buySignalStrength(double curPrice, long curTimestamp) {
+        return curTimestamp > this.currentTradingWindow.getEndTimeStamp() ? 1 : 0;
+    }
+
+    @Override
+    public double sellSignalStrength(double curPrice, long curTimestamp) {
         if(currentTradingWindow == null) {
             LOGGER.debug("curTradingWindow is null");
             return 0;
         }
 
-        if(placedBuyOrder != null) {
+        if(placedSellOrder != null) {
             return 0;
         }
 
@@ -127,17 +130,16 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         }
 
         double k = VolatilityBreakout.getKValue(lookbehindTradingWindows);
-        boolean priceBreakout = curPrice > currentTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange();
+        boolean priceBreakout = curPrice < currentTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange();
 
         if(!priceBreakout) {
-            LOGGER.info("[---------------------NO BUY SIGNAL DETECTED----------------------------]");
-            LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
+            LOGGER.info("[---------------------NO SELL SIGNAL DETECTED----------------------------]");
+            LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
                     curPrice ,
-                    currentTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
+                    currentTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange() ,
                     currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
             return 0;
         }
-
 
         double priceMAScore = VolatilityBreakout.getPriceMAScore(lookbehindTradingWindows, curPrice, 3, TRADING_WINDOW_LOOK_BEHIND);
 //        double volume = currentTradingWindow.getVolume();
@@ -146,25 +148,20 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
         if(weightedMAScore > 0.0) {
-            LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
+            LOGGER.info("[---------------------SELL SIGNAL DETECTED----------------------------]");
         } else {
-            LOGGER.info("[-----------------BUY SIGNAL DETECTED BUT COST IS 0------------------------]");
+            LOGGER.info("[-----------------SELL SIGNAL DETECTED BUT COST IS 0------------------------]");
         }
         LOGGER.info("priceMAScore {} volumeMAScore {} weightedMAScore {}", priceMAScore, volumeMAScore, weightedMAScore);
-        LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
+        LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
                 curPrice,
-                currentTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange(),
+                currentTradingWindow.getOpenPrice() - k * lookbehindTradingWindows.get(0).getRange(),
                 currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
         LOGGER.info("tradingWindow endTime {}", new DateTime(currentTradingWindow.getEndTimeStamp(), UTC));
         return weightedMAScore;
     }
 
     @Override
-    public double sellSignalStrength(double curPrice, long curTimestamp) {
-        return curTimestamp > currentTradingWindow.getEndTimeStamp() ? 1 : 0;
-    }
-
-    @EventListener
     public void onTradeEvent(TradeEvent e) {
         if(this.refreshingTradingWindows) {
             pendingVol += e.getAmount();
@@ -195,5 +192,4 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         LOGGER.debug("{}", this.currentTradingWindow);
         LOGGER.debug("refreshingTradingWindows is set to FALSE");
     }
-
 }

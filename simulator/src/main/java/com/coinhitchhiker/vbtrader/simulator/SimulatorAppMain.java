@@ -1,5 +1,8 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
+import com.coinhitchhiker.vbtrader.common.model.ExchangeEnum;
+import com.coinhitchhiker.vbtrader.common.model.StrategyEnum;
+import com.coinhitchhiker.vbtrader.common.model.TradingMode;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBV;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VolatilityBreakout;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
@@ -39,14 +42,14 @@ public class SimulatorAppMain implements CommandLineRunner {
     public void run(String... args) throws IOException {
 
         CmdLine.CommandLineOptions opts = CmdLine.parseCommandLine(args);
-        String exchange = opts.getExchange();
-        String mode = opts.getMode();
+        ExchangeEnum exchange = opts.getExchange();
+        TradingMode mode = opts.getMode();
 
-        if(!exchange.equals("BINANCE") &&!exchange.equals("BITMEX")) {
+        if(!exchange.equals(ExchangeEnum.BINANCE) &&!exchange.equals(ExchangeEnum.BITMEX)) {
             throw new RuntimeException("Unsupported exchange");
         }
 
-        if(exchange.equals("BINANCE") && !mode.equals("LONG")) {
+        if(exchange.equals(ExchangeEnum.BINANCE) && !mode.equals(TradingMode.LONG)) {
             throw new RuntimeException("BINANCE supports long only");
         }
 
@@ -77,13 +80,18 @@ public class SimulatorAppMain implements CommandLineRunner {
             }
         } else {
 
-            double tsTriggerPct = parsedBBInput.get(CmdLine.TS_TRIGGER_PCT);
-            double tsPct = parsedBBInput.get(CmdLine.TS_PCT);
+            Double tsTriggerPct = parsedBBInput.get(CmdLine.TS_TRIGGER_PCT);
+            Double tsPct = parsedBBInput.get(CmdLine.TS_PCT);
 
-            if(tsTriggerPct <= tsPct) {
-                LOGGER.error(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", tsTriggerPct, tsPct));
-                System.out.println("0");
-                System.exit(0);
+            if(tsTriggerPct != null && tsPct != null) {
+                if(tsTriggerPct <= tsPct) {
+                    LOGGER.error(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", tsTriggerPct, tsPct));
+                    System.out.println("0");
+                    System.exit(0);
+                }
+            }  else {
+                tsTriggerPct = 0.0;
+                tsPct = 0.0;
             }
 
             Simulator simulator = new Simulator(this.simulatorDAO,

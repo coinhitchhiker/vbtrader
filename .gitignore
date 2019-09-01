@@ -25,10 +25,15 @@ hs_err_pid*
 .idea/
 *.iml
 target/
-./common/target/
-./com.coinhitchhiker.vbtrader.simulator/target/
-./trader/target/
-./simulator/blackbox/*.txt
-./simulator/src/test/resources/com/coinhitchhiker/vbtrader/simulator/*.txt
+common/target/
+simulator/target/
+trader/target/
+simulator/src/test/resources/com/coinhitchhiker/vbtrader/simulator/*.txt
 
-simulator/blackbox/BTCUSDT-0301-0801.txt
+simulator/blackbox/test*.txt
+simulator/blackbox/log*
+simulator/blackbox/nomad*
+simulator/blackbox/BINANCE*
+/simulator/blackbox/BITMEX*
+trader/log*
+
