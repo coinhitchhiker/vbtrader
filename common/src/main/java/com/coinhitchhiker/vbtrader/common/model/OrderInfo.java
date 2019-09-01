@@ -8,7 +8,7 @@ import static org.joda.time.DateTimeZone.UTC;
 
 public class OrderInfo implements Comparable<OrderInfo> {
 
-    private String exchange;
+    private ExchangeEnum exchange;
     private String symbol;
     private OrderSide orderSide;
     private double stopPrice;
@@ -22,7 +22,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
     private double feePaid;
     private String feeCurrency;
 
-    public OrderInfo(String exchange, String symbol, OrderSide orderSide, double price, double amount) {
+    public OrderInfo(ExchangeEnum exchange, String symbol, OrderSide orderSide, double price, double amount) {
         this.exchange = exchange;
         this.symbol = symbol;
         this.orderSide = orderSide;
@@ -43,7 +43,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
 
     //------------------------------------------------------------------------------------------------------
 
-    public String getExchange() {
+    public ExchangeEnum getExchange() {
         return exchange;
     }
 
