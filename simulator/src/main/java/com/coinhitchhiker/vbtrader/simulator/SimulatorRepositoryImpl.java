@@ -2,6 +2,7 @@ package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.*;
 import com.coinhitchhiker.vbtrader.common.model.Candle;
+import com.coinhitchhiker.vbtrader.common.model.ExchangeEnum;
 import com.coinhitchhiker.vbtrader.common.model.Repository;
 import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
@@ -28,13 +29,13 @@ public class SimulatorRepositoryImpl implements Repository {
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulatorRepositoryImpl.class);
 
     private long currentTimestamp;
-    private String exchange;
+    private ExchangeEnum exchange;
     private boolean REPO_USE_DB;
 
     private List<Candle> allCandles = new ArrayList<>();
     private SimulatorDAO simulatorDAO;
 
-    public SimulatorRepositoryImpl(String exchange,
+    public SimulatorRepositoryImpl(ExchangeEnum exchange,
                                    String symbol,
                                    long simulStart,
                                    long simulEnd,
@@ -50,12 +51,12 @@ public class SimulatorRepositoryImpl implements Repository {
         if(result != null && result.size() > 0) {
             allCandles.addAll(result);
         } else {
-            if(this.exchange.equals("BINANCE")) {
+            if(this.exchange.equals(ExchangeEnum.BINANCE)) {
                 if(REPO_USE_DB)
                     result = loadCandlesFromDB(exchange, symbol, simulStart, simulEnd);
                 else
                     result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
-            } else if(this.exchange.equals("BITMEX")) {
+            } else if(this.exchange.equals(ExchangeEnum.BITMEX)) {
                 result = loadCandlesFromBitMex(symbol, simulStart, simulEnd);
             }
             serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd, REPO_USE_DB));
@@ -91,8 +92,8 @@ public class SimulatorRepositoryImpl implements Repository {
         return allCandles.get(curCandleIndex);
     }
 
-    private List<Candle> loadCandlesFromDB(String exchange, String symbol, long simulStart, long simulEnd) {
-        if(!exchange.equals("BINANCE")) {
+    private List<Candle> loadCandlesFromDB(ExchangeEnum exchange, String symbol, long simulStart, long simulEnd) {
+        if(!exchange.equals(ExchangeEnum.BINANCE)) {
             throw new RuntimeException("Only BINANCE is supported");
         }
 
@@ -149,12 +150,12 @@ public class SimulatorRepositoryImpl implements Repository {
         return candles;
     }
 
-    private String makeFileName(String exchange, String symbol, long simulStart, long simulEnd, boolean REPO_USE_DB) {
+    private String makeFileName(ExchangeEnum exchange, String symbol, long simulStart, long simulEnd, boolean REPO_USE_DB) {
         DateTimeFormatter dtfOut = DateTimeFormat.forPattern("yyyyMMdd");
 
         String s = dtfOut.print(new DateTime(simulStart, UTC));
         String e = dtfOut.print(new DateTime(simulEnd, UTC));
-        return exchange + "-" + symbol + "-" + s + "-" + e + (REPO_USE_DB ? "_DB" : "");
+        return exchange.name() + "-" + symbol + "-" + s + "-" + e + (REPO_USE_DB ? "_DB" : "");
     }
 
     private void serCandles(List<Candle> candles, String filename) {
