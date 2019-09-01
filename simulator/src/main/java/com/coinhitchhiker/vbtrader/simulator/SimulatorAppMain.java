@@ -42,14 +42,14 @@ public class SimulatorAppMain implements CommandLineRunner {
     public void run(String... args) throws IOException {
 
         CmdLine.CommandLineOptions opts = CmdLine.parseCommandLine(args);
-        String exchange = opts.getExchange();
-        String mode = opts.getMode();
+        ExchangeEnum exchange = opts.getExchange();
+        TradingMode mode = opts.getMode();
 
-        if(!exchange.equals("BINANCE") &&!exchange.equals("BITMEX")) {
+        if(!exchange.equals(ExchangeEnum.BINANCE) &&!exchange.equals(ExchangeEnum.BITMEX)) {
             throw new RuntimeException("Unsupported exchange");
         }
 
-        if(exchange.equals("BINANCE") && !mode.equals("LONG")) {
+        if(exchange.equals(ExchangeEnum.BINANCE) && !mode.equals(TradingMode.LONG)) {
             throw new RuntimeException("BINANCE supports long only");
         }
 
@@ -63,13 +63,13 @@ public class SimulatorAppMain implements CommandLineRunner {
                 Simulator simulator = new Simulator(simulatorDAO,
                         DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                         DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
-                        ExchangeEnum.valueOf(opts.getExchange()),
+                        opts.getExchange(),
                         opts.getSymbol(),
                         simulResult.getTS_TRIGGER_PCT(),
                         simulResult.getTS_PCT(),
-                        TradingMode.valueOf(mode),
+                        mode,
                         opts.getQuoteCurrency(),
-                        StrategyEnum.valueOf(opts.getStrategy()),
+                        opts.getStrategy(),
                         parsedBBInput,
                         opts.isRepoUseDB());
 
@@ -92,13 +92,13 @@ public class SimulatorAppMain implements CommandLineRunner {
             Simulator simulator = new Simulator(this.simulatorDAO,
                     DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                     DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
-                    ExchangeEnum.valueOf(opts.getExchange()),
+                    opts.getExchange(),
                     opts.getSymbol(),
                     tsTriggerPct,
                     tsPct,
-                    TradingMode.valueOf(mode),
+                    mode,
                     opts.getQuoteCurrency(),
-                    StrategyEnum.valueOf(opts.getStrategy()),
+                    opts.getStrategy(),
                     parsedBBInput,
                     opts.isRepoUseDB());
 

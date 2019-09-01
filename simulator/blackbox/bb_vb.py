@@ -6,12 +6,12 @@ import os
 java_bin = os.environ['JAVA_HOME'] + "/bin"
 
 cmd = [java_bin + "/java", "-Xmx1024m",  "-jar", "simulator.jar"
-      , "--simul-start" , "20170901"
-      , "--simul-end" , "20190829"
-      , "--symbol" , "BTCUSDT"
-      , "--exchange" , "BINANCE"
-      , "--mode" , "LONG"
-      , "--quote-currency" , "USDT"
+      , "--simul-start" , "20190101"
+      , "--simul-end" , "20190831"
+      , "--symbol" , "XBTUSD"
+      , "--exchange" , "BITMEX"
+      , "--mode" , "SHORT"
+      , "--quote-currency" , "XBt"
       , "--strategy" , "VB"
       ,"--bb-input" , sys.argv[1]]
 

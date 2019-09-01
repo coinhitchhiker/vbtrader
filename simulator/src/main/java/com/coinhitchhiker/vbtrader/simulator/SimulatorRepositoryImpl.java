@@ -51,12 +51,12 @@ public class SimulatorRepositoryImpl implements Repository {
         if(result != null && result.size() > 0) {
             allCandles.addAll(result);
         } else {
-            if(this.exchange.equals("BINANCE")) {
+            if(this.exchange.equals(ExchangeEnum.BINANCE)) {
                 if(REPO_USE_DB)
                     result = loadCandlesFromDB(exchange, symbol, simulStart, simulEnd);
                 else
                     result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
-            } else if(this.exchange.equals("BITMEX")) {
+            } else if(this.exchange.equals(ExchangeEnum.BITMEX)) {
                 result = loadCandlesFromBitMex(symbol, simulStart, simulEnd);
             }
             serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd, REPO_USE_DB));

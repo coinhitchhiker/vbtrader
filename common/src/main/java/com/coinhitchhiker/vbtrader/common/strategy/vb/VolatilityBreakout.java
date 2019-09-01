@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.coinhitchhiker.vbtrader.common.Util.getClosestMin;
 import static org.joda.time.DateTimeZone.UTC;
@@ -16,6 +17,11 @@ import static org.joda.time.DateTimeZone.UTC;
 public class VolatilityBreakout  {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(VolatilityBreakout.class);
+
+
+    public static List<TradingWindow> getLastNTradingWindow(List<TradingWindow> tradingWindows, int n) {
+        return tradingWindows.stream().limit(n).collect(Collectors.toList());
+    }
 
     public static TradingWindow constructCurrentTradingWindow(String SYMBOL, int TRADING_WINDOW_SIZE, double midPrice, long timestamp, Repository repository) {
 

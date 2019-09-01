@@ -3,6 +3,7 @@ package com.coinhitchhiker.vbtrader.simulator;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBVLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.vb.VBShortTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
@@ -86,6 +87,23 @@ public class Simulator {
         TradingEngine tradingEngine = null;
         if(this.MODE.equals(TradingMode.LONG) && this.STRATEGY.equals(StrategyEnum.VB)) {
             tradingEngine = new VBLongTradingEngine(repository,
+                    exchange,
+                    orderBookCache,
+                    strategyParams.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
+                    strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
+                    strategyParams.get(CmdLine.PRICE_MA_WEIGHT),
+                    strategyParams.get(CmdLine.VOLUME_MA_WEIGHT),
+                    SYMBOL,
+                    QUOTE_CURRRENCY,
+                    0.0,
+                    EXCHANGE,
+                    FEE_RATE,
+                    true,
+                    true,
+                    TS_TRIGGER_PCT,
+                    TS_PCT);
+        } else if(this.MODE.equals(TradingMode.SHORT) && this.STRATEGY.equals(StrategyEnum.VB)) {
+            tradingEngine = new VBShortTradingEngine(repository,
                     exchange,
                     orderBookCache,
                     strategyParams.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
