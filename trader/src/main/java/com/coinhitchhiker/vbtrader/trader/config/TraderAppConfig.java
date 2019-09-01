@@ -54,7 +54,7 @@ public class TraderAppConfig {
                     SYMBOL,
                     QUOTE_CURRENCY,
                     LIMIT_ORDER_PREMIUM,
-                    exchange,
+                    ExchangeEnum.valueOf(exchange),
                     FEE_RATE,
                     tradingEnabled,
                     TRAILING_STOP_ENABLED,
