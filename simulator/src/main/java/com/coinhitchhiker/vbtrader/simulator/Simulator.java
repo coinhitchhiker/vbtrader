@@ -22,11 +22,11 @@ public class Simulator {
 
     private final long SIMUL_START;
     private final long SIMUL_END;
-    private final String EXCHANGE;
+    private final ExchangeEnum EXCHANGE;
     private final String SYMBOL;
     private final double TS_TRIGGER_PCT;
     private final double TS_PCT;
-    private final String MODE;
+    private final TradingMode MODE;
     private final String QUOTE_CURRRENCY;
     private final String STRATEGY;
     private final Map<String, Double> STRATEGY_PARAMS;
@@ -50,11 +50,11 @@ public class Simulator {
     public Simulator(SimulatorDAO simulatorDAO,
                      long SIMUL_START,
                      long SIMUL_END,
-                     String EXCHANGE,
+                     ExchangeEnum EXCHANGE,
                      String SYMBOL,
                      double TS_TRIGGER_PCT,
                      double TS_PCT,
-                     String mode,
+                     TradingMode MODE,
                      String QUOTE_CURRENCY,
                      String strategy,
                      Map<String, Double> strategyParams,
@@ -67,7 +67,7 @@ public class Simulator {
         this.SYMBOL = SYMBOL;
         this.TS_TRIGGER_PCT = TS_TRIGGER_PCT;
         this.TS_PCT = TS_PCT;
-        this.MODE = mode;
+        this.MODE = MODE;
         this.QUOTE_CURRRENCY = QUOTE_CURRENCY;
         this.STRATEGY = strategy;
         this.STRATEGY_PARAMS = strategyParams;
@@ -216,7 +216,7 @@ public class Simulator {
 
         SimulResult result = new SimulResult();
 
-        Integer id = simulatorDAO.getPeriodId(this.EXCHANGE,
+        Integer id = simulatorDAO.getPeriodId(this.EXCHANGE.name(),
                 this.SYMBOL,
                 DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_START, DateTimeZone.UTC)),
                 DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, DateTimeZone.UTC)));
