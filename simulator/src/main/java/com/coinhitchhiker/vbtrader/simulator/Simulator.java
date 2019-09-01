@@ -102,7 +102,8 @@ public class Simulator {
                     true,
                     true,
                     TS_TRIGGER_PCT,
-                    TS_PCT);
+                    TS_PCT,
+                    false);
         } else if(this.MODE.equals(TradingMode.SHORT) && this.STRATEGY.equals(StrategyEnum.VB)) {
             tradingEngine = new VBShortTradingEngine(repository,
                     exchange,
@@ -119,7 +120,8 @@ public class Simulator {
                     true,
                     true,
                     TS_TRIGGER_PCT,
-                    TS_PCT);
+                    TS_PCT,
+                    false);
         } else if(this.MODE.equals(TradingMode.LONG) && this.STRATEGY.equals(StrategyEnum.PVTOBV)) {
             tradingEngine = new PVTOBVLongTradingEngine(repository,
                     exchange,
@@ -136,7 +138,8 @@ public class Simulator {
                     strategyParams.get(CmdLine.MIN_CANDLE_LOOK_BEHIND).intValue(),
                     strategyParams.get(CmdLine.PVTOBV_DROP_THRESHOLD),
                     strategyParams.get(CmdLine.PRICE_DROP_THRESHOLD),
-                    strategyParams.get(CmdLine.STOP_LOSS_PCT));
+                    strategyParams.get(CmdLine.STOP_LOSS_PCT),
+                    false);
         } else if(this.MODE.equals(TradingMode.LONG) && this.STRATEGY.equals(StrategyEnum.IBS)) {
             tradingEngine = new IBSLongTradingEngine(repository,
                     exchange,
@@ -151,7 +154,8 @@ public class Simulator {
                     0,
                     0,
                     strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
-                    strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD));
+                    strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD),
+                    false);
         } else {
             throw new UnsupportedOperationException();
         }
