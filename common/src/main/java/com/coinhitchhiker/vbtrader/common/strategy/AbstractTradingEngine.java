@@ -27,6 +27,7 @@ public class AbstractTradingEngine {
 
     protected final boolean STOP_LOSS_ENABLED;
     protected final double STOP_LOSS_PCT;
+    protected final boolean VERBOSE;
 
     protected OrderInfo placedBuyOrder = null;
     protected OrderInfo placedSellOrder = null;
@@ -38,7 +39,8 @@ public class AbstractTradingEngine {
 
     public AbstractTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache, TradingMode MODE, String SYMBOL,
                                  String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE, boolean TRADING_ENABLED,
-                                 boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, boolean STOP_LOSS_ENABLED, double STOP_LOSS_PCT) {
+                                 boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, boolean STOP_LOSS_ENABLED, double STOP_LOSS_PCT,
+                                 boolean VERBOSE) {
         this.repository = repository;
         this.exchange = exchange;
         this.orderBookCache = orderBookCache;
@@ -57,6 +59,7 @@ public class AbstractTradingEngine {
 
         this.STOP_LOSS_ENABLED = STOP_LOSS_ENABLED;
         this.STOP_LOSS_PCT = STOP_LOSS_PCT;
+        this.VERBOSE = VERBOSE;
     }
 
     private void placeBuyOrderLong(double curPrice, double buySignalStrength) {
@@ -142,6 +145,7 @@ public class AbstractTradingEngine {
     protected TradeResult placeBuyOrder(double curPrice, double buySignalStrength) {
         if(MODE.equals(TradingMode.LONG)) {
             try {
+                if(placedBuyOrder != null) return null;
                 placeBuyOrderLong(curPrice, buySignalStrength);
                 if(STOP_LOSS_ENABLED) setStopLoss();
             } catch(Exception e) {
