@@ -1,0 +1,50 @@
+# TRADING_WINDOW_SIZE_IN_MIN
+# IBS_LOWER_THRESHOLD
+# IBS_UPPER_THRESHOLD
+# STOP_LOSS_PCT
+# TS_TRIGGER_PCT
+# TS_PCT
+
+DIMENSION      6              # number of variables
+
+BB_EXE         "$python bb_ibs.py"          # 'bb.exe' is a program that
+BB_OUTPUT_TYPE OBJ            # takes in argument the name of
+                              # a text file containing 48
+                              # values, and that displays 3
+                              # values that correspond to the
+                              # objective function value (OBJ),
+                              # and two constraints values g1
+                              # and g2 with g1 <= 0 and
+                              # g2 <= 0; 'PB' and 'EB'
+                              # correspond to constraints that
+                              # are treated by the Progressive
+                              # and Extreme Barrier approaches
+                              # (all constraint-handling
+                              #  options are described in the
+                              #  detailed parameters list)
+
+
+X0             ( 1440 0.2 0.8 0.2 2 0.2 )  # starting point
+
+LOWER_BOUND    ( 20  0.1  0.51 0.1 1.00 0.05 )
+UPPER_BOUND    ( 10080 0.5 0.9 2.0 10.1 8.01 )
+
+MAX_BB_EVAL    500            # the algorithm terminates when
+                              # 100 black-box evaluations have
+                              # been made
+
+# TMP_DIR        /tmp         # indicates a directory where
+                              # temporary files are put
+                              # (increases performance by ~100%
+                              # if you're working on a network
+                              # account and if TMP_DIR is on a
+                              # local disk)
+
+
+DISPLAY_DEGREE 2
+
+DISPLAY_STATS BBE ( SOL ) OBJ # Display the number of evaluation (BBE),
+							  # the current solution ( SOL ) and the objective
+
+STATS_FILE test.txt BBE ( SOL ) OBJ
+

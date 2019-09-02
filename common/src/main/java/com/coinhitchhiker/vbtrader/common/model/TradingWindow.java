@@ -122,7 +122,7 @@ public class TradingWindow {
     @Override
     public String toString() {
         return "TradingWindow{" +
-                ", symbol='" + symbol + '\'' +
+                "symbol='" + symbol + '\'' +
                 ", startTimeStamp=" + new DateTime(startTimeStamp, DateTimeZone.UTC).toString() +
                 ", endTimeStamp=" + new DateTime(endTimeStamp, DateTimeZone.UTC).toString() +
                 ", openPrice=" + openPrice +
