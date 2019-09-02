@@ -1,8 +1,10 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBVLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.vb.VBShortTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
@@ -28,7 +30,7 @@ public class Simulator {
     private final double TS_PCT;
     private final TradingMode MODE;
     private final String QUOTE_CURRRENCY;
-    private final String STRATEGY;
+    private final StrategyEnum STRATEGY;
     private final Map<String, Double> STRATEGY_PARAMS;
     private final boolean REPO_USE_DB;
 
@@ -56,7 +58,7 @@ public class Simulator {
                      double TS_PCT,
                      TradingMode MODE,
                      String QUOTE_CURRENCY,
-                     String strategy,
+                     StrategyEnum strategy,
                      Map<String, Double> strategyParams,
                      boolean REPO_USE_DB)  {
 
@@ -80,19 +82,11 @@ public class Simulator {
         this.exchange = new SimulatorExchange(this.repository, this.orderBookCache, SLIPPAGE);
         this.tradingEngine = createTradingEngine(this.STRATEGY_PARAMS);
         ((SimulatorExchange)this.exchange).setTradingEngine(this.tradingEngine);
-
-        if(this.STRATEGY.equals("VB")) {
-
-        } else if(this.STRATEGY.equals("PVTOBV")) {
-
-        } else {
-            throw new RuntimeException("Unknown startegy was given: " + this.STRATEGY);
-        }
     }
 
     private TradingEngine createTradingEngine(Map<String, Double> strategyParams) {
         TradingEngine tradingEngine = null;
-        if(this.MODE.equals("LONG") && this.STRATEGY.equals("VB")) {
+        if(this.MODE.equals(TradingMode.LONG) && this.STRATEGY.equals(StrategyEnum.VB)) {
             tradingEngine = new VBLongTradingEngine(repository,
                     exchange,
                     orderBookCache,
@@ -108,8 +102,27 @@ public class Simulator {
                     true,
                     true,
                     TS_TRIGGER_PCT,
-                    TS_PCT);
-        } else if(this.MODE.equals("LONG") && this.STRATEGY.equals("PVTOBV")) {
+                    TS_PCT,
+                    false);
+        } else if(this.MODE.equals(TradingMode.SHORT) && this.STRATEGY.equals(StrategyEnum.VB)) {
+            tradingEngine = new VBShortTradingEngine(repository,
+                    exchange,
+                    orderBookCache,
+                    strategyParams.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(),
+                    strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
+                    strategyParams.get(CmdLine.PRICE_MA_WEIGHT),
+                    strategyParams.get(CmdLine.VOLUME_MA_WEIGHT),
+                    SYMBOL,
+                    QUOTE_CURRRENCY,
+                    0.0,
+                    EXCHANGE,
+                    FEE_RATE,
+                    true,
+                    true,
+                    TS_TRIGGER_PCT,
+                    TS_PCT,
+                    false);
+        } else if(this.MODE.equals(TradingMode.LONG) && this.STRATEGY.equals(StrategyEnum.PVTOBV)) {
             tradingEngine = new PVTOBVLongTradingEngine(repository,
                     exchange,
                     orderBookCache,
@@ -125,7 +138,25 @@ public class Simulator {
                     strategyParams.get(CmdLine.MIN_CANDLE_LOOK_BEHIND).intValue(),
                     strategyParams.get(CmdLine.PVTOBV_DROP_THRESHOLD),
                     strategyParams.get(CmdLine.PRICE_DROP_THRESHOLD),
-                    strategyParams.get(CmdLine.STOP_LOSS_PCT));
+                    strategyParams.get(CmdLine.STOP_LOSS_PCT),
+                    false);
+        } else if(this.MODE.equals(TradingMode.LONG) && this.STRATEGY.equals(StrategyEnum.IBS)) {
+            tradingEngine = new IBSLongTradingEngine(repository,
+                    exchange,
+                    orderBookCache,
+                    SYMBOL,
+                    QUOTE_CURRRENCY,
+                    0.0,
+                    EXCHANGE,
+                    FEE_RATE,
+                    true,
+                    true,
+                    TS_TRIGGER_PCT,
+                    TS_PCT,
+                    strategyParams.get(CmdLine.STOP_LOSS_PCT),
+                    strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
+                    strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD),
+                    false);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -185,7 +216,7 @@ public class Simulator {
 
     public SimulResult collectSimulResult() {
         LOGGERBUYSELL.info("----------------------------------------------------------------");
-        LOGGERBUYSELL.info("STRATEGY {}", STRATEGY);
+        LOGGERBUYSELL.info("STRATEGY {}", STRATEGY.name());
         LOGGERBUYSELL.info("SIMUL_START {}", new DateTime(SIMUL_START, DateTimeZone.UTC));
         LOGGERBUYSELL.info("SIMUL_END {}", new DateTime(SIMUL_END, DateTimeZone.UTC));
         LOGGERBUYSELL.info("MODE {}", MODE);
@@ -198,16 +229,23 @@ public class Simulator {
         LOGGERBUYSELL.info("TS_TRIGGER_PCT {}", TS_TRIGGER_PCT);
         LOGGERBUYSELL.info("TS_PCT {}", TS_PCT);
 
-        if(this.STRATEGY.equals("VB")) {
+        if(this.STRATEGY.equals(StrategyEnum.VB)) {
             LOGGERBUYSELL.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
             LOGGERBUYSELL.info("TRADING_WINDOW_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND));
             LOGGERBUYSELL.info("PRICE_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.PRICE_MA_WEIGHT));
             LOGGERBUYSELL.info("VOLUME_MA_WEIGHT {}", STRATEGY_PARAMS.get(CmdLine.VOLUME_MA_WEIGHT));
-        } else if(this.STRATEGY.equals("PVTOBV")) {
+        } else if(this.STRATEGY.equals(StrategyEnum.PVTOBV)) {
             LOGGERBUYSELL.info("MIN_CANDLE_LOOK_BEHIND {}", STRATEGY_PARAMS.get(CmdLine.MIN_CANDLE_LOOK_BEHIND));
             LOGGERBUYSELL.info("PVTOBV_DROP_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PVTOBV_DROP_THRESHOLD));
             LOGGERBUYSELL.info("PRICE_DROP_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PRICE_DROP_THRESHOLD));
             LOGGERBUYSELL.info("STOP_LOSS_PCT {}", STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
+        } else if(this.STRATEGY.equals(StrategyEnum.IBS)) {
+            LOGGERBUYSELL.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
+            LOGGERBUYSELL.info("IBS_LOWER_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.IBS_LOWER_THRESHOLD));
+            LOGGERBUYSELL.info("IBS_UPPER_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.IBS_UPPER_THRESHOLD));
+            LOGGERBUYSELL.info("STOP_LOSS_PCT {}", STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
+            LOGGERBUYSELL.info("TS_TRIGGER_PCT {}", STRATEGY_PARAMS.get(CmdLine.TS_TRIGGER_PCT));
+            LOGGERBUYSELL.info("TS_PCT {}", STRATEGY_PARAMS.get(CmdLine.TS_PCT));
         }
 
         LOGGERBUYSELL.info("----------------------------------------------------------------");
@@ -233,18 +271,18 @@ public class Simulator {
         result.setTS_PCT(TS_PCT);
         result.setMODE(MODE);
 
-        if(STRATEGY.equals("VB")) {
+        if(STRATEGY.equals(StrategyEnum.VB)) {
             result.setVOLUME_MA_WEIGHT(STRATEGY_PARAMS.get(CmdLine.VOLUME_MA_WEIGHT));
             result.setTRADING_WINDOW_SIZE_IN_MIN(STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue());
             result.setTRADING_WINDOW_LOOK_BEHIND(STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue());
             result.setPRICE_MA_WEIGHT(STRATEGY_PARAMS.get(CmdLine.PRICE_MA_WEIGHT));
             result.setMA_MIN(this.MA_MIN);
-        } else if(STRATEGY.equals("PVTOBV")) {
+        } else if(STRATEGY.equals(StrategyEnum.PVTOBV)) {
             result.setMIN_CANDLE_LOOK_BEHIND(STRATEGY_PARAMS.get(CmdLine.MIN_CANDLE_LOOK_BEHIND).intValue());
             result.setPVTOBV_DROP_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.PVTOBV_DROP_THRESHOLD));
             result.setPRICE_DROP_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.PRICE_DROP_THRESHOLD));
             result.setSTOP_LOSS_PCT(STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
-
+        } else if(STRATEGY.equals(StrategyEnum.IBS)) {
         } else {
             throw new RuntimeException("Unsupported strategy was given: " + STRATEGY);
         }

@@ -32,10 +32,10 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
     public VBLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                int TRADING_WINDOW_LOOK_BEHIND, int TRADING_WINDOW_SIZE, double PRICE_MA_WEIGHT, double VOLUME_MA_WEIGHT,
                                String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
-                               boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT) {
+                               boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, boolean VERBOSE) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
-                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.5D);
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.5D, VERBOSE);
 
         this.TRADING_WINDOW_LOOK_BEHIND = TRADING_WINDOW_LOOK_BEHIND;
         this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
@@ -95,16 +95,20 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         // if a buy order was placed in this trading window and no trailing stop price has been touched
         // we do nothing until this trading window is over
         if(placedBuyOrder != null) {
-            LOGGER.info(currentTradingWindow.toString());
-            LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
+            if(VERBOSE) {
+                LOGGER.info(currentTradingWindow.toString());
+                LOGGER.info("-----------------------PLACED ORDER PRESENT---------------------");
+            }
             return null;
         }
 
-        LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
-            , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
-            , new DateTime(curTimestamp, UTC)
-            , currentTradingWindow.getHighPrice()
-            , currentTradingWindow.getLowPrice());
+        if(VERBOSE) {
+            LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
+                    , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
+                    , new DateTime(curTimestamp, UTC)
+                    , currentTradingWindow.getHighPrice()
+                    , currentTradingWindow.getLowPrice());
+        }
 
         return null;
     }
@@ -120,7 +124,7 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
             return 0;
         }
 
-        List<TradingWindow> lookbehindTradingWindows = this.getLastNTradingWindow(TRADING_WINDOW_LOOK_BEHIND+1);
+        List<TradingWindow> lookbehindTradingWindows = VolatilityBreakout.getLastNTradingWindow(this.tradingWindows, TRADING_WINDOW_LOOK_BEHIND+1);
         if(lookbehindTradingWindows.size() < TRADING_WINDOW_LOOK_BEHIND+1) {
             LOGGER.debug("lookbehindTradingWindows.size() {} < TRADING_WINDOW_LOOK_BEHIND {}", lookbehindTradingWindows.size(), TRADING_WINDOW_LOOK_BEHIND);
             return 0;
@@ -130,11 +134,13 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         boolean priceBreakout = curPrice > currentTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange();
 
         if(!priceBreakout) {
-            LOGGER.info("[---------------------NO BUY SIGNAL DETECTED----------------------------]");
-            LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
-                    curPrice ,
-                    currentTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
-                    currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            if(VERBOSE) {
+                LOGGER.info("[---------------------NO BUY SIGNAL DETECTED----------------------------]");
+                LOGGER.info("curPrice {} < {} (openPrice {} + k {} * prevRange {})",
+                        curPrice ,
+                        currentTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange() ,
+                        currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            }
             return 0;
         }
 
@@ -145,17 +151,20 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         double volumeMAScore = VolatilityBreakout.getVolumeMAScore_aggressive(lookbehindTradingWindows, currentTradingWindow, 3, TRADING_WINDOW_LOOK_BEHIND, TRADING_WINDOW_SIZE, curTimestamp);
         double weightedMAScore = (PRICE_MA_WEIGHT*priceMAScore + VOLUME_MA_WEIGHT*volumeMAScore) / (PRICE_MA_WEIGHT + VOLUME_MA_WEIGHT);
 
-        if(weightedMAScore > 0.0) {
-            LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
-        } else {
-            LOGGER.info("[-----------------BUY SIGNAL DETECTED BUT COST IS 0------------------------]");
+        if(VERBOSE) {
+            if(weightedMAScore > 0.0) {
+                LOGGER.info("[---------------------BUY SIGNAL DETECTED----------------------------]");
+            } else {
+                LOGGER.info("[-----------------BUY SIGNAL DETECTED BUT COST IS 0------------------------]");
+            }
+            LOGGER.info("priceMAScore {} volumeMAScore {} weightedMAScore {}", priceMAScore, volumeMAScore, weightedMAScore);
+            LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
+                    curPrice,
+                    currentTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange(),
+                    currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
+            LOGGER.info("tradingWindow endTime {}", new DateTime(currentTradingWindow.getEndTimeStamp(), UTC));
         }
-        LOGGER.info("priceMAScore {} volumeMAScore {} weightedMAScore {}", priceMAScore, volumeMAScore, weightedMAScore);
-        LOGGER.info("curPrice {} > {} (openPrice {} + k {} * prevRange {})",
-                curPrice,
-                currentTradingWindow.getOpenPrice() + k * lookbehindTradingWindows.get(0).getRange(),
-                currentTradingWindow.getOpenPrice(), k, lookbehindTradingWindows.get(0).getRange());
-        LOGGER.info("tradingWindow endTime {}", new DateTime(currentTradingWindow.getEndTimeStamp(), UTC));
+
         return weightedMAScore;
     }
 
@@ -178,73 +187,22 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         }
     }
 
-    private TradingWindow constructCurrentTradingWindow(long timestamp) {
-
-        TradingWindow result =  new TradingWindow(SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000, orderBookCache.getMidPrice());
-
-        List<Candle> candles = repository.getCandles(SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
-        if(candles.size() > 0) {
-            TradingWindow twFromBinanceData = TradingWindow.of(candles);
-            result.setHighPrice(twFromBinanceData.getHighPrice());
-            result.setOpenPrice(twFromBinanceData.getOpenPrice());
-            result.setLowPrice(twFromBinanceData.getLowPrice());
-        } else {
-            // wait for 10s to ensure receiving orderbook data
-            try {Thread.sleep(10_000L); } catch(Exception e) {}
-            double price = orderBookCache.getMidPrice();
-            if(price == 0.0) {
-                throw new RuntimeException("orderbook mid price is 0.0!!!!!");
-            }
-            result.setOpenPrice(price);
-            result.setHighPrice(price);
-            result.setLowPrice(price);
-        }
-        return result;
-    }
-
     private void refreshTradingWindows(long curTimestamp) {
         this.refreshingTradingWindows = true;
-
         LOGGER.debug("refreshingTradingWindows is set to TRUE");
 
         DateTime closestMin = getClosestMin(new DateTime(curTimestamp, UTC));
 
-        this.currentTradingWindow = constructCurrentTradingWindow(closestMin.getMillis());
+        this.currentTradingWindow = VolatilityBreakout.constructCurrentTradingWindow(SYMBOL, TRADING_WINDOW_SIZE, orderBookCache.getMidPrice(), closestMin.getMillis(), repository);
         LOGGER.debug("Refreshed curTW {}", this.currentTradingWindow.toString());
 
-        this.tradingWindows = new ArrayList<>();
-        long closestMinMillis = closestMin.getMillis();
-
-        long windowEnd = closestMinMillis - 1000;
-        long windowStart = windowEnd - TRADING_WINDOW_SIZE * 60 * 1000;
-
-        for(int i = 0; i <= TRADING_WINDOW_LOOK_BEHIND; i++) {
-            List<Candle> candles = repository.getCandles(SYMBOL, windowStart, windowEnd);
-            if(candles == null || candles.size() == 0) {
-                LOGGER.warn("No candle data was found from repository");
-            } else {
-                TradingWindow tw = TradingWindow.of(candles);
-                LOGGER.debug("{}/{} {}", i, TRADING_WINDOW_LOOK_BEHIND, tw.toString());
-                this.tradingWindows.add(tw);
-            }
-
-            windowEnd -= TRADING_WINDOW_SIZE * 60 * 1000;
-            windowStart -= TRADING_WINDOW_SIZE * 60 * 1000;
-
-            if(!repository.getClass().getCanonicalName().contains("SimulatorRepositoryImpl")) {
-                try {Thread.sleep(300L);} catch(Exception e) {}
-            }
-        }
+        this.tradingWindows = VolatilityBreakout.constructPastTradingWindows(curTimestamp, TRADING_WINDOW_SIZE, TRADING_WINDOW_LOOK_BEHIND, SYMBOL, repository);
         this.refreshingTradingWindows = false;
 
         LOGGER.debug("-----------CURRENT TRADING WINDOW REFRESHED-----------------------");
         LOGGER.debug("curTimestamp {}", new DateTime(curTimestamp, UTC));
         LOGGER.debug("{}", this.currentTradingWindow);
         LOGGER.debug("refreshingTradingWindows is set to FALSE");
-    }
-
-    private List<TradingWindow> getLastNTradingWindow(int n) {
-        return this.tradingWindows.stream().limit(n).collect(Collectors.toList());
     }
 
 }
