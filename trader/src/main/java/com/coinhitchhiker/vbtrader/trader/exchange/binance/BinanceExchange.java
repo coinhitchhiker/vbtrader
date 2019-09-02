@@ -50,8 +50,6 @@ public class BinanceExchange implements Exchange {
     private boolean apiSecretEncryptionEnabled;
 
     @Value("${trading.symbol}") private String TRADING_SYMBOL;
-    @Value("${trading.vb.window.size}") private int TRADING_WINDOW_SIZE;
-    @Value("${trading.vb.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
 
     @Autowired private ApplicationEventPublisher eventPublisher;
     @Autowired private EncryptorHelper encryptorHelper;
