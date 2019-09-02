@@ -117,9 +117,10 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
             } else {
                 LOGGER.info("--------------------------NO BUY SIGNAL DETECTED----------------------");
             }
-            LOGGER.info("curPrice {} curTimestamp {} IBS {} (close {} - low {}) / (high {} - low {})"
+            LOGGER.info("curPrice {} curTimestamp {} tradingWindowEnd {} IBS {} (close {} - low {}) / (high {} - low {})"
                     , curPrice
                     , new DateTime(curTimestamp, UTC)
+                    , new DateTime(this.currentTradingWindow.getEndTimeStamp(), UTC)
                     , ibs
                     , this.prevTradingWindow.getClosePrice()
                     , this.prevTradingWindow.getLowPrice()
