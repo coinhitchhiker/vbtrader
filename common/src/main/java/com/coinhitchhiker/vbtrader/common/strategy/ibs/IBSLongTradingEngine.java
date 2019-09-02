@@ -63,7 +63,10 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
 
         if(placedBuyOrder != null && sellSignalStrength > 0) {
             TradeResult tradeResult = placeSellOrder(curPrice, sellSignalStrength);
-            if(tradeResult != null) LOGGERBUYSELL.info("---------------TRADING WINDOW END HIT------------------------");
+            if(tradeResult != null) {
+                LOGGERBUYSELL.info("[BALANCE] {}, {} {}", new DateTime(curTimestamp, UTC), QUOTE_CURRENCY, this.exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade());
+                LOGGERBUYSELL.info("---------------TRADING WINDOW END HIT------------------------");
+            }
             // IBS algo sells when it hits the end of trading window. That's why we refresh the trading window here
             // no matter what.
             refreshTradingWindows(curTimestamp);
