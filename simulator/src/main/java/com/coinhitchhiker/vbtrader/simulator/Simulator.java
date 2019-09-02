@@ -150,9 +150,10 @@ public class Simulator {
                     EXCHANGE,
                     FEE_RATE,
                     true,
-                    false,
-                    0,
-                    0,
+                    true,
+                    TS_TRIGGER_PCT,
+                    TS_PCT,
+                    strategyParams.get(CmdLine.STOP_LOSS_PCT),
                     strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD),
                     false);
@@ -238,6 +239,13 @@ public class Simulator {
             LOGGERBUYSELL.info("PVTOBV_DROP_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PVTOBV_DROP_THRESHOLD));
             LOGGERBUYSELL.info("PRICE_DROP_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.PRICE_DROP_THRESHOLD));
             LOGGERBUYSELL.info("STOP_LOSS_PCT {}", STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
+        } else if(this.STRATEGY.equals(StrategyEnum.IBS)) {
+            LOGGERBUYSELL.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
+            LOGGERBUYSELL.info("IBS_LOWER_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.IBS_LOWER_THRESHOLD));
+            LOGGERBUYSELL.info("IBS_UPPER_THRESHOLD {}", STRATEGY_PARAMS.get(CmdLine.IBS_UPPER_THRESHOLD));
+            LOGGERBUYSELL.info("STOP_LOSS_PCT {}", STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
+            LOGGERBUYSELL.info("TS_TRIGGER_PCT {}", STRATEGY_PARAMS.get(CmdLine.TS_TRIGGER_PCT));
+            LOGGERBUYSELL.info("TS_PCT {}", STRATEGY_PARAMS.get(CmdLine.TS_PCT));
         }
 
         LOGGERBUYSELL.info("----------------------------------------------------------------");
@@ -274,6 +282,7 @@ public class Simulator {
             result.setPVTOBV_DROP_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.PVTOBV_DROP_THRESHOLD));
             result.setPRICE_DROP_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.PRICE_DROP_THRESHOLD));
             result.setSTOP_LOSS_PCT(STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
+        } else if(STRATEGY.equals(StrategyEnum.IBS)) {
         } else {
             throw new RuntimeException("Unsupported strategy was given: " + STRATEGY);
         }

@@ -18,17 +18,18 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
 
     private TradingWindow prevTradingWindow = null;
     private TradingWindow currentTradingWindow = null;
+    private boolean TS_SL_CUT = false;
 
     private final int TRADING_WINDOW_SIZE;
     private final double IBS_LOWER_THRESHOLD;
 
     public IBSLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                 String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
-                                boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT,
+                                boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, double STOP_LOSS_PCT,
                                 int TRADING_WINDOW_SIZE, double IBS_LOWER_THRESHOLD, boolean VERBOSE) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
-                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, false, 0.0D, VERBOSE);
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true, STOP_LOSS_PCT, VERBOSE);
 
         this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
         this.IBS_LOWER_THRESHOLD = IBS_LOWER_THRESHOLD;
@@ -44,7 +45,9 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
 
         double buySignalStrength = buySignalStrength(curPrice, curTimestamp);
 
-        if(placedBuyOrder == null && buySignalStrength > 0) {
+        // We don't want to buy when we did trailing stop or stop loss.
+        // Should wait until current trading window ends.
+        if(placedBuyOrder == null && buySignalStrength > 0 && !TS_SL_CUT) {
             placeBuyOrder(curPrice, buySignalStrength);
 
             LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
@@ -61,18 +64,36 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
         if(placedBuyOrder != null && sellSignalStrength > 0) {
             TradeResult tradeResult = placeSellOrder(curPrice, sellSignalStrength);
             if(tradeResult != null) LOGGERBUYSELL.info("---------------TRADING WINDOW END HIT------------------------");
+            // IBS algo sells when it hits the end of trading window. That's why we refresh the trading window here
+            // no matter what.
             refreshTradingWindows(curTimestamp);
+            TS_SL_CUT = false;
             return tradeResult;
         }
 
-//        LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
-//                , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
-//                , new DateTime(curTimestamp, UTC)
-//                , currentTradingWindow.getHighPrice()
-//                , currentTradingWindow.getLowPrice());
+        if(placedBuyOrder != null && trailingStopHit(curPrice)) {
+            double prevTSPrice = super.trailingStopPrice;
+            TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
+            LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", prevTSPrice, curPrice);
+            LOGGERBUYSELL.info("---------------IBS LONG TRAILING STOP HIT------------------------");
+            // when trailing stop hits we sell it and should wait until this trading window ends.
+            // Set the flag to true. It'll be set false when trading window ends.
+            TS_SL_CUT = true;
+            return tradeResult;
+        }
+
+        if(placedBuyOrder != null && stopLossHit(curPrice)) {
+            double prevSLPrice = super.stopLossPrice;
+            TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
+            LOGGERBUYSELL.info("stopLossPrice {} > curPrice {}", prevSLPrice, curPrice);
+            LOGGERBUYSELL.info("---------------IBS LONG STOP LOSS HIT------------------------");
+            TS_SL_CUT = true;
+            return tradeResult;
+        }
 
         if(this.currentTradingWindow.getEndTimeStamp() < curTimestamp) {
             refreshTradingWindows(curTimestamp);
+            TS_SL_CUT = false;
         }
 
         return null;
