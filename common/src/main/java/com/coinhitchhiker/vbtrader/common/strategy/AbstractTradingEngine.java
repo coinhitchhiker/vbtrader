@@ -75,6 +75,7 @@ public class AbstractTradingEngine {
             return;
         }
 
+        LOGGER.info("[PREPARED BUY ORDER] {} availBalance {}", buyOrder.toString(), availableBalance);
         OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
         LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         LOGGERBUYSELL.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
@@ -87,6 +88,7 @@ public class AbstractTradingEngine {
         double sellPrice = orderBookCache.getBestBid() * (1 - LIMIT_ORDER_PREMIUM/100.0D);
         double sellAmount = placedBuyOrder.getAmountExecuted();
         OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, sellAmount);
+        LOGGER.info("[PREPARED SELL ORDER] {} ", sellOrder.toString());
         OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
         LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
         LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
