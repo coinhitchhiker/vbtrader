@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceOrderBookCache;
@@ -33,34 +34,31 @@ public class TraderAppConfig {
     @Value("${trading.ts.enabled}") private boolean TRAILING_STOP_ENABLED;
     @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
     @Value("${trading.ts.pct}") private double TS_PCT;
-
+    @Value("${trading.stoploss.pct}") private double STOP_LOSS_PCT;
 
     @Value("${trading.strategy}") private String STRATEGY;
-    @Value("${trading.vb.window.size}") private int TRADING_WINDOW_SIZE;
-    @Value("${trading.vb.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
-    @Value("${trading.vb.price.weight}") private double PRICE_MA_WEIGHT;
-    @Value("${trading.vb.volume.weight}") private double VOLUME_MA_WEIGHT;
+
+    // Volatility Breakout related params
+    @Value("${strategy.vb.window.size:1440}") private int TRADING_WINDOW_SIZE;
+    @Value("${strategy.vb.look.behind:20}") private int TRADING_WINDOW_LOOK_BEHIND;
+    @Value("${strategy.vb.price.weight:1.0}") private double PRICE_MA_WEIGHT;
+    @Value("${strategy.vb.volume.weight:0.1}") private double VOLUME_MA_WEIGHT;
+
+    // Internal Bar Strength related params
+    @Value("${strategy.ibs.window.size:20}") private int IBS_WINDOW_SIZE;
+    @Value("${strategy.ibs.lower.threshold:0.49}") private double IBS_LOWER_THRESHOLD;
 
     @Bean
     public TradingEngine tradeEngine() {
         if(MODE.equals("LONG") && STRATEGY.equals("VB")) {
-            return new VBLongTradingEngine(repository(),
-                    exchange(),
-                    orderBookCache(),
-                    TRADING_WINDOW_LOOK_BEHIND,
-                    TRADING_WINDOW_SIZE,
-                    PRICE_MA_WEIGHT,
-                    VOLUME_MA_WEIGHT,
-                    SYMBOL,
-                    QUOTE_CURRENCY,
-                    LIMIT_ORDER_PREMIUM,
-                    ExchangeEnum.valueOf(EXCHANGE),
-                    FEE_RATE,
-                    TRADING_ENABLED,
-                    TRAILING_STOP_ENABLED,
-                    TS_TRIGGER_PCT,
-                    TS_PCT,
-                    true);
+            return new VBLongTradingEngine(repository(), exchange(), orderBookCache(), TRADING_WINDOW_LOOK_BEHIND,
+                    TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, SYMBOL, QUOTE_CURRENCY,
+                    LIMIT_ORDER_PREMIUM, ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, TRADING_ENABLED,
+                    TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true);
+        } else if (MODE.equals("LONG") && STRATEGY.equals("IBS")) {
+            return new IBSLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM,
+                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, STOP_LOSS_PCT,
+                    IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, true);
         } else {
             throw new UnsupportedOperationException("Not yet supported");
         }

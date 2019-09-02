@@ -20,18 +20,18 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
     private TradingWindow currentTradingWindow = null;
     private boolean TS_SL_CUT = false;
 
-    private final int TRADING_WINDOW_SIZE;
+    private final int IBS_WINDOW_SIZE;
     private final double IBS_LOWER_THRESHOLD;
 
     public IBSLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                 String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
                                 boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, double STOP_LOSS_PCT,
-                                int TRADING_WINDOW_SIZE, double IBS_LOWER_THRESHOLD, boolean VERBOSE) {
+                                int IBS_WINDOW_SIZE, double IBS_LOWER_THRESHOLD, boolean VERBOSE) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
                 FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true, STOP_LOSS_PCT, VERBOSE);
 
-        this.TRADING_WINDOW_SIZE = TRADING_WINDOW_SIZE;
+        this.IBS_WINDOW_SIZE = IBS_WINDOW_SIZE;
         this.IBS_LOWER_THRESHOLD = IBS_LOWER_THRESHOLD;
     }
 
@@ -78,6 +78,7 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
             double prevTSPrice = super.trailingStopPrice;
             TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
             LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", prevTSPrice, curPrice);
+            LOGGERBUYSELL.info("[BALANCE] {}, {} {}", new DateTime(curTimestamp, UTC), QUOTE_CURRENCY, this.exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade());
             LOGGERBUYSELL.info("---------------IBS LONG TRAILING STOP HIT------------------------");
             // when trailing stop hits we sell it and should wait until this trading window ends.
             // Set the flag to true. It'll be set false when trading window ends.
@@ -89,6 +90,7 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
             double prevSLPrice = super.stopLossPrice;
             TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
             LOGGERBUYSELL.info("stopLossPrice {} > curPrice {}", prevSLPrice, curPrice);
+            LOGGERBUYSELL.info("[BALANCE] {}, {} {}", new DateTime(curTimestamp, UTC), QUOTE_CURRENCY, this.exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade());
             LOGGERBUYSELL.info("---------------IBS LONG STOP LOSS HIT------------------------");
             TS_SL_CUT = true;
             return tradeResult;
@@ -123,10 +125,10 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
 
         DateTime closestMin = Util.getClosestMin(new DateTime(curTimestamp, UTC));
 
-        this.currentTradingWindow = Util.constructCurrentTradingWindow(SYMBOL, TRADING_WINDOW_SIZE, orderBookCache.getMidPrice(), closestMin.getMillis(), repository);
+        this.currentTradingWindow = Util.constructCurrentTradingWindow(SYMBOL, IBS_WINDOW_SIZE, orderBookCache.getMidPrice(), closestMin.getMillis(), repository);
         LOGGER.debug("Refreshed curTW {}", this.currentTradingWindow.toString());
 
-        List<TradingWindow> pastTradingWindows = Util.constructPastTradingWindows(curTimestamp, TRADING_WINDOW_SIZE, 1, SYMBOL, repository);
+        List<TradingWindow> pastTradingWindows = Util.constructPastTradingWindows(curTimestamp, IBS_WINDOW_SIZE, 1, SYMBOL, repository);
 
         if(pastTradingWindows.size() > 0) {
             this.prevTradingWindow = pastTradingWindows.get(0);
@@ -136,5 +138,10 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
         LOGGER.debug("curTimestamp {}", new DateTime(curTimestamp, UTC));
         LOGGER.debug("{}", this.currentTradingWindow);
         LOGGER.debug("refreshingTradingWindows is set to FALSE");
+    }
+
+    @Override
+    public void onTradeEvent(TradeEvent e) {
+        super.updateTrailingStopPrice(e.getPrice());
     }
 }

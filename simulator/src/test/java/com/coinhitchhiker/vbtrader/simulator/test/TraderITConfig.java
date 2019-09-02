@@ -9,9 +9,9 @@ import org.springframework.context.annotation.Configuration;
 //@Import(value = {VolatilityBreakoutRules.class,})
 public class TraderITConfig {
 
-    @Value("${trading.vb.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
-    @Value("${trading.vb.window.size}") private int TRADING_WINDOW_SIZE;
-    @Value("${trading.vb.price.weight}") private double PRICE_MA_WEIGHT;
-    @Value("${trading.vb.volume.weight}") private double VOLUME_MA_WEIGHT;
+    @Value("${strategy.vb.look.behind}") private int TRADING_WINDOW_LOOK_BEHIND;
+    @Value("${strategy.vb.window.size}") private int TRADING_WINDOW_SIZE;
+    @Value("${strategy.vb.price.weight}") private double PRICE_MA_WEIGHT;
+    @Value("${strategy.vb.volume.weight}") private double VOLUME_MA_WEIGHT;
 
 }
