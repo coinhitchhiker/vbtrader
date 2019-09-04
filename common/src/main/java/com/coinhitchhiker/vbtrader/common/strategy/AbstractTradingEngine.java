@@ -83,9 +83,9 @@ public class AbstractTradingEngine {
         this.placedBuyOrder = placedBuyOrder;
     }
 
-    private void placeSellOrderLong() {
+    private void placeSellOrderLong(double curPrice) {
         LOGGER.info("-----------------------------SELL IT!!!!!!----------------------");
-        double sellPrice = orderBookCache.getBestBid() * (1 - LIMIT_ORDER_PREMIUM/100.0D);
+        double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
         double sellAmount = placedBuyOrder.getAmountExecuted();
         OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, sellAmount);
         LOGGER.info("[PREPARED SELL ORDER] {} ", sellOrder.toString());
@@ -173,7 +173,7 @@ public class AbstractTradingEngine {
         if(MODE.equals(TradingMode.LONG)) {
             if(placedBuyOrder == null) return null;
             try {
-                placeSellOrderLong();
+                placeSellOrderLong(curPrice);
             } catch(Exception e) {
                 LOGGER.error("Error placing sell order", e);
                 return null;
