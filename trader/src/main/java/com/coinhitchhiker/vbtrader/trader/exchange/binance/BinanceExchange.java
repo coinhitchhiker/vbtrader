@@ -54,6 +54,7 @@ public class BinanceExchange implements Exchange {
     @Autowired private EncryptorHelper encryptorHelper;
     @Autowired private PropertyMapHandler propertyMapHandler;
     @Autowired private Repository binanceRepository;
+    @Autowired private OrderBookCache orderBookCache;
 
     @PostConstruct
     public void init() {
@@ -76,27 +77,28 @@ public class BinanceExchange implements Exchange {
                 .orElseThrow(() -> new RuntimeException("No corresponding coinInfo was found for " + symbol));
     }
 
-    @Override
-    public OrderInfo placeOrder(OrderInfo orderInfo) {
-
+    private OrderInfo placeOrderInternal(OrderInfo orderInfo, boolean makerOrder) {
         String symbol = orderInfo.getSymbol();
         CoinInfo coinInfo = this.getCoinInfoBySymbol(symbol);
 
         NewOrder newOrder = null;
         if(orderInfo.getOrderSide() == OrderSide.BUY) {
-            newOrder = NewOrder.limitBuy(symbol, TimeInForce.GTC, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
+            if(makerOrder) {
+                newOrder = NewOrder.limitMakerBuy(symbol, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
+            } else {
+                newOrder = NewOrder.limitBuy(symbol, TimeInForce.GTC, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
+            }
         } else {
-            newOrder = NewOrder.limitSell(symbol, TimeInForce.GTC, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
+            if(makerOrder) {
+                newOrder = NewOrder.limitMakerSell(symbol, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
+            } else {
+                newOrder = NewOrder.limitSell(symbol, TimeInForce.GTC, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
+            }
         }
 
-        long serverTime = client.getServerTime() - 500;
-        long recvWindow = 5000L;
-
-        newOrder = newOrder.recvWindow(recvWindow);
+        long serverTime = client.getServerTime();
         newOrder = newOrder.timestamp(serverTime);
-
         NewOrderResponse response = client.newOrder(newOrder);
-
         OrderInfo result = orderInfo.clone();
 
         if (response == null) {
@@ -112,24 +114,52 @@ public class BinanceExchange implements Exchange {
 
             double priceExecuted = 0.00000D;
             double amountExecuted = 0.00000D;
-            double fee = 0.00000D;
-            String feeCurrency = null;
 
             for(Fill fill : fills) {
                 amountExecuted += new Double(fill.getQty()).doubleValue();
                 priceExecuted += (new Double(fill.getPrice())).doubleValue() * (new Double(fill.getQty())).doubleValue();
-                fee += new Double(fill.getCommission());
-                feeCurrency = fill.getCommissionAsset();
             }
 
-            result.setFeePaid(fee);
-            result.setFeeCurrency(feeCurrency);
             result.setPriceExecuted(amountExecuted != 0.00000D ? priceExecuted / amountExecuted : 0.0D);
             result.setAmountExecuted(amountExecuted);
-
             result.setOrderStatus(OrderStatus.COMPLETE);
         }
 
+        return result;
+    }
+
+    @Override
+    public OrderInfo placeOrder(OrderInfo orderInfo, boolean makerOrder) {
+
+        int RETRY_COUNT = 5;
+        OrderInfo result = null;
+        String msg = null;
+
+        for(int i = 1; i <= RETRY_COUNT; i++) {
+            try {
+                result = placeOrderInternal(orderInfo, makerOrder);
+                try {Thread.sleep(250L);} catch (InterruptedException e) {} // to avoid throttling
+            } catch (BinanceApiException e) {
+                if(e.getMessage().contains("Order would immediately match and take")) {
+                    if(orderInfo.getOrderSide() == OrderSide.BUY) {
+                        orderInfo.setPrice(orderBookCache.getBestBid());
+                    } else {
+                        orderInfo.setPrice(orderBookCache.getBestAsk());
+                    }
+                    LOGGER.error("----------------------------------------------------");
+                    LOGGER.error("BINANCE PlaceOrder exception!!!!!!!!!!!! Retry={}/{}", i, RETRY_COUNT);
+                    LOGGER.error(orderInfo.toString());
+                    LOGGER.error(e.toString());
+                    LOGGER.error("----------------------------------------------------");
+                    msg = e.getMessage();
+                    continue;
+                }
+            }
+            break;
+        }
+        if(result == null) {
+            throw new RuntimeException(msg);
+        }
         return result;
     }
 

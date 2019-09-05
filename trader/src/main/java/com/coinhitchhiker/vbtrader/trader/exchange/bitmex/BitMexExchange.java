@@ -117,7 +117,7 @@ public class BitMexExchange implements Exchange {
     }
 
     @Override
-    public OrderInfo placeOrder(OrderInfo orderInfo) {
+    public OrderInfo placeOrder(OrderInfo orderInfo, boolean makerOrder) {
         CoinInfo coinInfo = this.getCoinInfoBySymbol(TRADING_SYMBOL);
 
         Map<String, String> params = new HashMap<>();
