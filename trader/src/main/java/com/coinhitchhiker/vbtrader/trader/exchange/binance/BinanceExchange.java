@@ -133,12 +133,15 @@ public class BinanceExchange implements Exchange {
 
         int RETRY_COUNT = 5;
         OrderInfo result = null;
-        String msg = null;
 
         for(int i = 1; i <= RETRY_COUNT; i++) {
             try {
                 result = placeOrderInternal(orderInfo, makerOrder);
-                try {Thread.sleep(250L);} catch (InterruptedException e) {} // to avoid throttling
+                if(result == null) {
+                    LOGGER.info("placeOrderInternal return is null");
+                } else {
+                    LOGGER.info("{}", result.toString());
+                }
             } catch (BinanceApiException e) {
                 if(e.getMessage().contains("Order would immediately match and take")) {
                     if(orderInfo.getOrderSide() == OrderSide.BUY) {
@@ -147,18 +150,15 @@ public class BinanceExchange implements Exchange {
                         orderInfo.setPrice(orderBookCache.getBestAsk());
                     }
                     LOGGER.error("----------------------------------------------------");
-                    LOGGER.error("BINANCE PlaceOrder exception!!!!!!!!!!!! Retry={}/{}", i, RETRY_COUNT);
+                    LOGGER.error("BINANCE Limit maker order exception Retry={}/{}", i, RETRY_COUNT);
                     LOGGER.error(orderInfo.toString());
                     LOGGER.error(e.toString());
                     LOGGER.error("----------------------------------------------------");
-                    msg = e.getMessage();
+                    try {Thread.sleep(250L);} catch (InterruptedException ex) {} // to avoid throttling
                     continue;
                 }
             }
             break;
-        }
-        if(result == null) {
-            throw new RuntimeException(msg);
         }
         return result;
     }
