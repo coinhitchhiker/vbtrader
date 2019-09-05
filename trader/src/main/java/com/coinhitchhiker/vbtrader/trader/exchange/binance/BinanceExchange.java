@@ -156,6 +156,8 @@ public class BinanceExchange implements Exchange {
                     LOGGER.error("----------------------------------------------------");
                     try {Thread.sleep(250L);} catch (InterruptedException ex) {} // to avoid throttling
                     continue;
+                } else {
+                    throw e;
                 }
             }
             break;
