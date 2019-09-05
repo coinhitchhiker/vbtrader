@@ -112,7 +112,8 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
         if(this.prevTradingWindow == null) return 0;
 
         double ibs = (this.prevTradingWindow.getClosePrice() - this.prevTradingWindow.getLowPrice()) / (this.prevTradingWindow.getHighPrice() - this.prevTradingWindow.getLowPrice());
-        double signalStrength =  IBS_LOWER_THRESHOLD <= ibs && ibs < IBS_UPPER_THRESHOLD ? 1 : 0;
+//        double signalStrength =  IBS_LOWER_THRESHOLD <= ibs && ibs < IBS_UPPER_THRESHOLD ? 1 : 0;
+        double signalStrength =  ibs <= IBS_LOWER_THRESHOLD ? 1 : 0;
         if(VERBOSE) {
             if(signalStrength > 0) {
                 LOGGER.info("--------------------------BUY SIGNAL DETECTED----------------------");
