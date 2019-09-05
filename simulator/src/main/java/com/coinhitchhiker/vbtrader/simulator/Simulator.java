@@ -155,19 +155,15 @@ public class Simulator {
                     strategyParams.get(CmdLine.STOP_LOSS_PCT),
                     false);
         } else if(this.MODE.equals(TradingMode.LONG) && this.STRATEGY.equals(StrategyEnum.IBS)) {
-            tradingEngine = new IBSLongTradingEngine(repository,
-                    exchange,
-                    orderBookCache,
-                    SYMBOL,
-                    QUOTE_CURRRENCY,
-                    0.0,
-                    EXCHANGE,
-                    FEE_RATE,
-                    true,
-                    true,
-                    TS_TRIGGER_PCT,
-                    TS_PCT,
-                    strategyParams.get(CmdLine.STOP_LOSS_PCT),
+            if(strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD) >= strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD)) {
+                System.out.println("-10000");
+                System.exit(0);
+            }
+
+            tradingEngine = new IBSLongTradingEngine(repository, exchange, orderBookCache,
+                    SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE,
+                    true, true, TS_TRIGGER_PCT,
+                    TS_PCT, strategyParams.get(CmdLine.STOP_LOSS_PCT),
                     strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD),
                     strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD),
