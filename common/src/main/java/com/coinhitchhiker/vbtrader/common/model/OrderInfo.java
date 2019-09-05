@@ -40,6 +40,10 @@ public class OrderInfo implements Comparable<OrderInfo> {
         o.setAmountExecuted(amountExecuted);
         o.setPriceExecuted(priceExecuted);
         o.setStopPrice(stopPrice);
+        o.setClientOid(clientOid);
+        o.setBorrow_id(borrow_id);
+        o.setFeeCurrency(feeCurrency);
+        o.setFeePaid(feePaid);
         return o;
     }
 

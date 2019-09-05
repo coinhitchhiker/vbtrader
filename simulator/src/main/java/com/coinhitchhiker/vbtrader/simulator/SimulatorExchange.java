@@ -53,7 +53,7 @@ public class SimulatorExchange implements Exchange {
     }
 
     @Override
-    public OrderInfo placeOrder(OrderInfo orderInfo) {
+    public OrderInfo placeOrder(OrderInfo orderInfo, boolean makerOrder) {
         if(orderInfo.getStopPrice() > 0) {
             orderInfo.setOrderStatus(OrderStatus.PENDING);
             return orderInfo;

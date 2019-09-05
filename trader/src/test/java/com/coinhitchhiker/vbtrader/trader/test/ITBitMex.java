@@ -87,7 +87,7 @@ public class ITBitMex extends BaseIT {
     @Ignore
     public void placeOrder() {
         OrderInfo s = new OrderInfo(ExchangeEnum.BITMEX, "XBTUSD", OrderSide.SELL, 9800.5, 10);
-        bitmexExchange.placeOrder(s);
+        bitmexExchange.placeOrder(s, false);
         LOGGER.info("SHORT ORDER");
         LOGGER.info(s.toString());
 
@@ -96,7 +96,7 @@ public class ITBitMex extends BaseIT {
         double longPrice = priceExecuted * (1 + 0.5/100);
 
         OrderInfo l = new OrderInfo(ExchangeEnum.BITMEX, "XBTUSD", OrderSide.BUY, longPrice, amountExecuted);
-        bitmexExchange.placeOrder(l);
+        bitmexExchange.placeOrder(l, false);
         LOGGER.info("LONG ORDER");
         LOGGER.info(l.toString());
     }
