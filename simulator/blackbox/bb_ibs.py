@@ -6,8 +6,8 @@ import os
 java_bin = os.environ['JAVA_HOME'] + "/bin"
 
 cmd = [java_bin + "/java", "-Xmx384m",  "-jar", "simulator.jar"
-      , "--simul-start" , "20190101"
-      , "--simul-end" , "20190831"
+      , "--simul-start" , "20170901"
+      , "--simul-end" , "20190904"
       , "--symbol" , "BTCUSDT"
       , "--exchange" , "BINANCE"
       , "--mode" , "LONG"
@@ -19,4 +19,3 @@ run_result = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STD
 stdout, strerr = run_result.communicate()
 
 print (stdout.decode('ascii').strip())
-# print (stdout.decode('ascii').split('\n')[-2])

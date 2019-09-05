@@ -59,6 +59,18 @@ public class Candle implements Serializable {
         return new Candle(symbol, interval, openTime, closeTime, open, high, low, close, volume);
     }
 
+    public static Candle fromOKExCandle(String symbol, int intervalSec, List<Object> data) {
+        long openTime = ((Double) data.get(0)).longValue();
+        long closeTime = openTime + intervalSec * 1000 - 1;
+        double open = Double.valueOf((String)data.get(1));
+        double high = Double.valueOf((String)data.get(2));
+        double low = Double.valueOf((String)data.get(3));
+        double close = Double.valueOf((String)data.get(4));
+        double volume = Double.valueOf((String)data.get(5));
+
+        return new Candle(symbol, String.valueOf(intervalSec), openTime, closeTime, open, high, low, close, volume);
+    }
+
     //-----------------------------------------------------
 
 

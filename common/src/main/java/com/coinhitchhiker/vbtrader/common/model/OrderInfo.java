@@ -21,6 +21,8 @@ public class OrderInfo implements Comparable<OrderInfo> {
     private double priceExecuted;
     private double feePaid;
     private String feeCurrency;
+    private String borrow_id;
+    private String clientOid;
 
     public OrderInfo(ExchangeEnum exchange, String symbol, OrderSide orderSide, double price, double amount) {
         this.exchange = exchange;
@@ -131,6 +133,22 @@ public class OrderInfo implements Comparable<OrderInfo> {
         this.stopPrice = stopPrice;
     }
 
+    public String getClientOid() {
+        return clientOid;
+    }
+
+    public void setClientOid(String clientOid) {
+        this.clientOid = clientOid;
+    }
+
+    public String getBorrow_id() {
+        return borrow_id;
+    }
+
+    public void setBorrow_id(String borrow_id) {
+        this.borrow_id = borrow_id;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -165,6 +183,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
                 ", priceExecuted=" + priceExecuted +
                 ", feePaid=" + feePaid +
                 ", feeCurrency='" + feeCurrency + '\'' +
+                ", borrow_id='" + borrow_id + '\'' +
                 '}';
     }
 

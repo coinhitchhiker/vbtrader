@@ -163,7 +163,7 @@ public class BitMexExchange implements Exchange {
         CoinInfo coinInfo = new CoinInfo();
         coinInfo.setCoin("XBt");
         coinInfo.setSymbol("XBTUSD");
-        coinInfo.setExchange("BITMEX");
+        coinInfo.setExchange(ExchangeEnum.BITMEX);
         coinInfo.setMarket("XBt");
         coinInfo.setUnitAmount(1.0);
         coinInfo.setMinUnitAmount(1.0);
@@ -207,7 +207,7 @@ public class BitMexExchange implements Exchange {
         Map<String, Balance> result = new HashMap<>();
         Balance bal = new Balance();
         bal.setCoin(currency);
-        bal.setExchange("BITMEX");
+        bal.setExchange(ExchangeEnum.BITMEX);
         bal.setAvailableForTrade(amount);
         bal.setAvailableForWithdraw(amount);
         bal.setBalanceTotal(amount);

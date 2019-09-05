@@ -7,7 +7,6 @@ import com.google.gson.Gson;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
@@ -21,21 +20,10 @@ import java.util.List;
 
 public class BinanceRepository implements Repository {
 
-    public static final String BEAN_NAME_REPOSITORY_BINANCE = "repo-binance";
-
     private static final Logger LOGGER = LoggerFactory.getLogger(BinanceRepository.class);
-    private List<TradingWindow> pastTradingWindows;
-    private TradingWindow currentTradingWindow;
-    private List<Candle> allCandles = new LinkedList<>();
-
     private RestTemplate restTemplate = new RestTemplateBuilder().setConnectTimeout(Duration.ofMillis(1000L)).setReadTimeout(Duration.ofMillis(5000L)).build();
-    private boolean refreshingTradingWindows = false;
-    private double pendingTradeVol = 0.0D;
     private Gson gson = new Gson();
 
-    @Value("${trading.symbol}") private String TRADING_SYMBOL;
-
-    @Autowired private OrderBookCache orderBookCache;
     @Autowired private TraderDAO traderDAO;
 
     @PostConstruct

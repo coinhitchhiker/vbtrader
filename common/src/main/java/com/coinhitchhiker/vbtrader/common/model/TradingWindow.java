@@ -105,6 +105,10 @@ public class TradingWindow {
         return volume;
     }
 
+    public boolean isNegativeCandle() {
+        return this.closePrice < this.openPrice;
+    }
+
     //----------------------------------------------------------------------------------------------------------------
 
     public List<Candle> getCandles() {

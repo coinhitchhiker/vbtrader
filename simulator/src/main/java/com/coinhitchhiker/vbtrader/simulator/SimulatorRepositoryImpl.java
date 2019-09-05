@@ -14,8 +14,10 @@ import org.joda.time.format.DateTimeFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -58,6 +60,8 @@ public class SimulatorRepositoryImpl implements Repository {
                     result = loadCandlesFromBinance(symbol, simulStart, simulEnd);
             } else if(this.exchange.equals(ExchangeEnum.BITMEX)) {
                 result = loadCandlesFromBitMex(symbol, simulStart, simulEnd);
+            } else if(this.exchange.equals(ExchangeEnum.OKEX)) {
+                result = loadCandlesFromOKEX(symbol, simulStart, simulEnd);
             }
             serCandles(result, makeFileName(exchange, symbol, simulStart, simulEnd, REPO_USE_DB));
             allCandles.addAll(result);
@@ -109,7 +113,7 @@ public class SimulatorRepositoryImpl implements Repository {
         long startTime = simulStart;
         String interval = "1m";
         while(true) {
-            String url = "https://api.binance.com//api/v1/klines?symbol="+symbol+"&interval="+interval+"&limit=1000&startTime="+startTime+"&endTime="+simulEnd;
+            String url = "https://api.binance.com/api/v1/klines?symbol="+symbol+"&interval="+interval+"&limit=1000&startTime="+startTime+"&endTime="+simulEnd;
             LOGGER.info(url);
             String response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(null, null), String.class).getBody();
             List<List<Object>> list = gson.fromJson(response, List.class);
@@ -123,6 +127,50 @@ public class SimulatorRepositoryImpl implements Repository {
         }
         return candles;
     }
+
+    private List<Candle> loadCandlesFromOKEX(String symbol, long simulStart, long simulEnd) {
+        RestTemplate restTemplate = new RestTemplate();
+        restTemplate.setErrorHandler(new RESTAPIResponseErrorHandler());
+        Gson gson = new Gson();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:63.0) Gecko/20100101 Firefox/63.0");
+
+        // symbol string comes from v3 API. It gives symbols in upper cased letters like this -- "BTC-USDT".
+        // However v1 kline API expected lower-cased symbol connected with underscore, not hyphen. Conversion needed.
+        String lowerCasedSymbol = symbol.toLowerCase().replace("-", "_");
+        List<Candle> candles = new ArrayList<>();
+        long size = (long)(simulEnd - simulStart)/1000/300;
+        while(true) {
+            String response;
+            try {
+                final UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl("https://www.okex.com/api/v1/kline.do")
+                        .queryParam("symbol", lowerCasedSymbol)
+                        .queryParam("type", "5min")     // okex supports maximum 2000 historocal data points. decided to use 5min candle to get as much data as possible
+                        .queryParam("size", size)
+                        .queryParam("since", simulStart);
+                String url = builder.toUriString();
+                LOGGER.info(url);
+                response = restTemplate.exchange(url, HttpMethod.GET, new HttpEntity<>(null, headers), String.class).getBody();
+            } catch (Exception e) {
+                LOGGER.error("Error reading okex candles. Retrying...", e);
+                continue;
+            }
+
+            List<List<Object>> list = gson.fromJson(response, List.class);
+            LOGGER.info("data cnt {}", list.size());
+            for(List<Object> data : list) {
+                candles.add(Candle.fromOKExCandle(symbol, 300, data));
+            }
+            if(list.size() < 2000) {
+                break;
+            }
+            simulStart = candles.get(candles.size()-1).getCloseTime() + 1;
+            try {Thread.sleep(300L);} catch(Exception e) {}
+        }
+        return candles;
+    }
+
 
     private List<Candle> loadCandlesFromBitMex(String symbol, long simulStart, long SimulEnd) {
         RestTemplate restTemplate = new RestTemplate();

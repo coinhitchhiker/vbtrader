@@ -2,6 +2,7 @@ package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSShortTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBVLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBShortTradingEngine;
@@ -74,6 +75,19 @@ public class Simulator {
         this.STRATEGY = strategy;
         this.STRATEGY_PARAMS = strategyParams;
         this.REPO_USE_DB = REPO_USE_DB;
+        this.FEE_RATE = getFEE(EXCHANGE);
+    }
+
+    private double getFEE(ExchangeEnum exchangeEnum) {
+        if(exchangeEnum == ExchangeEnum.BINANCE) {
+            return 0.045;
+        } else if(exchangeEnum == ExchangeEnum.OKEX) {
+            return 0.064;
+        } else if(exchangeEnum == ExchangeEnum.BITMEX) {
+            return 0.06375;
+        } else {
+            throw new RuntimeException("Unsupported exchange was given");
+        }
     }
 
     public void init() {
@@ -157,6 +171,11 @@ public class Simulator {
                     strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD),
                     false);
+        } else if(this.MODE.equals(TradingMode.SHORT) && this.STRATEGY.equals(StrategyEnum.IBS)) {
+            tradingEngine = new IBSShortTradingEngine(repository, exchange, orderBookCache, SYMBOL, QUOTE_CURRRENCY,
+                    0.0, EXCHANGE, FEE_RATE, true, true, TS_TRIGGER_PCT,
+                    TS_PCT, strategyParams.get(CmdLine.STOP_LOSS_PCT), strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
+                    strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD), false);
         } else {
             throw new UnsupportedOperationException();
         }
