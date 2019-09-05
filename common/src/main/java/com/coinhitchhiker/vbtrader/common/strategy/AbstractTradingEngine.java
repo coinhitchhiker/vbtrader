@@ -130,6 +130,8 @@ public class AbstractTradingEngine {
             LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
             LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
             this.sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+            this.buyFee = makerBuyOrder.getAmountExecuted() * makerBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+            this.placedBuyOrder = makerBuyOrder;
             this.placedSellOrder = placedSellOrder;
         }
     }
