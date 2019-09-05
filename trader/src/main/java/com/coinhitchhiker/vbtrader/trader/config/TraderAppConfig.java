@@ -46,7 +46,8 @@ public class TraderAppConfig {
 
     // Internal Bar Strength related params
     @Value("${strategy.ibs.window.size:20}") private int IBS_WINDOW_SIZE;
-    @Value("${strategy.ibs.lower.threshold:0.49}") private double IBS_LOWER_THRESHOLD;
+    @Value("${strategy.ibs.lower.threshold:0.2}") private double IBS_LOWER_THRESHOLD;
+    @Value("${strategy.ibs.upper.threshold:0.8}") private double IBS_UPPER_THRESHOLD;
 
     @Bean
     public TradingEngine tradeEngine() {
@@ -58,7 +59,7 @@ public class TraderAppConfig {
         } else if (MODE.equals("LONG") && STRATEGY.equals("IBS")) {
             return new IBSLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM,
                     ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, STOP_LOSS_PCT,
-                    IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, true);
+                    IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD, true);
         } else {
             throw new UnsupportedOperationException("Not yet supported");
         }
