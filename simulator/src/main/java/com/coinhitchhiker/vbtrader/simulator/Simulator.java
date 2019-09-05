@@ -170,6 +170,7 @@ public class Simulator {
                     strategyParams.get(CmdLine.STOP_LOSS_PCT),
                     strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD),
+                    strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD),
                     false);
         } else if(this.MODE.equals(TradingMode.SHORT) && this.STRATEGY.equals(StrategyEnum.IBS)) {
             tradingEngine = new IBSShortTradingEngine(repository, exchange, orderBookCache, SYMBOL, QUOTE_CURRRENCY,

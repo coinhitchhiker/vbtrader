@@ -64,8 +64,8 @@ public class AbstractTradingEngine {
 
     private void placeBuyOrderLong(double curPrice, double buySignalStrength) {
         double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
-        double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
         double cost = availableBalance * buySignalStrength;
+        double buyPrice = orderBookCache.getBestBid();
         double amount = cost / buyPrice;
         OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
 
@@ -76,7 +76,7 @@ public class AbstractTradingEngine {
         }
 
         LOGGER.info("[PREPARED BUY ORDER] {} availBalance {}", buyOrder.toString(), availableBalance);
-        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
+        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder, true);
         LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         LOGGERBUYSELL.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         this.buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;;
@@ -85,20 +85,48 @@ public class AbstractTradingEngine {
 
     private void placeSellOrderLong(double curPrice) {
         LOGGER.info("-----------------------------SELL IT!!!!!!----------------------");
-        double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
-        double sellAmount = placedBuyOrder.getAmountExecuted();
-        OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, sellAmount);
-        LOGGER.info("[PREPARED SELL ORDER] {} ", sellOrder.toString());
-        OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
-        LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
-        LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
-        this.sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
-        this.placedSellOrder = placedSellOrder;
+
+        OrderInfo makerBuyOrder = exchange.getOrder(placedBuyOrder);
+
+        if(makerBuyOrder.getAmountExecuted() < placedBuyOrder.getAmountExecuted()) {
+            LOGGER.info("makerBuyOrder.getAmountExecuted() {} < placedBuyOrder.getAmountExecuted() {}", makerBuyOrder.getAmountExecuted(), placedBuyOrder.getAmountExecuted());
+            LOGGERBUYSELL.info("makerBuyOrder.getAmountExecuted() {} < placedBuyOrder.getAmountExecuted() {}", makerBuyOrder.getAmountExecuted(), placedBuyOrder.getAmountExecuted());
+
+            if(makerBuyOrder.getAmountExecuted() > 0) {
+                double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
+                double sellAmount = makerBuyOrder.getAmountExecuted();
+                OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, sellAmount);
+                LOGGER.info("[PREPARED SELL ORDER] {} ", sellOrder.toString());
+                OrderInfo placedSellOrder = exchange.placeOrder(sellOrder, false);
+                LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
+                LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
+                this.sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+                this.placedSellOrder = placedSellOrder;
+                // adjust amount executed to calc profit accurately
+                this.placedBuyOrder.setAmountExecuted(sellAmount);
+                exchange.cancelOrder(placedBuyOrder);
+            } else {
+                exchange.cancelOrder(placedBuyOrder);
+                // to make calcProfit() to return null
+                this.clearOutOrders();
+            }
+
+        } else {
+            double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
+            double sellAmount = placedBuyOrder.getAmountExecuted();
+            OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, sellAmount);
+            LOGGER.info("[PREPARED SELL ORDER] {} ", sellOrder.toString());
+            OrderInfo placedSellOrder = exchange.placeOrder(sellOrder, false);
+            LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
+            LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
+            this.sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
+            this.placedSellOrder = placedSellOrder;
+        }
     }
 
     private void placeSellOrderShort(double curPrice, double sellSignalStrength) {
         double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
-        double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
+        double sellPrice = orderBookCache.getBestAsk();
         double cost = availableBalance * sellSignalStrength;
         double amount = cost / sellPrice;
         OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, amount);
@@ -109,7 +137,7 @@ public class AbstractTradingEngine {
             return;
         }
 
-        OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
+        OrderInfo placedSellOrder = exchange.placeOrder(sellOrder, true);
         LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
         LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
         this.sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;;
@@ -120,7 +148,7 @@ public class AbstractTradingEngine {
         double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
         double amount = this.placedSellOrder.getAmountExecuted();
         OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
-        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
+        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder, false);
         LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         LOGGERBUYSELL.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         this.buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;;
@@ -128,6 +156,8 @@ public class AbstractTradingEngine {
     }
 
     private TradeResult calcProfit() {
+        if(placedBuyOrder == null || placedSellOrder == null) return null;
+
         double profit = (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * placedSellOrder.getAmountExecuted();
         double netProfit =  profit - (buyFee + sellFee);
 

@@ -87,7 +87,7 @@ public class ITOKEx extends BaseIT {
     @Ignore
     public void placeOrderShort() {
         OrderInfo s = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.SELL, 10500.0, 0.01);
-        okexExchange.placeOrder(s);
+        okexExchange.placeOrder(s, false);
         LOGGER.info("SHORT ORDER");
         LOGGER.info(s.toString());
 
@@ -96,7 +96,7 @@ public class ITOKEx extends BaseIT {
         double longPrice = priceExecuted * (1 + 0.5/100);
 
         OrderInfo l = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.BUY, longPrice, amountExecuted);
-        okexExchange.placeOrder(l);
+        okexExchange.placeOrder(l, false);
         LOGGER.info("LONG ORDER");
         LOGGER.info(l.toString());
     }
@@ -107,7 +107,7 @@ public class ITOKEx extends BaseIT {
         ((OKExExchange)okexExchange).setMODE(TradingMode.LONG);
 
         OrderInfo s = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.BUY, 10800.0, 0.01);
-        okexExchange.placeOrder(s);
+        okexExchange.placeOrder(s, false);
         LOGGER.info("BUY ORDER");
         LOGGER.info(s.toString());
 
@@ -116,7 +116,7 @@ public class ITOKEx extends BaseIT {
         double sellPrice = priceExecuted * (1 - 0.5/100);
 
         OrderInfo l = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.SELL, sellPrice, amountExecuted);
-        okexExchange.placeOrder(l);
+        okexExchange.placeOrder(l, false);
         LOGGER.info("SELL ORDER");
         LOGGER.info(l.toString());
     }
