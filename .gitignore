@@ -34,6 +34,7 @@ simulator/blackbox/test*.txt
 simulator/blackbox/log*
 simulator/blackbox/nomad*
 simulator/blackbox/BINANCE*
+simulator/blackbox/OKEX*
 /simulator/blackbox/BITMEX*
 trader/log*
 

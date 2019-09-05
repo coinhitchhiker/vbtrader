@@ -26,7 +26,7 @@ public class SimulatorExchange implements Exchange {
         b.setBalanceTotal(START_BALANCE);
         b.setAvailableForWithdraw(START_BALANCE);
         b.setAvailableForTrade(START_BALANCE);
-        b.setExchange("BINANCE");
+        b.setExchange(ExchangeEnum.BINANCE);
         b.setCoin("USDT");
 
         balanceMap.put("USDT", b);
@@ -35,7 +35,7 @@ public class SimulatorExchange implements Exchange {
         b2.setBalanceTotal(START_BALANCE);
         b2.setAvailableForWithdraw(START_BALANCE);
         b2.setAvailableForTrade(START_BALANCE);
-        b2.setExchange("BITMEX");
+        b2.setExchange(ExchangeEnum.BITMEX);
         b2.setCoin("XBt");
 
         balanceMap.put("XBt", b2);

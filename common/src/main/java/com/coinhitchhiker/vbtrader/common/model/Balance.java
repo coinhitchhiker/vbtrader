@@ -5,10 +5,11 @@ import java.util.Objects;
 public class Balance {
 
   private String coin;
-  private String exchange;
+  private ExchangeEnum exchange;
   private double balanceTotal;
   private double availableForTrade;
   private double availableForWithdraw;
+  private double borrowed;
 
   public Balance() {
 
@@ -25,11 +26,11 @@ public class Balance {
     this.coin = coin;
   }
 
-  public String getExchange() {
+  public ExchangeEnum getExchange() {
     return exchange;
   }
 
-  public void setExchange(String exchange) {
+  public void setExchange(ExchangeEnum exchange) {
     this.exchange = exchange;
   }
 
@@ -55,6 +56,14 @@ public class Balance {
 
   public void setAvailableForWithdraw(double availableForWithdraw) {
     this.availableForWithdraw = availableForWithdraw;
+  }
+
+  public double getBorrowed() {
+    return borrowed;
+  }
+
+  public void setBorrowed(double borrowed) {
+    this.borrowed = borrowed;
   }
 
   @Override
@@ -83,6 +92,7 @@ public class Balance {
         ", balanceTotal=" + balanceTotal +
         ", availableForTrade=" + availableForTrade +
         ", availableForWithdraw=" + availableForWithdraw +
+        ", borrowed=" + borrowed +
         '}';
   }
 }

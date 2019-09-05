@@ -38,7 +38,6 @@ public class BinanceExchange implements Exchange {
 
     private Gson gson = new Gson();
     private List<CoinInfo> coins = new ArrayList<>();
-    private Map<String, Balance> balanceCache = new ConcurrentHashMap<>();
 
     @Value("#{propertyMapHandler.getString(${binance.api.key}, ${vbtrader.id})}")
     private String apiKey;
@@ -197,7 +196,7 @@ public class BinanceExchange implements Exchange {
 
         for(SymbolInfo symbol : exchangeInfo.getSymbols()) {
             CoinInfo coinInfo = new CoinInfo();
-            coinInfo.setExchange("BINANCE");
+            coinInfo.setExchange(ExchangeEnum.BINANCE);
             coinInfo.setMarket(symbol.getQuoteAsset());
 
             String coin = symbol.getBaseAsset();
@@ -240,7 +239,7 @@ public class BinanceExchange implements Exchange {
             List<AssetBalance> acctBal = account.getBalances();
             for (AssetBalance bal : acctBal) {
                 Balance bal2 = new Balance();
-                bal2.setExchange("BINANCE");
+                bal2.setExchange(ExchangeEnum.BINANCE);
                 String coin = bal.getAsset();
                 bal2.setCoin(coin);
                 bal2.setAvailableForTrade( new Double(StringUtils.isEmpty(bal.getFree()) ? "0" : bal.getFree()));

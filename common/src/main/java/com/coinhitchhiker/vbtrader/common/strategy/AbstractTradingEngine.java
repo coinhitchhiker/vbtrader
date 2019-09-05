@@ -116,8 +116,8 @@ public class AbstractTradingEngine {
         this.placedSellOrder = placedSellOrder;
     }
 
-    private void placeBuyOrderShort() {
-        double buyPrice = orderBookCache.getBestAsk() * (1 + LIMIT_ORDER_PREMIUM/100.0D);
+    private void placeBuyOrderShort(double curPrice) {
+        double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
         double amount = this.placedSellOrder.getAmountExecuted();
         OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
         OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
@@ -157,7 +157,7 @@ public class AbstractTradingEngine {
         } else {        // SHORT
             if(placedSellOrder == null) return null;
             try {
-                placeBuyOrderShort();
+                placeBuyOrderShort(curPrice);
             } catch(Exception e) {
                 LOGGER.error("Error placing buy order", e);
                 return null;

@@ -45,7 +45,7 @@ public class SimulatorAppMain implements CommandLineRunner {
         ExchangeEnum exchange = opts.getExchange();
         TradingMode mode = opts.getMode();
 
-        if(!exchange.equals(ExchangeEnum.BINANCE) &&!exchange.equals(ExchangeEnum.BITMEX)) {
+        if(!exchange.equals(ExchangeEnum.BINANCE) && !exchange.equals(ExchangeEnum.BITMEX) && !exchange.equals(ExchangeEnum.OKEX)) {
             throw new RuntimeException("Unsupported exchange");
         }
 

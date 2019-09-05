@@ -4,7 +4,7 @@ import java.util.Objects;
 
 public class CoinInfo {
 
-    String exchange;
+    ExchangeEnum exchange;
     String market;
     String coin;
     String symbol;
@@ -16,7 +16,7 @@ public class CoinInfo {
     public CoinInfo() {
     }
 
-    public CoinInfo(String exchange, String market, String coin, String symbol, Double unitAmount, Double unitPrice, Double minUnitAmount, Double minUnitPrice) {
+    public CoinInfo(ExchangeEnum exchange, String market, String coin, String symbol, Double unitAmount, Double unitPrice, Double minUnitAmount, Double minUnitPrice) {
         this.exchange = exchange;
         this.market = market;
         this.coin = coin;
@@ -46,11 +46,11 @@ public class CoinInfo {
     }
 
     //----------------------------------------------------------------------------------------
-    public String getExchange() {
+    public ExchangeEnum getExchange() {
         return exchange;
     }
 
-    public void setExchange(String exchange) {
+    public void setExchange(ExchangeEnum exchange) {
         this.exchange = exchange;
     }
 
