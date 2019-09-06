@@ -97,10 +97,11 @@ public class AbstractTradingEngine {
         LOGGER.info("-----------------------------SELL IT!!!!!!----------------------");
 
         OrderInfo makerBuyOrder = exchange.getOrder(placedBuyOrder);
+        LOGGER.info("[MAKER BUY ORDER STATUS] {}", makerBuyOrder.toString());
 
-        if(makerBuyOrder.getAmountExecuted() < placedBuyOrder.getAmountExecuted()) {
-            LOGGER.info("makerBuyOrder.getAmountExecuted() {} < placedBuyOrder.getAmountExecuted() {}", makerBuyOrder.getAmountExecuted(), placedBuyOrder.getAmountExecuted());
-            LOGGERBUYSELL.info("makerBuyOrder.getAmountExecuted() {} < placedBuyOrder.getAmountExecuted() {}", makerBuyOrder.getAmountExecuted(), placedBuyOrder.getAmountExecuted());
+        if(makerBuyOrder.getAmountExecuted() < placedBuyOrder.getAmount()) {
+            LOGGER.info("makerBuyOrder.getAmountExecuted() {} < placedBuyOrder.getAmount() {}", makerBuyOrder.getAmountExecuted(), placedBuyOrder.getAmount());
+            LOGGERBUYSELL.info("makerBuyOrder.getAmountExecuted() {} < placedBuyOrder.getAmount() {}", makerBuyOrder.getAmountExecuted(), placedBuyOrder.getAmount());
 
             if(makerBuyOrder.getAmountExecuted() > 0) {
                 double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
@@ -116,6 +117,7 @@ public class AbstractTradingEngine {
                 this.placedSellOrder = placedSellOrder;
                 exchange.cancelOrder(placedBuyOrder);
             } else {
+                LOGGER.info("[CANCELING ORDER] cancel zero filled maker buy order...");
                 exchange.cancelOrder(placedBuyOrder);
                 // to make calcProfit() to return null
                 this.clearOutOrders();
