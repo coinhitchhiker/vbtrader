@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class TradingWindow {
 
@@ -105,8 +106,28 @@ public class TradingWindow {
         return volume;
     }
 
-    public boolean isNegativeCandle() {
+    public boolean isDownCandle() {
         return this.closePrice < this.openPrice;
+    }
+
+    public boolean isUpCandle() {
+        return !isDownCandle();
+    }
+
+    public double tailLengthRatio() {
+        if(isDownCandle()) {
+            return (this.closePrice - this.lowPrice) / (this.highPrice - this.lowPrice);
+        } else {
+            return (this.openPrice - this.lowPrice) / (this.highPrice - this.lowPrice);
+        }
+    }
+
+    public double headLengthRatio() {
+        if(isDownCandle()) {
+            return (this.highPrice - this.openPrice) / (this.highPrice - this.lowPrice);
+        } else {
+            return (this.highPrice - this.closePrice) / (this.highPrice - this.lowPrice);
+        }
     }
 
     //----------------------------------------------------------------------------------------------------------------
@@ -139,6 +160,26 @@ public class TradingWindow {
                 ", curTimeStamp=" + new DateTime(curTimeStamp, DateTimeZone.UTC).toString() +
                 ", prevTradeEvent=" + prevTradeEvent +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        TradingWindow that = (TradingWindow) o;
+        return startTimeStamp == that.startTimeStamp &&
+                endTimeStamp == that.endTimeStamp &&
+                Double.compare(that.openPrice, openPrice) == 0 &&
+                Double.compare(that.highPrice, highPrice) == 0 &&
+                Double.compare(that.closePrice, closePrice) == 0 &&
+                Double.compare(that.lowPrice, lowPrice) == 0 &&
+                Double.compare(that.volume, volume) == 0 &&
+                Objects.equals(symbol, that.symbol);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(symbol, startTimeStamp, endTimeStamp, openPrice, highPrice, closePrice, lowPrice, volume);
     }
 
 //-----------------------------------------------------------------------------------

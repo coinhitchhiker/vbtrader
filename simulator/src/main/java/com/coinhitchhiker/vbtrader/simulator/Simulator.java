@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.cwc.CWCLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSShortTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBVLongTradingEngine;
@@ -173,6 +174,11 @@ public class Simulator {
                     0.0, EXCHANGE, FEE_RATE, true, true, TS_TRIGGER_PCT,
                     TS_PCT, strategyParams.get(CmdLine.STOP_LOSS_PCT), strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD), false);
+        } else if(MODE.equals(TradingMode.LONG) && STRATEGY == StrategyEnum.CWC) {
+            tradingEngine = new CWCLongTradingEngine(repository, exchange, orderBookCache, SYMBOL, QUOTE_CURRRENCY, 0.0,
+                    EXCHANGE, FEE_RATE, true, false, TS_TRIGGER_PCT,
+                    TS_PCT, false, strategyParams.get(CmdLine.STOP_LOSS_PCT), true, strategyParams.get(CmdLine.CWC_TAIL_LENGTH),
+                    strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue());
         } else {
             throw new UnsupportedOperationException();
         }
@@ -262,6 +268,14 @@ public class Simulator {
             LOGGERBUYSELL.info("STOP_LOSS_PCT {}", STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
             LOGGERBUYSELL.info("TS_TRIGGER_PCT {}", STRATEGY_PARAMS.get(CmdLine.TS_TRIGGER_PCT));
             LOGGERBUYSELL.info("TS_PCT {}", STRATEGY_PARAMS.get(CmdLine.TS_PCT));
+        } else if(this.STRATEGY.equals(StrategyEnum.CWC)) {
+            LOGGERBUYSELL.info("TRADING_WINDOW_SIZE_IN_MIN {}", STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN));
+            LOGGERBUYSELL.info("CWC_TAIL_LENGTH {}", STRATEGY_PARAMS.get(CmdLine.CWC_TAIL_LENGTH));
+            LOGGERBUYSELL.info("STOP_LOSS_PCT {}", STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
+            LOGGERBUYSELL.info("TS_TRIGGER_PCT {}", STRATEGY_PARAMS.get(CmdLine.TS_TRIGGER_PCT));
+            LOGGERBUYSELL.info("TS_PCT {}", STRATEGY_PARAMS.get(CmdLine.TS_PCT));
+        } else {
+            throw new RuntimeException("Unsupported strategy was given");
         }
 
         LOGGERBUYSELL.info("----------------------------------------------------------------");
@@ -299,6 +313,7 @@ public class Simulator {
             result.setPRICE_DROP_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.PRICE_DROP_THRESHOLD));
             result.setSTOP_LOSS_PCT(STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
         } else if(STRATEGY.equals(StrategyEnum.IBS)) {
+        } else if(STRATEGY.equals(StrategyEnum.CWC)) {
         } else {
             throw new RuntimeException("Unsupported strategy was given: " + STRATEGY);
         }

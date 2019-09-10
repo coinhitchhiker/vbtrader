@@ -12,6 +12,10 @@ public class SimulatorOrderBookCache implements OrderBookCache {
         this.bestBid = curPrice;
     }
 
+    public double getMidPrice() {
+        return (this.bestAsk + this.bestBid)/2;
+    }
+
     public double getBestAsk() {
         return bestAsk;
     }
