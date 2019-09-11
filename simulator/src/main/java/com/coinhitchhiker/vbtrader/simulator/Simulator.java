@@ -163,7 +163,7 @@ public class Simulator {
             tradingEngine = new IBSLongTradingEngine(repository, exchange, orderBookCache,
                     SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE,
                     true, true, TS_TRIGGER_PCT,
-                    TS_PCT, strategyParams.get(CmdLine.STOP_LOSS_PCT),
+                    TS_PCT, false, strategyParams.get(CmdLine.STOP_LOSS_PCT),
                     strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD),
                     strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD),
@@ -171,7 +171,7 @@ public class Simulator {
         } else if(this.MODE.equals(TradingMode.SHORT) && this.STRATEGY.equals(StrategyEnum.IBS)) {
             tradingEngine = new IBSShortTradingEngine(repository, exchange, orderBookCache, SYMBOL, QUOTE_CURRRENCY,
                     0.0, EXCHANGE, FEE_RATE, true, true, TS_TRIGGER_PCT,
-                    TS_PCT, strategyParams.get(CmdLine.STOP_LOSS_PCT), strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
+                    TS_PCT, false, strategyParams.get(CmdLine.STOP_LOSS_PCT), strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD), false);
         } else {
             throw new UnsupportedOperationException();
@@ -277,12 +277,14 @@ public class Simulator {
 
         result.setPeriodId(id);
 
+        result.setSTRATEGY(STRATEGY);
         result.setSTART_USD_BALANCE(exchange.getSTART_BALANCE());
         result.setSLIPPAGE(this.SLIPPAGE);
         result.setSIMUL_START(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_START, DateTimeZone.UTC)));
         result.setSIMUL_END(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, DateTimeZone.UTC)));
         result.setEND_USD_BALANCE(exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
         result.setWINNING_RATE((win*1.0 / (win+lose)) * 100.0);
+        result.setPL_RATIO(Math.abs(profit / (loss+0.00001)));
         result.setTS_TRIGGER_PCT(TS_TRIGGER_PCT);
         result.setTS_PCT(TS_PCT);
         result.setMODE(MODE);
@@ -299,6 +301,9 @@ public class Simulator {
             result.setPRICE_DROP_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.PRICE_DROP_THRESHOLD));
             result.setSTOP_LOSS_PCT(STRATEGY_PARAMS.get(CmdLine.STOP_LOSS_PCT));
         } else if(STRATEGY.equals(StrategyEnum.IBS)) {
+            result.setIBS_LOWER_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.IBS_LOWER_THRESHOLD));
+            result.setIBS_UPPER_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.IBS_UPPER_THRESHOLD));
+            result.setTRADING_WINDOW_SIZE_IN_MIN(STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue());
         } else {
             throw new RuntimeException("Unsupported strategy was given: " + STRATEGY);
         }

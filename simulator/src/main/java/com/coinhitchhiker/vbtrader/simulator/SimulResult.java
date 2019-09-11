@@ -1,10 +1,11 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
+import com.coinhitchhiker.vbtrader.common.model.StrategyEnum;
 import com.coinhitchhiker.vbtrader.common.model.TradingMode;
 
 public class SimulResult {
 
-    private final double version = 1.2D;
+    private final double version = 1.3D;
 
     private Integer periodId;
 
@@ -23,9 +24,13 @@ public class SimulResult {
     private double TS_PCT;
     private TradingMode MODE;
     private int MIN_CANDLE_LOOK_BEHIND;
-    public double PVTOBV_DROP_THRESHOLD;
-    public double PRICE_DROP_THRESHOLD;
-    public double STOP_LOSS_PCT;
+    private double PVTOBV_DROP_THRESHOLD;
+    private double PRICE_DROP_THRESHOLD;
+    private double STOP_LOSS_PCT;
+    private double IBS_LOWER_THRESHOLD;
+    private double IBS_UPPER_THRESHOLD;
+    private StrategyEnum STRATEGY;
+    private double PL_RATIO;
 
     public double getVersion() {
         return version;
@@ -181,5 +186,37 @@ public class SimulResult {
 
     public void setSTOP_LOSS_PCT(double STOP_LOSS_PCT) {
         this.STOP_LOSS_PCT = STOP_LOSS_PCT;
+    }
+
+    public double getIBS_LOWER_THRESHOLD() {
+        return IBS_LOWER_THRESHOLD;
+    }
+
+    public void setIBS_LOWER_THRESHOLD(double IBS_LOWER_THRESHOLD) {
+        this.IBS_LOWER_THRESHOLD = IBS_LOWER_THRESHOLD;
+    }
+
+    public double getIBS_UPPER_THRESHOLD() {
+        return IBS_UPPER_THRESHOLD;
+    }
+
+    public void setIBS_UPPER_THRESHOLD(double IBS_UPPER_THRESHOLD) {
+        this.IBS_UPPER_THRESHOLD = IBS_UPPER_THRESHOLD;
+    }
+
+    public StrategyEnum getSTRATEGY() {
+        return STRATEGY;
+    }
+
+    public void setSTRATEGY(StrategyEnum STRATEGY) {
+        this.STRATEGY = STRATEGY;
+    }
+
+    public double getPL_RATIO() {
+        return PL_RATIO;
+    }
+
+    public void setPL_RATIO(double PL_RATIO) {
+        this.PL_RATIO = PL_RATIO;
     }
 }

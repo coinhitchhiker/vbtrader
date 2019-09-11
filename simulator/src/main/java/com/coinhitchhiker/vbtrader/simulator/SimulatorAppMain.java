@@ -57,7 +57,7 @@ public class SimulatorAppMain implements CommandLineRunner {
 
         if(opts.getValidation()) {
             Gson gson = new Gson();
-            List<TopSimulResult> topSimulResults = simulatorDAO.getTopSimulResults();
+            List<TopSimulResult> topSimulResults = simulatorDAO.getTopSimulResults(opts.getMode().name(), opts.getStrategy().name());
             for(TopSimulResult r : topSimulResults) {
                 SimulResult simulResult = gson.fromJson(r.getSimulResult(), SimulResult.class);
                 Simulator simulator = new Simulator(simulatorDAO,
