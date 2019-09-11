@@ -25,12 +25,13 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
     private final double IBS_UPPER_THRESHOLD;
 
     public IBSLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
-                                String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
-                                boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, double STOP_LOSS_PCT,
-                                int IBS_WINDOW_SIZE, double IBS_LOWER_THRESHOLD, double IBS_UPPER_THRESHOLD, boolean VERBOSE) {
+                                String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE,
+                                double FEE_RATE, boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT,
+                                double TS_PCT, boolean STOP_LOSS_ENABLED, double STOP_LOSS_PCT, int IBS_WINDOW_SIZE,
+                                double IBS_LOWER_THRESHOLD, double IBS_UPPER_THRESHOLD, boolean VERBOSE) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
-                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true, STOP_LOSS_PCT, VERBOSE);
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, STOP_LOSS_ENABLED, STOP_LOSS_PCT, VERBOSE);
 
         this.IBS_WINDOW_SIZE = IBS_WINDOW_SIZE;
         this.IBS_LOWER_THRESHOLD = IBS_LOWER_THRESHOLD;
