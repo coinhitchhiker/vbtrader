@@ -141,7 +141,11 @@ public class SimulatorExchange implements Exchange {
 
     @Override
     public CoinInfo getCoinInfoBySymbol(String symbol) {
-        return null;
+        if(symbol.equals("BTCUSDT")) {
+            //ExchangeEnum exchange, String market, String coin, String symbol, Double unitAmount, Double unitPrice, Double minUnitAmount, Double minUnitPrice) {
+            return new CoinInfo(ExchangeEnum.BINANCE, "USDT", "BTC", "BTCUSDT", 0.00000001, 0.01, 0.00001, 10.0);
+        }
+        throw new RuntimeException("Unknown symbol was given");
     }
 
     @Override
