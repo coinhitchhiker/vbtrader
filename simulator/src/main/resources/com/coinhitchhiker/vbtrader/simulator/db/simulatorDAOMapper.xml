@@ -52,8 +52,10 @@
 
     <select id="getTopSimulResults" resultMap="topSimulResults">
         with a as (
-        select *,  row_number() over (partition by periodId order by simulResultId desc) as rn
-        from VB.SIMUL_RESULT
+            select *,  row_number() over (partition by periodId order by simulResultId desc) as rn
+            from VB.SIMUL_RESULT
+            where simulResult->>'$.MODE' = #{mode}
+            and simulResult->>'$.STRATEGY' = #{strategy}
         )
         select simulResultId, periodId, simulResult
         from a

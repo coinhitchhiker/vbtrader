@@ -21,7 +21,7 @@ public interface SimulatorDAO {
 
     void insertSimulResult(@Param("periodId") int periodId, @Param("simulResult") String simulResult);
 
-    List<TopSimulResult> getTopSimulResults();
+    List<TopSimulResult> getTopSimulResults(@Param("mode") String mode, @Param("strategy") String strategy);
 
     void insertValidationResult(@Param("periodId") int periodId, @Param("simulResultId") int simulResultId, @Param("validationResult") String validationResult);
 
