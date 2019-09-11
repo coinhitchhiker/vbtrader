@@ -20,4 +20,8 @@ public class SimulatorOrderBookCache implements OrderBookCache {
         return bestBid;
     }
 
+    public double getMidPrice() {
+        return (bestAsk + bestBid)/2;
+    }
+
 }

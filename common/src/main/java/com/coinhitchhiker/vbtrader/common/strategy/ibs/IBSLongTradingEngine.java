@@ -25,12 +25,13 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
     private final double IBS_UPPER_THRESHOLD;
 
     public IBSLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
-                                String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE, double FEE_RATE,
-                                boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT, double TS_PCT, double STOP_LOSS_PCT,
-                                int IBS_WINDOW_SIZE, double IBS_LOWER_THRESHOLD, double IBS_UPPER_THRESHOLD, boolean VERBOSE) {
+                                String SYMBOL, String QUOTE_CURRENCY, double LIMIT_ORDER_PREMIUM, ExchangeEnum EXCHANGE,
+                                double FEE_RATE, boolean TRADING_ENABLED, boolean TRAILING_STOP_ENABLED, double TS_TRIGGER_PCT,
+                                double TS_PCT, boolean STOP_LOSS_ENABLED, double STOP_LOSS_PCT, int IBS_WINDOW_SIZE,
+                                double IBS_LOWER_THRESHOLD, double IBS_UPPER_THRESHOLD, boolean VERBOSE) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM, EXCHANGE,
-                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true, STOP_LOSS_PCT, VERBOSE);
+                FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, STOP_LOSS_ENABLED, STOP_LOSS_PCT, VERBOSE);
 
         this.IBS_WINDOW_SIZE = IBS_WINDOW_SIZE;
         this.IBS_LOWER_THRESHOLD = IBS_LOWER_THRESHOLD;
@@ -112,8 +113,7 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
         if(this.prevTradingWindow == null) return 0;
 
         double ibs = (this.prevTradingWindow.getClosePrice() - this.prevTradingWindow.getLowPrice()) / (this.prevTradingWindow.getHighPrice() - this.prevTradingWindow.getLowPrice());
-        double signalStrength =  IBS_LOWER_THRESHOLD <= ibs && ibs < IBS_UPPER_THRESHOLD ? 1 : 0;
-//        double signalStrength =  ibs <= IBS_LOWER_THRESHOLD ? 1 : 0;
+        double signalStrength =  ibs < IBS_LOWER_THRESHOLD ? 1 : 0;
         if(VERBOSE) {
             if(signalStrength > 0) {
                 LOGGER.info("--------------------------BUY SIGNAL DETECTED----------------------");
@@ -136,8 +136,27 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
     @Override
     public double sellSignalStrength(double curPrice, long curTimestamp) {
         if(this.prevTradingWindow == null) return 0;
+        if(this.currentTradingWindow.getEndTimeStamp() > curTimestamp) return 0;
 
-        return curTimestamp > this.currentTradingWindow.getEndTimeStamp() ? 1 : 0;
+        double ibs = (this.prevTradingWindow.getClosePrice() - this.prevTradingWindow.getLowPrice()) / (this.prevTradingWindow.getHighPrice() - this.prevTradingWindow.getLowPrice());
+        double signalStrength =  ibs > IBS_UPPER_THRESHOLD ? 1 : 0;
+        if(VERBOSE) {
+            if(signalStrength > 0) {
+                LOGGER.info("--------------------------SELL SIGNAL DETECTED----------------------");
+            } else {
+                LOGGER.info("--------------------------NO SELL SIGNAL DETECTED----------------------");
+            }
+            LOGGER.info("curPrice {} curTimestamp {} tradingWindowEnd {} IBS {} (close {} - low {}) / (high {} - low {})"
+                    , curPrice
+                    , new DateTime(curTimestamp, UTC)
+                    , new DateTime(this.currentTradingWindow.getEndTimeStamp(), UTC)
+                    , ibs
+                    , this.prevTradingWindow.getClosePrice()
+                    , this.prevTradingWindow.getLowPrice()
+                    , this.prevTradingWindow.getHighPrice()
+                    , this.prevTradingWindow.getLowPrice());
+        }
+        return signalStrength;
     }
 
     private void refreshTradingWindows(long curTimestamp) {

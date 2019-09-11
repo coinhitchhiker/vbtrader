@@ -34,6 +34,7 @@ public class TraderAppConfig {
     @Value("${trading.ts.enabled}") private boolean TRAILING_STOP_ENABLED;
     @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
     @Value("${trading.ts.pct}") private double TS_PCT;
+    @Value("${trading.stoploss.enabled}") private boolean STOP_LOSS_ENABLED;
     @Value("${trading.stoploss.pct}") private double STOP_LOSS_PCT;
 
     @Value("${trading.strategy}") private String STRATEGY;
@@ -58,8 +59,8 @@ public class TraderAppConfig {
                     TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, true);
         } else if (MODE.equals("LONG") && STRATEGY.equals("IBS")) {
             return new IBSLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM,
-                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT, STOP_LOSS_PCT,
-                    IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD, true);
+                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT,
+                    STOP_LOSS_ENABLED, STOP_LOSS_PCT, IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD, true);
         } else {
             throw new UnsupportedOperationException("Not yet supported");
         }
