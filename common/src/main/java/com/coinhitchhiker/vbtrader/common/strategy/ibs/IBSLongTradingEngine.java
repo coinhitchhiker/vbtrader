@@ -36,6 +36,9 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
         this.IBS_WINDOW_SIZE = IBS_WINDOW_SIZE;
         this.IBS_LOWER_THRESHOLD = IBS_LOWER_THRESHOLD;
         this.IBS_UPPER_THRESHOLD = IBS_UPPER_THRESHOLD;
+
+        LOGGER.info("IBS_WINDOW_SIZE {} IBS_LOWER_THRESHOLD {} IBS_UPPER_THRESHOLD {}", IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD);
+
     }
 
     @Override
