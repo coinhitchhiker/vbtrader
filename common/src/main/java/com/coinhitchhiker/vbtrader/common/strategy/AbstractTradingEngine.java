@@ -66,7 +66,7 @@ public class AbstractTradingEngine {
         CoinInfo coinInfo = exchange.getCoinInfoBySymbol(SYMBOL);
         double availableBalance = exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade();
         double cost = availableBalance * buySignalStrength;
-        double buyPrice = Double.valueOf(coinInfo.getCanonicalPrice(orderBookCache.getMidPrice()));
+        double buyPrice = Double.valueOf(coinInfo.getCanonicalPrice(orderBookCache.getBestAsk() - coinInfo.getUnitPrice()));
 
         double amount = Double.valueOf(coinInfo.getCanonicalAmount(cost / buyPrice));
         while(true) {

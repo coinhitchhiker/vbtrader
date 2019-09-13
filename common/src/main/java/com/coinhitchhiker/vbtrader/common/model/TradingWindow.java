@@ -105,8 +105,12 @@ public class TradingWindow {
         return volume;
     }
 
-    public boolean isNegativeCandle() {
-        return this.closePrice < this.openPrice;
+    public boolean isDownCandle() {
+        return this.closePrice <= this.openPrice;
+    }
+
+    public boolean isUpCandle() {
+        return this.closePrice > this.openPrice;
     }
 
     //----------------------------------------------------------------------------------------------------------------
