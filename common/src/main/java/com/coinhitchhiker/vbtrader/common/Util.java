@@ -36,7 +36,7 @@ public class Util {
 
     public static TradingWindow constructCurrentTradingWindow(String SYMBOL, int TRADING_WINDOW_SIZE, double midPrice, long timestamp, Repository repository) {
 
-        TradingWindow result =  new TradingWindow(SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000, midPrice);
+        TradingWindow result =  new TradingWindow(SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000 - 1, midPrice);
 
         List<Candle> candles = repository.getCandles(SYMBOL, timestamp, timestamp + TRADING_WINDOW_SIZE * 60 * 1000);
         if(candles.size() > 0) {

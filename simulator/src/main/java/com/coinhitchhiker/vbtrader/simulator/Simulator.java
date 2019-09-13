@@ -163,7 +163,7 @@ public class Simulator {
             tradingEngine = new IBSLongTradingEngine(repository, exchange, orderBookCache,
                     SYMBOL, QUOTE_CURRRENCY, 0.0, EXCHANGE, FEE_RATE,
                     true, true, TS_TRIGGER_PCT,
-                    TS_PCT, false, strategyParams.get(CmdLine.STOP_LOSS_PCT),
+                    TS_PCT, true, strategyParams.get(CmdLine.STOP_LOSS_PCT),
                     strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_LOWER_THRESHOLD),
                     strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD),
@@ -267,6 +267,12 @@ public class Simulator {
         LOGGERBUYSELL.info("----------------------------------------------------------------");
 
         System.out.println((-1)*exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
+//        if(loss != 0) {
+//            System.out.println(  -1*(win*1.0 / (win+lose)) - Math.abs(  profit / loss  ) );
+//        } else {
+//            System.out.println(  -1*(win*1.0 / (win+lose)) );
+//        }
+
 
         SimulResult result = new SimulResult();
 

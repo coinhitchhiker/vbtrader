@@ -43,44 +43,50 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
 
     @Override
     public TradeResult trade(double curPrice, long curTimestamp) {
-        if(this.currentTradingWindow == null) {
-            LOGGER.info("currentTradingWindow is null. Initializing it...");
-            refreshTradingWindows(curTimestamp);
-            return null;
+        if(this.prevTradingWindow == null) {
+            LOGGER.info("prevTradingWindow is null. Initializing it...");
+            if(!refreshTradingWindows(curTimestamp)) {
+                return null;
+            }
         }
 
-        double buySignalStrength = buySignalStrength(curPrice, curTimestamp);
+        if(this.currentTradingWindow.getEndTimeStamp() < curTimestamp) {
+            refreshTradingWindows(curTimestamp);
+        }
 
         // We don't want to buy when we did trailing stop or stop loss.
         // Should wait until current trading window ends.
-        if(placedBuyOrder == null && buySignalStrength > 0 && !TS_SL_CUT) {
-            placeBuyOrder(curPrice, buySignalStrength);
+        if(placedBuyOrder == null) {
+            double buySignalStrength = buySignalStrength(curPrice, curTimestamp);
+            if(buySignalStrength > 0 && !TS_SL_CUT) {
+                placeBuyOrder(curPrice, buySignalStrength);
 
-            LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
-                    , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
-                    , new DateTime(curTimestamp, UTC)
-                    , currentTradingWindow.getHighPrice()
-                    , currentTradingWindow.getLowPrice());
+                LOGGER.info("tradingWindow endTime {} curTime {} h {} l {}"
+                        , new DateTime(currentTradingWindow.getEndTimeStamp(), UTC)
+                        , new DateTime(curTimestamp, UTC)
+                        , currentTradingWindow.getHighPrice()
+                        , currentTradingWindow.getLowPrice());
 
-            return null;
-        }
-
-        double sellSignalStrength = sellSignalStrength(curPrice, curTimestamp);
-
-        if(placedBuyOrder != null && sellSignalStrength > 0) {
-            TradeResult tradeResult = placeSellOrder(curPrice, sellSignalStrength);
-            if(tradeResult != null) {
-                LOGGERBUYSELL.info("[BALANCE] {}, {} {}", new DateTime(curTimestamp, UTC), QUOTE_CURRENCY, this.exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade());
-                LOGGERBUYSELL.info("---------------TRADING WINDOW END HIT------------------------");
+                return null;
             }
-            // IBS algo sells when it hits the end of trading window. That's why we refresh the trading window here
-            // no matter what.
-            refreshTradingWindows(curTimestamp);
-            TS_SL_CUT = false;
-            return tradeResult;
         }
 
-        if(placedBuyOrder != null && trailingStopHit(curPrice)) {
+        if(placedBuyOrder != null &&
+           placedBuyOrder.getExecTimestamp() < this.currentTradingWindow.getStartTimeStamp()) {     // ensures we're on a new trading window
+            double sellSignalStrength = sellSignalStrength(curPrice, curTimestamp);
+            if(sellSignalStrength > 0) {
+                TradeResult tradeResult = placeSellOrder(curPrice, sellSignalStrength);
+                if(tradeResult != null) {
+                    LOGGERBUYSELL.info("[BALANCE] {}, {} {}", new DateTime(curTimestamp, UTC), QUOTE_CURRENCY, this.exchange.getBalance().get(QUOTE_CURRENCY).getAvailableForTrade());
+                    LOGGERBUYSELL.info("---------------TRADING WINDOW END HIT------------------------");
+                }
+                return tradeResult;
+            }
+        }
+
+        if(placedBuyOrder != null &&
+           placedBuyOrder.getExecTimestamp() < this.currentTradingWindow.getStartTimeStamp() &&
+           trailingStopHit(curPrice)) {
             double prevTSPrice = super.trailingStopPrice;
             TradeResult tradeResult = placeSellOrder(curPrice, 1.0);
             LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", prevTSPrice, curPrice);
@@ -102,18 +108,11 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
             return tradeResult;
         }
 
-        if(this.currentTradingWindow.getEndTimeStamp() < curTimestamp) {
-            refreshTradingWindows(curTimestamp);
-            TS_SL_CUT = false;
-        }
-
         return null;
-
     }
 
     @Override
     public double buySignalStrength(double curPrice, long curTimestamp) {
-        if(this.prevTradingWindow == null) return 0;
 
         double ibs = (this.prevTradingWindow.getClosePrice() - this.prevTradingWindow.getLowPrice()) / (this.prevTradingWindow.getHighPrice() - this.prevTradingWindow.getLowPrice());
         double signalStrength =  ibs < IBS_LOWER_THRESHOLD ? 1 : 0;
@@ -138,8 +137,6 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
 
     @Override
     public double sellSignalStrength(double curPrice, long curTimestamp) {
-        if(this.prevTradingWindow == null) return 0;
-        if(this.currentTradingWindow.getEndTimeStamp() > curTimestamp) return 0;
 
         double ibs = (this.prevTradingWindow.getClosePrice() - this.prevTradingWindow.getLowPrice()) / (this.prevTradingWindow.getHighPrice() - this.prevTradingWindow.getLowPrice());
         double signalStrength =  ibs > IBS_UPPER_THRESHOLD ? 1 : 0;
@@ -162,24 +159,35 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
         return signalStrength;
     }
 
-    private void refreshTradingWindows(long curTimestamp) {
+    private boolean refreshTradingWindows(long curTimestamp) {
         LOGGER.debug("refreshingTradingWindows is set to TRUE");
 
         DateTime closestMin = Util.getClosestMin(new DateTime(curTimestamp, UTC));
 
         this.currentTradingWindow = Util.constructCurrentTradingWindow(SYMBOL, IBS_WINDOW_SIZE, orderBookCache.getMidPrice(), closestMin.getMillis(), repository);
+
         LOGGER.debug("Refreshed curTW {}", this.currentTradingWindow.toString());
 
         List<TradingWindow> pastTradingWindows = Util.constructPastTradingWindows(curTimestamp, IBS_WINDOW_SIZE, 1, SYMBOL, repository);
 
         if(pastTradingWindows.size() > 0) {
             this.prevTradingWindow = pastTradingWindows.get(0);
-        }
 
-        LOGGER.debug("-----------CURRENT TRADING WINDOW REFRESHED-----------------------");
-        LOGGER.debug("curTimestamp {}", new DateTime(curTimestamp, UTC));
-        LOGGER.debug("{}", this.currentTradingWindow);
-        LOGGER.debug("refreshingTradingWindows is set to FALSE");
+            LOGGER.debug("-----------CURRENT TRADING WINDOW REFRESHED-----------------------");
+            LOGGER.debug("curTimestamp {}", new DateTime(curTimestamp, UTC));
+            LOGGER.debug("{}", this.currentTradingWindow);
+            LOGGER.debug("refreshingTradingWindows is set to FALSE");
+
+            return true;
+        } else {
+
+            LOGGER.debug("-----------CURRENT TRADING WINDOW NOT REFRESHED-----------------------");
+            LOGGER.debug("curTimestamp {}", new DateTime(curTimestamp, UTC));
+            LOGGER.debug("{}", this.currentTradingWindow);
+            LOGGER.debug("refreshingTradingWindows is set to FALSE");
+
+            return false;
+        }
     }
 
     @Override
