@@ -5,6 +5,7 @@ import org.joda.time.DateTime;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static org.joda.time.DateTimeZone.UTC;
 
@@ -72,7 +73,6 @@ public class Candle implements Serializable {
     }
 
     //-----------------------------------------------------
-
 
     public String getSymbol() {
         return symbol;
@@ -177,5 +177,21 @@ public class Candle implements Serializable {
                 ", pvt=" + pvt +
                 ", obv=" + obv +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Candle candle = (Candle) o;
+        return openTime == candle.openTime &&
+                closeTime == candle.closeTime &&
+                Objects.equals(symbol, candle.symbol) &&
+                Objects.equals(interval, candle.interval);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(symbol, interval, openTime, closeTime);
     }
 }
