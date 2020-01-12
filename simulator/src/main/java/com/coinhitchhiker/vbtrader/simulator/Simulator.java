@@ -1,5 +1,8 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
+import com.coinhitchhiker.vbtrader.common.indicator.HullMovingAverage;
+import com.coinhitchhiker.vbtrader.common.indicator.SMA;
+import com.coinhitchhiker.vbtrader.common.indicator.WMA;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSShortTradingEngine;
@@ -40,6 +43,7 @@ public class Simulator {
     private SimulatorOrderBookCache orderBookCache;
     private SimulatorDAO simulatorDAO;
     private TradingEngine tradingEngine;
+    private Chart chart;
 
     private final double SLIPPAGE = 0.01/100.0D;
     private static final int MA_MIN = 3;
@@ -76,6 +80,13 @@ public class Simulator {
         this.STRATEGY_PARAMS = strategyParams;
         this.REPO_USE_DB = REPO_USE_DB;
         this.FEE_RATE = getFEE(EXCHANGE);
+
+        Chart chart = Chart.of(TimeFrame.M15, SYMBOL);
+//        chart.addIndicator(new SMA("sma5", 5));
+        chart.addIndicator(new HullMovingAverage("hma5", 5));
+//        chart.addIndicator(new WMA("wma5", 5));
+
+        this.chart = chart;
     }
 
     private double getFEE(ExchangeEnum exchangeEnum) {
@@ -189,30 +200,31 @@ public class Simulator {
 
         List<Candle> allCandles = this.repository.getCandles(SYMBOL, SIMUL_START, SIMUL_END);
 
-        long curTimestamp = 0; double curPrice = 0;
+        long curTimestamp = 0; double curPrice = 0; double curVol = 0;
 
         for(Candle candle : allCandles) {
             // trade open price point
-            curTimestamp = candle.getOpenTime(); curPrice = candle.getOpenPrice();
-            tradeWith(curPrice, curTimestamp, tradingEngine);
+            curTimestamp = candle.getOpenTime(); curPrice = candle.getOpenPrice(); curVol = candle.getVolume();
+            tradeWith(curPrice, curTimestamp, curVol, tradingEngine);
 
             long timeDiff = candle.getCloseTime() - candle.getOpenTime();
 
             // high  price point comes first
-            curTimestamp = timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getHighPrice();
-            tradeWith(curPrice, curTimestamp, tradingEngine);
+            curTimestamp = timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getHighPrice(); curVol = candle.getVolume();
+            tradeWith(curPrice, curTimestamp, curVol, tradingEngine);
 
             // assume low price point comes second
-            curTimestamp = 2*timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getLowPrice();
-            tradeWith(curPrice, curTimestamp, tradingEngine);
+            curTimestamp = 2*timeDiff / 3 + candle.getOpenTime(); curPrice = candle.getLowPrice(); curVol = candle.getVolume();
+            tradeWith(curPrice, curTimestamp, curVol, tradingEngine);
 
             // trade close price
-            curTimestamp = candle.getCloseTime(); curPrice = candle.getClosePrice();
-            tradeWith(curPrice, curTimestamp, tradingEngine);
+            curTimestamp = candle.getCloseTime(); curPrice = candle.getClosePrice(); curVol = candle.getVolume();
+            tradeWith(curPrice, curTimestamp, curVol, tradingEngine);
         }
     }
 
-    private void tradeWith(double curPrice, long curTimestamp, TradingEngine tradingEngine) {
+    private void tradeWith(double curPrice, long curTimestamp, double curVol, TradingEngine tradingEngine) {
+        this.chart.onTick(curPrice, curTimestamp, curVol);
         this.exchange.setTimestampAndPrice(curTimestamp, curPrice);
         TradeResult tradeResult = tradingEngine.trade(curPrice, curTimestamp);
         if(tradeResult != null) {
