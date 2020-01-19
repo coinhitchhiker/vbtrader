@@ -2,6 +2,7 @@ package com.coinhitchhiker.vbtrader.common;
 
 import com.coinhitchhiker.vbtrader.common.model.Candle;
 import com.coinhitchhiker.vbtrader.common.model.Repository;
+import com.coinhitchhiker.vbtrader.common.model.TimeFrame;
 import com.coinhitchhiker.vbtrader.common.model.TradingWindow;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VolatilityBreakout;
 import org.joda.time.DateTime;
@@ -28,6 +29,38 @@ public class Util {
 
         DateTime closestMin = new DateTime(y,m,d,h,mm, DateTimeZone.UTC);
         return closestMin;
+    }
+
+    public static DateTime getClosestCandleOpen(DateTime now, TimeFrame timeFrame) {
+        if(timeFrame.equals(TimeFrame.M1)) {
+            return Util.getClosestMin(now);
+        }
+
+        int y = now.getYear();
+        int m = now.getMonthOfYear();
+        int d = now.getDayOfMonth();
+        int h = now.getHourOfDay();
+        int mm = now.getMinuteOfHour();
+
+        if(timeFrame.equals(TimeFrame.M5)) {
+            mm = ((int)mm / 5) * 5;
+        } else if(timeFrame.equals(TimeFrame.M15)) {
+            mm = ((int)mm / 15) * 15;
+        } else if(timeFrame.equals(TimeFrame.M30)) {
+            mm = ((int)mm / 30) * 30;
+        } else if(timeFrame.equals(TimeFrame.H1)) {
+            mm = 0;
+        } else if(timeFrame.equals(TimeFrame.H4)) {
+            mm = 0;
+            h = ((int)h / 4) * 4;
+        } else if(timeFrame.equals(TimeFrame.D1)) {
+            mm = 0;
+            h = 0;
+        } else {
+            throw new RuntimeException("Unsupported timeframe");
+        }
+
+        return new DateTime(y,m,d,h,mm, DateTimeZone.UTC);
     }
 
     public static List<TradingWindow> getLastNTradingWindow(List<TradingWindow> tradingWindows, int n) {
