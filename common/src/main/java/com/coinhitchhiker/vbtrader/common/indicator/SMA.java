@@ -7,12 +7,12 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class SMA implements Indicator {
+public class SMA implements Indicator<Double> {
 
     private final int length;
     private final String name;
 
-    private Map<Long, Double> keyValues = new LinkedHashMap<>();
+    private List<Double> values = new ArrayList<>();
 
     public SMA(String name, int length) {
         if(length <= 0) throw new RuntimeException("Invalid SMA length");
@@ -42,12 +42,12 @@ public class SMA implements Indicator {
             sum += candles.get(size-(i+1)).getClosePrice();
         }
         double sma = sum / cnt;
-        keyValues.put(candles.get(size-1).getOpenTime(), sma);
+        this.values.add(sma);
     }
 
     @Override
-    public Object getKeyValues() {
-        return this.keyValues;
+    public Double getValueReverse(int index) {
+        return this.values.get(this.values.size() - index - 1);
     }
 
 }

@@ -12,7 +12,6 @@ public class Chart {
     private final TimeFrame timeframe;
     private final String symbol;
     private List<Candle> candles = new ArrayList<>();
-    private List<TradingEngine> tradingEngines = new ArrayList<>();
     private List<Indicator> indicators = new ArrayList<>();
 
     private Chart(TimeFrame timeframe, String symbol) {
@@ -26,6 +25,10 @@ public class Chart {
     }
 
     public void addIndicator(Indicator indicator) {
+        String indiName = indicator.getName();
+        if(getIndicatorByName(indiName) != null) {
+            throw new RuntimeException("Dupulicate indicator name : " + indiName);
+        }
         this.indicators.add(indicator);
     }
 
@@ -55,4 +58,13 @@ public class Chart {
         this.indicators.forEach(i -> i.onTick(this.candles));
     }
 
+    public Indicator getIndicatorByName(String name) {
+        for(Indicator indicator : this.indicators) {
+            String result = indicator.getName();
+            if(result.equals(name)) {
+                return indicator;
+            }
+        }
+        return null;
+    }
 }

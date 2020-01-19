@@ -3,16 +3,14 @@ package com.coinhitchhiker.vbtrader.common.indicator;
 import com.coinhitchhiker.vbtrader.common.model.Candle;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
-public class WMA implements Indicator {
+public class WMA implements Indicator<Double> {
 
     private final int length;
     private final String name;
 
-    private Map<Long, Double> keyValues = new LinkedHashMap<>();
+    private List<Double> values = new ArrayList<>();
 
     public WMA(String name, int length) {
         this.name = name;
@@ -42,12 +40,12 @@ public class WMA implements Indicator {
             sum += candles.get(i).getClosePrice() * (count++);
         }
         double wma = sum / (cnt * (cnt+1) / 2);
-        keyValues.put(candles.get(size-1).getOpenTime(), wma);
+        this.values.add(wma);
     }
 
     @Override
-    public Object getKeyValues() {
-        return this.keyValues;
+    public Double getValueReverse(int index) {
+        return this.values.get(this.values.size() - index - 1);
     }
 
 }
