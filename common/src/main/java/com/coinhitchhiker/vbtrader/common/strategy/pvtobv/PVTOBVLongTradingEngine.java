@@ -35,7 +35,7 @@ public class PVTOBVLongTradingEngine extends AbstractTradingEngine implements Tr
     }
 
     @Override
-    public TradeResult trade(double curPrice, long curTimestamp) {
+    public TradeResult trade(double curPrice, long curTimestamp, double curVol) {
 
         TradeResult tradeResult = null;
         double buySignalStrength = buySignalStrength(curPrice, curTimestamp);

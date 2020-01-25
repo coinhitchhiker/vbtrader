@@ -27,6 +27,7 @@ public class CmdLine {
     public static String STOP_LOSS_PCT = "10";
     public static String IBS_LOWER_THRESHOLD = "11";
     public static String IBS_UPPER_THRESHOLD = "12";
+    public static String HMA_LENGTH = "13";
 
     public static CmdLine.CommandLineOptions parseCommandLine(String... args) {
         Options options = new Options();
@@ -212,7 +213,7 @@ public class CmdLine {
                 result.put(CmdLine.TS_TRIGGER_PCT, Double.valueOf(params[4]));
                 result.put(CmdLine.TS_PCT, Double.valueOf(params[5]));
             } else if(strategy.equals(StrategyEnum.IBS)) {
-                if(params.length != 6) {
+                if (params.length != 6) {
                     throw new RuntimeException("Invalid format (TRADING_WINDOW_SIZE(int) IBS_LOWER_THRESHOLD(double<=0.5) IBS_UPPER_THRESHOLD(double>0.5) STOP_LOSS_PCT(double) TS_TRIGGER_PCT(double<1) TS_PCT(double<1)");
                 }
                 result.put(CmdLine.TRADING_WINDOW_SIZE_IN_MIN, Double.valueOf(params[0]));
@@ -221,6 +222,12 @@ public class CmdLine {
                 result.put(CmdLine.STOP_LOSS_PCT, Double.valueOf(params[3]));
                 result.put(CmdLine.TS_TRIGGER_PCT, Double.valueOf(params[4]));
                 result.put(CmdLine.TS_PCT, Double.valueOf(params[5]));
+            } else if(strategy.equals(StrategyEnum.HMA_TRADE)) {
+                if (params.length != 2) {
+                    throw new RuntimeException("Invalid format (TRADING_WINDOW_LOOK_BEHIND(int) HMA_LENGTH(int)");
+                }
+                result.put(CmdLine.TRADING_WINDOW_LOOK_BEHIND, Double.valueOf(params[0]));
+                result.put(CmdLine.HMA_LENGTH, Double.valueOf(params[1]));
             } else {
                 throw new RuntimeException("Unsupported strategy was given: " + strategy);
             }

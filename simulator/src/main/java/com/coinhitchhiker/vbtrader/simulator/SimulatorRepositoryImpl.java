@@ -87,6 +87,15 @@ public class SimulatorRepositoryImpl implements Repository {
                 result.add(candle);
             }
         }
+
+        // if requested time range is not included in pre-loaded candles, we call exchange API to get candle data
+        if(result.size() == 0) {
+            if(this.exchange.equals(ExchangeEnum.BINANCE)) {
+                result = this.loadCandlesFromBinance(symbol, startTime, endTime);
+            } else {
+                throw new RuntimeException("Unsupported exchange for post-loading candles");
+            }
+        }
         return result;
     }
 

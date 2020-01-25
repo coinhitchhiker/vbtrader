@@ -36,7 +36,7 @@ public class IBSShortTradingEngine extends AbstractTradingEngine implements Trad
     }
 
     @Override
-    public TradeResult trade(double curPrice, long curTimestamp) {
+    public TradeResult trade(double curPrice, long curTimestamp, double curVol) {
         if(this.currentTradingWindow == null) {
             LOGGER.info("currentTradingWindow is null. Initializing it...");
             refreshTradingWindows(curTimestamp);

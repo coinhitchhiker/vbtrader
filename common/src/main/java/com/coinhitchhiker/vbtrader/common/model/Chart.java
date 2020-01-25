@@ -67,4 +67,8 @@ public class Chart {
         }
         return null;
     }
+
+    public List<Candle> getCandles() {
+        return candles;
+    }
 }

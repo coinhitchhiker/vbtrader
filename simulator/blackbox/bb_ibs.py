@@ -7,7 +7,7 @@ java_bin = os.environ['JAVA_HOME'] + "/bin"
 
 cmd = [java_bin + "/java", "-Xmx384m",  "-jar", "simulator.jar"
       , "--simul-start" , "20190901"
-      , "--simul-end" , "20190910"
+      , "--simul-end" , "20190911"
       , "--symbol" , "BTCUSDT"
       , "--exchange" , "BINANCE"
       , "--mode" , "LONG"

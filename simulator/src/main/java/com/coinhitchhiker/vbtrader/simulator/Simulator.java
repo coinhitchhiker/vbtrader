@@ -4,6 +4,7 @@ import com.coinhitchhiker.vbtrader.common.indicator.HullMovingAverage;
 import com.coinhitchhiker.vbtrader.common.indicator.SMA;
 import com.coinhitchhiker.vbtrader.common.indicator.WMA;
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradeLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSShortTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBVLongTradingEngine;
@@ -43,7 +44,6 @@ public class Simulator {
     private SimulatorOrderBookCache orderBookCache;
     private SimulatorDAO simulatorDAO;
     private TradingEngine tradingEngine;
-    private Chart chart;
 
     private final double SLIPPAGE = 0.01/100.0D;
     private static final int MA_MIN = 3;
@@ -80,13 +80,6 @@ public class Simulator {
         this.STRATEGY_PARAMS = strategyParams;
         this.REPO_USE_DB = REPO_USE_DB;
         this.FEE_RATE = getFEE(EXCHANGE);
-
-        Chart chart = Chart.of(TimeFrame.M15, SYMBOL);
-//        chart.addIndicator(new SMA("sma5", 5));
-        chart.addIndicator(new HullMovingAverage("hma5", 5));
-//        chart.addIndicator(new WMA("wma5", 5));
-
-        this.chart = chart;
     }
 
     private double getFEE(ExchangeEnum exchangeEnum) {
@@ -184,6 +177,10 @@ public class Simulator {
                     0.0, EXCHANGE, FEE_RATE, true, true, TS_TRIGGER_PCT,
                     TS_PCT, false, strategyParams.get(CmdLine.STOP_LOSS_PCT), strategyParams.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue(),
                     strategyParams.get(CmdLine.IBS_UPPER_THRESHOLD), false);
+        } else if (this.MODE.equals(TradingMode.LONG) && this.STRATEGY.equals(StrategyEnum.HMA_TRADE)) {
+            tradingEngine = new HMATradeLongTradingEngine(repository, exchange, orderBookCache, SYMBOL, QUOTE_CURRRENCY,
+                    EXCHANGE, FEE_RATE, true, TimeFrame.M5, strategyParams.get(CmdLine.HMA_LENGTH).intValue(),
+                    strategyParams.get(CmdLine.TRADING_WINDOW_LOOK_BEHIND).intValue(), true, SIMUL_START);
         } else {
             throw new UnsupportedOperationException();
         }
@@ -224,9 +221,8 @@ public class Simulator {
     }
 
     private void tradeWith(double curPrice, long curTimestamp, double curVol, TradingEngine tradingEngine) {
-        this.chart.onTick(curPrice, curTimestamp, curVol);
         this.exchange.setTimestampAndPrice(curTimestamp, curPrice);
-        TradeResult tradeResult = tradingEngine.trade(curPrice, curTimestamp);
+        TradeResult tradeResult = tradingEngine.trade(curPrice, curTimestamp, curVol);
         if(tradeResult != null) {
             Balance balance = this.exchange.getBalance().get(QUOTE_CURRRENCY);
             balance.setAvailableForTrade(balance.getAvailableForTrade() + tradeResult.getNetProfit());
@@ -322,6 +318,8 @@ public class Simulator {
             result.setIBS_LOWER_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.IBS_LOWER_THRESHOLD));
             result.setIBS_UPPER_THRESHOLD(STRATEGY_PARAMS.get(CmdLine.IBS_UPPER_THRESHOLD));
             result.setTRADING_WINDOW_SIZE_IN_MIN(STRATEGY_PARAMS.get(CmdLine.TRADING_WINDOW_SIZE_IN_MIN).intValue());
+        } else if(STRATEGY.equals(StrategyEnum.HMA_TRADE)) {
+            // do things for now
         } else {
             throw new RuntimeException("Unsupported strategy was given: " + STRATEGY);
         }
