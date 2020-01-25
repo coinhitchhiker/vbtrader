@@ -10,5 +10,6 @@ public interface Indicator<T> {
     String getName();
     void onTick(List<Candle> candles);
     T getValueReverse(int index);
+    T getValue(int index);
 
 }

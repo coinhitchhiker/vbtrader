@@ -3,7 +3,9 @@ package com.coinhitchhiker.vbtrader.common.indicator;
 import com.coinhitchhiker.vbtrader.common.model.Candle;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 // https://searchcode.com/codesearch/view/64893970/
 public class HullMovingAverage implements Indicator<Double> {
@@ -12,6 +14,7 @@ public class HullMovingAverage implements Indicator<Double> {
     private final int length;
 
     private List<Double> values = new ArrayList<>();
+    private Map<Long, Double> keyValues = new LinkedHashMap<>();
 
     public HullMovingAverage(String name, int length) {
         if(length <= 0) throw new RuntimeException("Invalid length " + length);
@@ -91,13 +94,24 @@ public class HullMovingAverage implements Indicator<Double> {
 
         // do another WMA on the values calculated above for smoothing
         double value = WMA(wmavalues, sqrlen - 1, sqrlen);
-        this.values.add(value);
 
+        Double prevVal = this.keyValues.put(candles.get(size-1).getOpenTime(), value);
+        if(prevVal == null) {
+            this.values.add(this.keyValues.get(candles.get(size-1).getOpenTime()));
+        } else {
+            this.values.remove(this.values.size()-1);
+            this.values.add(value);
+        }
     }
 
     @Override
     //0 = current, 1 = past 1, 2 = past 2
     public Double getValueReverse(int index) {
         return this.values.get(this.values.size() - index - 1);
+    }
+
+    @Override
+    public Double getValue(int index) {
+        return this.values.get(index);
     }
 }

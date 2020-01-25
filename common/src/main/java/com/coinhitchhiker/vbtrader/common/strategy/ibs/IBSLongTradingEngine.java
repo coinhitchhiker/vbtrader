@@ -42,7 +42,7 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
     }
 
     @Override
-    public TradeResult trade(double curPrice, long curTimestamp) {
+    public TradeResult trade(double curPrice, long curTimestamp, double curVol) {
         if(this.prevTradingWindow == null) {
             LOGGER.info("prevTradingWindow is null. Initializing it...");
             if(!refreshTradingWindows(curTimestamp)) {
