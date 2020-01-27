@@ -23,11 +23,6 @@ public class SMA implements Indicator<Double> {
     }
 
     @Override
-    public IndicatorType getIndicatorType() {
-        return IndicatorType.SMA;
-    }
-
-    @Override
     public String getName() {
         return this.name;
     }

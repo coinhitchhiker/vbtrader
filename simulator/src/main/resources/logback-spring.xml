@@ -62,7 +62,7 @@
     </logger>
 
     <!-- By default, the level of the root level is set to DEBUG -->
-    <root level="WARN">
+    <root level="DEBUG">
         <appender-ref ref="FILE" />
     </root>
 </configuration>

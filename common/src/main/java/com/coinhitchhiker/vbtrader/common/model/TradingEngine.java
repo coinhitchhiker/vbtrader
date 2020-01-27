@@ -1,5 +1,7 @@
 package com.coinhitchhiker.vbtrader.common.model;
 
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
+
 public interface TradingEngine {
 
     TradeResult trade(double curPrice, long curTimestamp, double curVol);
@@ -19,5 +21,13 @@ public interface TradingEngine {
     double getTrailingStopPrice();
 
     double getStopLossPrice();
+
+    default StrategyEnum getStrategy() {
+        return null;
+    }
+
+    default void printStrategyParams() {
+
+    }
 
 }

@@ -40,13 +40,16 @@ public class Chart {
         return new Candle(symbol, timeframe.toString(), open, close, curPrice, curPrice, curPrice, curPrice, curVol);
     }
 
-    public void onTick(double curPrice, long curTimestamp, double curVol) {
+    public Candle onTick(double curPrice, long curTimestamp, double curVol) {
+        Candle newCandle = null;
         if(candles.size() == 0) {
-            this.candles.add(nextCandle(curPrice, curTimestamp, curVol));
+            newCandle = nextCandle(curPrice, curTimestamp, curVol);
+            this.candles.add(newCandle);
         } else {
             Candle curCandle = this.candles.get(this.candles.size() - 1);
             if(curTimestamp > curCandle.getCloseTime()) {
-                this.candles.add(nextCandle(curPrice, curTimestamp, curVol));
+                newCandle = nextCandle(curPrice, curTimestamp, curVol);
+                this.candles.add(newCandle);
             } else {
                 curCandle.setClosePrice(curPrice);
                 if(curCandle.getHighPrice() < curPrice) curCandle.setHighPrice(curPrice);
@@ -56,6 +59,12 @@ public class Chart {
         }
 
         this.indicators.forEach(i -> i.onTick(this.candles));
+
+        if(newCandle != null) {
+            return newCandle.clone();
+        } else {
+            return null;
+        }
     }
 
     public Indicator getIndicatorByName(String name) {

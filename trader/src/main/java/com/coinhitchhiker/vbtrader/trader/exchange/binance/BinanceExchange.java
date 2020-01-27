@@ -77,19 +77,19 @@ public class BinanceExchange implements Exchange {
                 .orElseThrow(() -> new RuntimeException("No corresponding coinInfo was found for " + symbol));
     }
 
-    private OrderInfo placeOrderInternal(OrderInfo orderInfo, boolean makerOrder) {
+    private OrderInfo placeOrderInternal(OrderInfo orderInfo) {
         String symbol = orderInfo.getSymbol();
         CoinInfo coinInfo = this.getCoinInfoBySymbol(symbol);
 
         NewOrder newOrder = null;
         if(orderInfo.getOrderSide() == OrderSide.BUY) {
-            if(makerOrder) {
+            if(orderInfo.getOrderType().equals(OrderType.LIMIT_MAKER)) {
                 newOrder = NewOrder.limitMakerBuy(symbol, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
             } else {
                 newOrder = NewOrder.limitBuy(symbol, TimeInForce.GTC, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
             }
         } else {
-            if(makerOrder) {
+            if(orderInfo.getOrderType().equals(OrderType.LIMIT_MAKER)) {
                 newOrder = NewOrder.limitMakerSell(symbol, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
             } else {
                 newOrder = NewOrder.limitSell(symbol, TimeInForce.GTC, coinInfo.getCanonicalAmount(orderInfo.getAmount()), coinInfo.getCanonicalPrice(orderInfo.getPrice()));
@@ -129,14 +129,14 @@ public class BinanceExchange implements Exchange {
     }
 
     @Override
-    public OrderInfo placeOrder(OrderInfo orderInfo, boolean makerOrder) {
+    public OrderInfo placeOrder(OrderInfo orderInfo) {
 
         int RETRY_COUNT = 5;
         OrderInfo result = null;
 
         for(int i = 1; i <= RETRY_COUNT; i++) {
             try {
-                result = placeOrderInternal(orderInfo, makerOrder);
+                result = placeOrderInternal(orderInfo);
                 if(result == null) {
                     LOGGER.info("placeOrderInternal return is null");
                 } else {

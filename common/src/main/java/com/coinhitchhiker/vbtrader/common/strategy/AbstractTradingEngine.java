@@ -77,7 +77,7 @@ public class AbstractTradingEngine {
             }
         }
 
-        OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
+        OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.LIMIT_MAKER, buyPrice, amount);
 
         if(!TRADING_ENABLED) {
             LOGGER.info("-------------------TRADING DISABLED!-------------------");
@@ -86,7 +86,7 @@ public class AbstractTradingEngine {
         }
 
         LOGGER.info("[PREPARED BUY ORDER] {} availBalance {}", buyOrder.toString(), availableBalance);
-        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder, true);
+        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
         LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         LOGGERBUYSELL.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         this.buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;
@@ -106,9 +106,9 @@ public class AbstractTradingEngine {
             if(makerBuyOrder.getAmountExecuted() > 0) {
                 double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
                 double sellAmount = makerBuyOrder.getAmountExecuted();
-                OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, sellAmount);
+                OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, OrderType.LIMIT, sellPrice, sellAmount);
                 LOGGER.info("[PREPARED SELL ORDER] {} ", sellOrder.toString());
-                OrderInfo placedSellOrder = exchange.placeOrder(sellOrder, false);
+                OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
                 LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
                 LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
                 this.sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
@@ -126,9 +126,9 @@ public class AbstractTradingEngine {
         } else {
             double sellPrice = curPrice * (1 - LIMIT_ORDER_PREMIUM/100.0D);
             double sellAmount = makerBuyOrder.getAmountExecuted();
-            OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, sellAmount);
+            OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, OrderType.LIMIT, sellPrice, sellAmount);
             LOGGER.info("[PREPARED SELL ORDER] {} ", sellOrder.toString());
-            OrderInfo placedSellOrder = exchange.placeOrder(sellOrder, false);
+            OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
             LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
             LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
             this.sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;
@@ -143,7 +143,7 @@ public class AbstractTradingEngine {
         double sellPrice = orderBookCache.getBestAsk();
         double cost = availableBalance * sellSignalStrength;
         double amount = cost / sellPrice;
-        OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, sellPrice, amount);
+        OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, OrderType.LIMIT_MAKER, sellPrice, amount);
 
         if(!TRADING_ENABLED) {
             LOGGER.info("-------------------TRADING DISABLED!-------------------");
@@ -151,7 +151,7 @@ public class AbstractTradingEngine {
             return;
         }
 
-        OrderInfo placedSellOrder = exchange.placeOrder(sellOrder, true);
+        OrderInfo placedSellOrder = exchange.placeOrder(sellOrder);
         LOGGER.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
         LOGGERBUYSELL.info("[PLACED SELL ORDER] {}", placedSellOrder.toString());
         this.sellFee = placedSellOrder.getAmountExecuted() * placedSellOrder.getPriceExecuted() * FEE_RATE / 100.0D;;
@@ -161,8 +161,8 @@ public class AbstractTradingEngine {
     private void placeBuyOrderShort(double curPrice) {
         double buyPrice = curPrice * (1 + LIMIT_ORDER_PREMIUM/100.0D);
         double amount = this.placedSellOrder.getAmountExecuted();
-        OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, buyPrice, amount);
-        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder, false);
+        OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.LIMIT, buyPrice, amount);
+        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
         LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         LOGGERBUYSELL.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
         this.buyFee = placedBuyOrder.getAmountExecuted() * placedBuyOrder.getPriceExecuted() * FEE_RATE / 100.0D;;
@@ -186,6 +186,26 @@ public class AbstractTradingEngine {
                 placedBuyOrder.getAmountExecuted());
 
         return new TradeResult(EXCHANGE, SYMBOL, QUOTE_CURRENCY, netProfit, profit, placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), placedBuyOrder.getAmountExecuted(), buyFee + sellFee);
+    }
+
+    protected OrderInfo placeBuyOrderLimit(double buyPrice, double buyAmount) {
+        CoinInfo coinInfo = exchange.getCoinInfoBySymbol(SYMBOL);
+        buyPrice = Double.valueOf(coinInfo.getCanonicalPrice(buyPrice));
+        buyAmount = Double.valueOf(coinInfo.getCanonicalAmount(buyAmount));
+
+        OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.LIMIT_MAKER, buyPrice, buyAmount);
+
+        if(!TRADING_ENABLED) {
+            LOGGER.info("-------------------TRADING DISABLED!-------------------");
+            LOGGER.info("[PREPARED BUYORDER] {}", buyOrder.toString());
+            return null;
+        }
+
+        LOGGER.info("[PREPARED BUY ORDER] {} ", buyOrder.toString());
+        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
+        LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
+        LOGGERBUYSELL.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
+        return placedBuyOrder;
     }
 
     protected TradeResult placeBuyOrder(double curPrice, double buySignalStrength) {

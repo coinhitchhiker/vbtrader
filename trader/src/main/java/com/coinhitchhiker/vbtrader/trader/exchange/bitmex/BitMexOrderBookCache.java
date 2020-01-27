@@ -2,7 +2,7 @@ package com.coinhitchhiker.vbtrader.trader.exchange.bitmex;
 
 import com.coinhitchhiker.vbtrader.common.model.OrderBookCache;
 import com.coinhitchhiker.vbtrader.common.model.Repository;
-import com.coinhitchhiker.vbtrader.common.model.TradeEvent;
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
 import com.google.gson.Gson;
 import com.neovisionaries.ws.client.WebSocket;
 import com.neovisionaries.ws.client.WebSocketExtension;

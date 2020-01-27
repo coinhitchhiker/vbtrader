@@ -1,6 +1,9 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.HashMap;
 import java.util.List;
@@ -8,18 +11,22 @@ import java.util.Map;
 
 public class SimulatorExchange implements Exchange {
 
-    private SimulatorRepositoryImpl repository;
-    private SimulatorOrderBookCache orderBookCache;
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
+
+    @Autowired private SimulatorRepositoryImpl repository;
+    @Autowired private SimulatorOrderBookCache orderBookCache;
+    @Autowired private TradingEngine tradingEngine;
+
     private long curTimestamp;
     private double curPrice;
     private double SLIPPAGE;
     private Map<String, Balance> balanceMap = new HashMap<>();
     private double START_BALANCE = 10000;
-    private TradingEngine tradingEngine;
 
-    public SimulatorExchange(SimulatorRepositoryImpl repository, SimulatorOrderBookCache orderBookCache, double SLIPPAGE) {
-        this.repository = repository;
-        this.orderBookCache = orderBookCache;
+    private Map<String, OrderInfo> limitOrders = new HashMap<>();
+
+    public SimulatorExchange(double SLIPPAGE) {
         this.SLIPPAGE = SLIPPAGE;
 
         Balance b = new Balance();
@@ -42,23 +49,47 @@ public class SimulatorExchange implements Exchange {
 
     }
 
-    public void setTimestampAndPrice(long curTimestamp, double curPrice) {
+    public void setTimestampAndPrice(long curTimestamp, double curPrice, double curVol) {
+        for(Map.Entry<String, OrderInfo> entry : this.limitOrders.entrySet()) {
+            OrderInfo limitOrder = entry.getValue();
+            if(!limitOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
+                OrderSide side = limitOrder.getOrderSide();
+                if(side.equals(OrderSide.BUY)) {
+                    if(curPrice >= limitOrder.getPrice()) {
+                        limitOrder.setPriceExecuted(limitOrder.getPrice());
+                        limitOrder.setAmountExecuted(limitOrder.getAmount());
+                        limitOrder.setOrderStatus(OrderStatus.COMPLETE);
+                        limitOrder.setExecTimestamp(this.curTimestamp);
+                    }
+                } else {
+                    if(curPrice <= limitOrder.getPrice()) {
+                        limitOrder.setPriceExecuted(limitOrder.getPrice());
+                        limitOrder.setAmountExecuted(limitOrder.getAmount());
+                        limitOrder.setOrderStatus(OrderStatus.COMPLETE);
+                        limitOrder.setExecTimestamp(this.curTimestamp);
+                    }
+                }
+            }
+        }
+
         this.curTimestamp = curTimestamp;
         this.curPrice = curPrice;
+
         repository.setCurrentTimestamp(curTimestamp);
         orderBookCache.setCurPrice(curPrice);
-
-        TradeEvent e = new TradeEvent("SIMUL", "SIMULSYMBOL", curPrice, curTimestamp, 0, null, null, null);
-        tradingEngine.onTradeEvent(e);
+        this.orderBookCache.onTradeEvent(curPrice, curTimestamp, curVol);
     }
 
     @Override
-    public OrderInfo placeOrder(OrderInfo orderInfo, boolean makerOrder) {
-        if(orderInfo.getStopPrice() > 0) {
-            orderInfo.setOrderStatus(OrderStatus.PENDING);
+    public OrderInfo placeOrder(OrderInfo orderInfo) {
+        if(orderInfo.getOrderType().equals(OrderType.LIMIT_MAKER) ||
+                orderInfo.getOrderType().equals(OrderType.LIMIT)) {
+            orderInfo.setExternalOrderId(String.valueOf(Math.random() * 1000000));
+            this.limitOrders.put(orderInfo.getExternalOrderId(), orderInfo.clone());
             return orderInfo;
         }
 
+        // OK it's market order...
         orderInfo.setAmountExecuted(orderInfo.getAmount());
         orderInfo.setOrderStatus(OrderStatus.COMPLETE);
         orderInfo.setExecTimestamp(this.curTimestamp);
@@ -83,7 +114,7 @@ public class SimulatorExchange implements Exchange {
                 if(this.curPrice < stopLossPrice && stopLossPrice < Double.MAX_VALUE) {
                     orderInfo.setPriceExecuted(stopLossPrice * (1-SLIPPAGE));
                 } else {
-                    orderInfo.setPriceExecuted(orderInfo.getPrice() * (1-SLIPPAGE));
+                    orderInfo.setPriceExecuted(this.curPrice * (1-SLIPPAGE));
                 }
             }
         }
@@ -92,11 +123,16 @@ public class SimulatorExchange implements Exchange {
 
     @Override
     public OrderInfo cancelOrder(OrderInfo orderInfo) {
-        return null;
+        return this.limitOrders.remove(orderInfo.getExternalOrderId());
     }
 
     @Override
     public OrderInfo getOrder(OrderInfo orderInfo) {
+        OrderInfo limitOrder = this.limitOrders.get(orderInfo.getExternalOrderId());
+        if(limitOrder != null) {
+            return limitOrder;
+        }
+
         double stopLossPrice = orderInfo.getStopPrice();
         if(stopLossPrice > 0) {
             if(orderInfo.getOrderStatus() == OrderStatus.PENDING) {

@@ -13,6 +13,7 @@ import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.Banner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -24,13 +25,26 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@SpringBootApplication(scanBasePackages = {"com.coinhitchhiker.vbtrader.simulator.db"})
+@SpringBootApplication(scanBasePackages = {
+        "com.coinhitchhiker.vbtrader.simulator.db",
+        "com.coinhitchhiker.vbtrader.simulator.config"
+})
 public class SimulatorAppMain implements CommandLineRunner {
+
+    @Value("${trading.exchange}") String EXCHANGE;
+    @Value("${trading.simul.start}") String SIMUL_START;    // YYYYMMDD
+    @Value("${trading.simul.end}") String SIMUL_END;    // YYYYMMDD
+    @Value("${trading.quote.currency}") String QUOTE_CURRRENCY;    // USDT? BTC?
+
+    @Value("${trading.mode}") private String MODE;
+    @Value("${trading.symbol}") private String SYMBOL;
+    @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
+    @Value("${trading.ts.pct}") private double TS_PCT;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(SimulatorAppMain.class);
 
-    @Autowired
-    private SimulatorDAO simulatorDAO;
+    @Autowired private SimulatorDAO simulatorDAO;
+    @Autowired private Simulator simulator;
 
     public static void main(String[] args) {
         SpringApplication app = new SpringApplication(SimulatorAppMain.class);
@@ -41,9 +55,8 @@ public class SimulatorAppMain implements CommandLineRunner {
 
     public void run(String... args) throws IOException {
 
-        CmdLine.CommandLineOptions opts = CmdLine.parseCommandLine(args);
-        ExchangeEnum exchange = opts.getExchange();
-        TradingMode mode = opts.getMode();
+        ExchangeEnum exchange = ExchangeEnum.valueOf(EXCHANGE);
+        TradingMode mode = TradingMode.valueOf(MODE);
 
         if(!exchange.equals(ExchangeEnum.BINANCE) && !exchange.equals(ExchangeEnum.BITMEX) && !exchange.equals(ExchangeEnum.OKEX)) {
             throw new RuntimeException("Unsupported exchange");
@@ -53,65 +66,34 @@ public class SimulatorAppMain implements CommandLineRunner {
             throw new RuntimeException("BINANCE supports long only");
         }
 
-        Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput(), opts.getStrategy());
+//        Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput(), opts.getStrategy());
+//
+//        if(opts.getValidation()) {
+//            Gson gson = new Gson();
+//            List<TopSimulResult> topSimulResults = simulatorDAO.getTopSimulResults(opts.getMode().name(), opts.getStrategy().name());
+//            for(TopSimulResult r : topSimulResults) {
+//                SimulResult simulResult = gson.fromJson(r.getSimulResult(), SimulResult.class);
+//                simulator.runSimul();
+//                SimulResult validationResult = simulator.collectSimulResult();
+//                simulator.logValidationResult(r, validationResult);
+//            }
+//        } else {
 
-        if(opts.getValidation()) {
-            Gson gson = new Gson();
-            List<TopSimulResult> topSimulResults = simulatorDAO.getTopSimulResults(opts.getMode().name(), opts.getStrategy().name());
-            for(TopSimulResult r : topSimulResults) {
-                SimulResult simulResult = gson.fromJson(r.getSimulResult(), SimulResult.class);
-                Simulator simulator = new Simulator(simulatorDAO,
-                        DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
-                        DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
-                        opts.getExchange(),
-                        opts.getSymbol(),
-                        simulResult.getTS_TRIGGER_PCT(),
-                        simulResult.getTS_PCT(),
-                        mode,
-                        opts.getQuoteCurrency(),
-                        opts.getStrategy(),
-                        parsedBBInput,
-                        opts.isRepoUseDB());
-
-                simulator.init();
-                simulator.runSimul();
-                SimulResult validationResult = simulator.collectSimulResult();
-                simulator.logValidationResult(r, validationResult);
-            }
-        } else {
-
-            Double tsTriggerPct = parsedBBInput.get(CmdLine.TS_TRIGGER_PCT);
-            Double tsPct = parsedBBInput.get(CmdLine.TS_PCT);
-
-            if(tsTriggerPct != null && tsPct != null) {
-                if(tsTriggerPct <= tsPct) {
-                    LOGGER.error(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", tsTriggerPct, tsPct));
+            if(TS_TRIGGER_PCT > 0 && TS_PCT > 0) {
+                if(TS_TRIGGER_PCT <= TS_PCT) {
+                    LOGGER.error(String.format("tsTriggerPct should be bigger than tsPct (tsTriggetPct %.2f <= tsPct %.2f)", TS_TRIGGER_PCT, TS_PCT));
                     System.out.println("0");
                     System.exit(0);
                 }
             }  else {
-                tsTriggerPct = 0.0;
-                tsPct = 0.0;
+                TS_TRIGGER_PCT = 0.0;
+                TS_PCT = 0.0;
             }
 
-            Simulator simulator = new Simulator(this.simulatorDAO,
-                    DateTime.parse(opts.getSimulStart(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
-                    DateTime.parse(opts.getSimulEnd(), DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis(),
-                    opts.getExchange(),
-                    opts.getSymbol(),
-                    tsTriggerPct,
-                    tsPct,
-                    mode,
-                    opts.getQuoteCurrency(),
-                    opts.getStrategy(),
-                    parsedBBInput,
-                    opts.isRepoUseDB());
-
-            simulator.init();
             simulator.runSimul();
             SimulResult simulResult = simulator.collectSimulResult();
             simulator.logSimulResult(simulResult);
-        }
+//        }
         System.exit(0);
     }
 }

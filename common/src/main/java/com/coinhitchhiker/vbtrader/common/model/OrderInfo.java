@@ -11,6 +11,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
     private ExchangeEnum exchange;
     private String symbol;
     private OrderSide orderSide;
+    private OrderType orderType;
     private double stopPrice;
     private double price;
     private double amount;
@@ -24,16 +25,18 @@ public class OrderInfo implements Comparable<OrderInfo> {
     private String borrow_id;
     private String clientOid;
 
-    public OrderInfo(ExchangeEnum exchange, String symbol, OrderSide orderSide, double price, double amount) {
+
+    public OrderInfo(ExchangeEnum exchange, String symbol, OrderSide orderSide, OrderType orderType, double price, double amount) {
         this.exchange = exchange;
         this.symbol = symbol;
         this.orderSide = orderSide;
+        this.orderType = orderType;
         this.price = price;
         this.amount = amount;
     }
 
     public OrderInfo clone() {
-        OrderInfo o = new OrderInfo(exchange, symbol, orderSide, price, amount);
+        OrderInfo o = new OrderInfo(exchange, symbol, orderSide, orderType, price, amount);
         o.setExternalOrderId(externalOrderId);
         o.setExecTimestamp(execTimestamp);
         o.setOrderStatus(orderStatus);
@@ -153,41 +156,61 @@ public class OrderInfo implements Comparable<OrderInfo> {
         this.borrow_id = borrow_id;
     }
 
+    public OrderType getOrderType() {
+        return orderType;
+    }
+
+    public void setOrderType(OrderType orderType) {
+        this.orderType = orderType;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrderInfo orderInfo = (OrderInfo) o;
-        return Double.compare(orderInfo.price, price) == 0 &&
-            Double.compare(orderInfo.amount, amount) == 0 &&
-            exchange == orderInfo.exchange &&
-            Objects.equals(symbol, orderInfo.symbol) &&
-            orderSide == orderInfo.orderSide &&
-            Objects.equals(externalOrderId, orderInfo.externalOrderId);
+        return Double.compare(orderInfo.stopPrice, stopPrice) == 0 &&
+                Double.compare(orderInfo.price, price) == 0 &&
+                Double.compare(orderInfo.amount, amount) == 0 &&
+                execTimestamp == orderInfo.execTimestamp &&
+                Double.compare(orderInfo.amountExecuted, amountExecuted) == 0 &&
+                Double.compare(orderInfo.priceExecuted, priceExecuted) == 0 &&
+                Double.compare(orderInfo.feePaid, feePaid) == 0 &&
+                exchange == orderInfo.exchange &&
+                Objects.equals(symbol, orderInfo.symbol) &&
+                orderSide == orderInfo.orderSide &&
+                orderType == orderInfo.orderType &&
+                Objects.equals(externalOrderId, orderInfo.externalOrderId) &&
+                orderStatus == orderInfo.orderStatus &&
+                Objects.equals(feeCurrency, orderInfo.feeCurrency) &&
+                Objects.equals(borrow_id, orderInfo.borrow_id) &&
+                Objects.equals(clientOid, orderInfo.clientOid);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(exchange, symbol, orderSide, stopPrice, price, amount, externalOrderId, execTimestamp, orderStatus, amountExecuted, priceExecuted, feePaid, feeCurrency);
+        return Objects.hash(exchange, symbol, orderSide, orderType, stopPrice, price, amount, externalOrderId, execTimestamp, orderStatus, amountExecuted, priceExecuted, feePaid, feeCurrency, borrow_id, clientOid);
     }
 
     @Override
     public String toString() {
         return "OrderInfo{" +
-                "exchange='" + exchange + '\'' +
+                "exchange=" + exchange +
                 ", symbol='" + symbol + '\'' +
                 ", orderSide=" + orderSide +
+                ", orderType=" + orderType +
                 ", stopPrice=" + stopPrice +
                 ", price=" + price +
                 ", amount=" + amount +
                 ", externalOrderId='" + externalOrderId + '\'' +
-                ", execTimestamp=" + new DateTime(execTimestamp, UTC) +
+                ", execTimestamp=" + execTimestamp +
                 ", orderStatus=" + orderStatus +
                 ", amountExecuted=" + amountExecuted +
                 ", priceExecuted=" + priceExecuted +
                 ", feePaid=" + feePaid +
                 ", feeCurrency='" + feeCurrency + '\'' +
                 ", borrow_id='" + borrow_id + '\'' +
+                ", clientOid='" + clientOid + '\'' +
                 '}';
     }
 

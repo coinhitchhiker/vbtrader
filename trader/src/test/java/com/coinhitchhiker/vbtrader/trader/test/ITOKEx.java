@@ -18,6 +18,9 @@ import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Map;
 
+import static com.coinhitchhiker.vbtrader.common.model.OrderType.LIMIT_MAKER;
+import static com.coinhitchhiker.vbtrader.common.model.OrderType.MARKET;
+
 @TestPropertySource(locations = {"classpath:test-okex.properties"})
 @ContextConfiguration(classes = {OKExTestConfig.class,})
 public class ITOKEx extends BaseIT {
@@ -86,8 +89,8 @@ public class ITOKEx extends BaseIT {
     @Test
     @Ignore
     public void placeOrderShort() {
-        OrderInfo s = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.SELL, 10500.0, 0.01);
-        okexExchange.placeOrder(s, false);
+        OrderInfo s = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.SELL, MARKET,10500.0, 0.01);
+        okexExchange.placeOrder(s);
         LOGGER.info("SHORT ORDER");
         LOGGER.info(s.toString());
 
@@ -95,8 +98,8 @@ public class ITOKEx extends BaseIT {
         double amountExecuted = s.getAmountExecuted();
         double longPrice = priceExecuted * (1 + 0.5/100);
 
-        OrderInfo l = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.BUY, longPrice, amountExecuted);
-        okexExchange.placeOrder(l, false);
+        OrderInfo l = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.BUY, MARKET, longPrice, amountExecuted);
+        okexExchange.placeOrder(l);
         LOGGER.info("LONG ORDER");
         LOGGER.info(l.toString());
     }
@@ -106,8 +109,8 @@ public class ITOKEx extends BaseIT {
     public void placeOrderLong() {
         ((OKExExchange)okexExchange).setMODE(TradingMode.LONG);
 
-        OrderInfo s = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.BUY, 10800.0, 0.01);
-        okexExchange.placeOrder(s, false);
+        OrderInfo s = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.BUY, MARKET, 10800.0, 0.01);
+        okexExchange.placeOrder(s);
         LOGGER.info("BUY ORDER");
         LOGGER.info(s.toString());
 
@@ -115,8 +118,8 @@ public class ITOKEx extends BaseIT {
         double amountExecuted = s.getAmountExecuted();
         double sellPrice = priceExecuted * (1 - 0.5/100);
 
-        OrderInfo l = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.SELL, sellPrice, amountExecuted);
-        okexExchange.placeOrder(l, false);
+        OrderInfo l = new OrderInfo(ExchangeEnum.OKEX, "BTC-USDT", OrderSide.SELL, MARKET, sellPrice, amountExecuted);
+        okexExchange.placeOrder(l);
         LOGGER.info("SELL ORDER");
         LOGGER.info(l.toString());
     }

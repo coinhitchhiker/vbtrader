@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface Indicator<T> {
 
-    IndicatorType getIndicatorType();
     String getName();
     void onTick(List<Candle> candles);
     T getValueReverse(int index);

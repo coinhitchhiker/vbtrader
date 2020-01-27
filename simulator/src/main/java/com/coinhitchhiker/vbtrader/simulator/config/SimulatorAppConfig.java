@@ -1,39 +1,37 @@
-package com.coinhitchhiker.vbtrader.trader.config;
+package com.coinhitchhiker.vbtrader.simulator.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradeLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceOrderBookCache;
-import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceRepository;
-import com.coinhitchhiker.vbtrader.trader.exchange.bitmex.BitMexExchange;
-import com.coinhitchhiker.vbtrader.trader.exchange.bitmex.BitMexOrderBookCache;
-import com.coinhitchhiker.vbtrader.trader.exchange.bitmex.BitMexRepository;
-import org.jasypt.encryption.StringEncryptor;
-import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
-import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
+import com.coinhitchhiker.vbtrader.simulator.*;
+import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
-public class TraderAppConfig {
+public class SimulatorAppConfig {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TraderAppConfig.class);
+    @Autowired
+    private SimulatorDAO simulatorDAO;
 
     @Value("${trading.enabled}") boolean TRADING_ENABLED;
     @Value("${trading.exchange}") String EXCHANGE;
+    @Value("${trading.simul.start}") String SIMUL_START;    // YYYYMMDD
+    @Value("${trading.simul.end}") String SIMUL_END;    // YYYYMMDD
+    @Value("${trading.quote.currency}") String QUOTE_CURRRENCY;    // USDT? BTC?
+
     @Value("${trading.mode}") private String MODE;
     @Value("${trading.symbol}") private String SYMBOL;
     @Value("${trading.quote.currency}") private String QUOTE_CURRENCY;
     @Value("${trading.limit.order.premium}") private double LIMIT_ORDER_PREMIUM;
     @Value("${trading.fee.rate}") private double FEE_RATE;
+    @Value("${trading.slippage}") private double SLIPPAGE;
 
     @Value("${trading.ts.enabled}") private boolean TRAILING_STOP_ENABLED;
     @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
@@ -59,7 +57,7 @@ public class TraderAppConfig {
     @Value("${strategy.hma_trade.look.behind}") private int HMA_TRADE_LOOK_BEHIND;
 
     @Bean
-    public TradingEngine tradeEngine() {
+    public TradingEngine tradingEngine() {
         if(MODE.equals("LONG") && STRATEGY.equals("VB")) {
             return new VBLongTradingEngine(repository(), exchange(), orderBookCache(), TRADING_WINDOW_LOOK_BEHIND,
                     TRADING_WINDOW_SIZE, PRICE_MA_WEIGHT, VOLUME_MA_WEIGHT, SYMBOL, QUOTE_CURRENCY,
@@ -70,64 +68,46 @@ public class TraderAppConfig {
                     ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT,
                     STOP_LOSS_ENABLED, STOP_LOSS_PCT, IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD, true);
         } else if(MODE.equals("LONG") && STRATEGY.equals("HMA_TRADE")) {
-            return new HMATradeLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY,
+            return new HMATradeLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRRENCY,
                     ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.M5, HMA_LENGTH,
-                    HMA_TRADE_LOOK_BEHIND, false,
-                    0
+                    HMA_TRADE_LOOK_BEHIND, true,
+                    DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis()
             );
         } else {
             throw new UnsupportedOperationException("Not yet supported");
         }
     }
 
-    @Bean(name="encryptorBean")
-    public StringEncryptor stringEncryptor() {
-        PooledPBEStringEncryptor encryptor = new PooledPBEStringEncryptor();
-        SimpleStringPBEConfig config = new SimpleStringPBEConfig();
-        config.setAlgorithm("PBEWithMD5AndDES");
-        config.setKeyObtentionIterations("1000");
-        config.setPassword(System.getenv("JASYPT_ENCRYPTOR_PASSWORD"));
-        config.setPoolSize("1");
-        encryptor.setConfig(config);
-        return encryptor;
+    @Bean
+    public SimulatorExchange exchange() {
+        return new SimulatorExchange(SLIPPAGE);
     }
 
     @Bean
-    public Exchange exchange() {
-        LOGGER.info("Registering " + EXCHANGE + " exchange bean");
-
-        if(EXCHANGE.equals("BINANCE")) {
-            return new BinanceExchange();
-        } else if(EXCHANGE.equals("BITMEX")) {
-            return new BitMexExchange();
-        } else  {
-            throw new RuntimeException("Unsupported exchange was configured");
-        }
+    public SimulatorRepositoryImpl repository() {
+        return new SimulatorRepositoryImpl(ExchangeEnum.valueOf(EXCHANGE), SYMBOL
+                , DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis()
+                , DateTime.parse(SIMUL_END, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis()
+                , simulatorDAO, false);
     }
 
     @Bean
-    public Repository repository() {
-        LOGGER.info("Registering " + EXCHANGE + " repository bean");
-
-        if(EXCHANGE.equals("BINANCE")) {
-            return new BinanceRepository();
-        } else if(EXCHANGE.equals("BITMEX")) {
-            return new BitMexRepository();
-        } else  {
-            throw new RuntimeException("Unsupported exchange was configured");
-        }
+    public SimulatorOrderBookCache orderBookCache() {
+        return new SimulatorOrderBookCache(EXCHANGE, SYMBOL);
     }
 
     @Bean
-    public OrderBookCache orderBookCache() {
-        LOGGER.info("Registering " + EXCHANGE + " orderBookCache bean");
-
-        if(EXCHANGE.equals("BINANCE")) {
-            return new BinanceOrderBookCache();
-        } else if(EXCHANGE.equals("BITMEX")) {
-            return new BitMexOrderBookCache();
-        } else  {
-            throw new RuntimeException("Unsupported exchange was configured");
-        }
+    public Simulator simulator() {
+        return new Simulator(simulatorDAO
+                , DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis()
+                , DateTime.parse(SIMUL_END, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).plusDays(1).getMillis()
+                , ExchangeEnum.valueOf(EXCHANGE)
+                , SYMBOL
+                , TS_TRIGGER_PCT
+                , TS_PCT
+                , TradingMode.valueOf(MODE)
+                ,QUOTE_CURRENCY
+       );
     }
 }
+
