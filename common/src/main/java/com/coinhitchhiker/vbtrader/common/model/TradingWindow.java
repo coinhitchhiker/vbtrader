@@ -1,5 +1,6 @@
 package com.coinhitchhiker.vbtrader.common.model;
 
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;

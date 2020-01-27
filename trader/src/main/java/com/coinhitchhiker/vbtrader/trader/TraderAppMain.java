@@ -33,12 +33,12 @@ public class TraderAppMain implements CommandLineRunner {
     public void run(String... args) throws Exception {
     }
 
-    @Scheduled(cron = "${trading.frequency}")
-    public void triggerTrade() {
-        long timestamp = DateTime.now(UTC).getMillis();
-        double curPrice = exchange.getCurrentPrice(SYMBOL);
-
-        tradingEngine.trade(curPrice, timestamp, 0);
-    }
+//    @Scheduled(cron = "${trading.frequency}")
+//    public void triggerTrade() {
+//        long timestamp = DateTime.now(UTC).getMillis();
+//        double curPrice = exchange.getCurrentPrice(SYMBOL);
+//
+//        tradingEngine.trade(curPrice, timestamp, 0);
+//    }
 
 }

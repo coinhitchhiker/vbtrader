@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.common.strategy.pvtobv;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
 import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

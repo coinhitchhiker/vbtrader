@@ -5,7 +5,7 @@ import java.util.Map;
 
 public interface Exchange {
 
-    OrderInfo placeOrder(OrderInfo orderInfo, boolean makerOrder);
+    OrderInfo placeOrder(OrderInfo orderInfo);
 
     OrderInfo cancelOrder(OrderInfo orderInfo);
 

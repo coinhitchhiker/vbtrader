@@ -24,11 +24,6 @@ public class HullMovingAverage implements Indicator<Double> {
     }
 
     @Override
-    public IndicatorType getIndicatorType() {
-        return IndicatorType.HMA;
-    }
-
-    @Override
     public String getName() {
         return name;
     }

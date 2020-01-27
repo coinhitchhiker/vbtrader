@@ -72,6 +72,10 @@ public class Candle implements Serializable {
         return new Candle(symbol, String.valueOf(intervalSec), openTime, closeTime, open, high, low, close, volume);
     }
 
+    public Candle clone() {
+        return new Candle(this.symbol, this.interval, this.openTime, this.closeTime, this.openPrice, this.highPrice, this.lowPrice, this.closePrice, this.volume);
+    }
+
     //-----------------------------------------------------
 
     public String getSymbol() {

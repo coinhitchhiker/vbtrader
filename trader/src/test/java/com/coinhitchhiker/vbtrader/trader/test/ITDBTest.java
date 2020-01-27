@@ -27,7 +27,7 @@ public class ITDBTest extends BaseIT {
     @Ignore
     public void testLogCompleteTransaction() {
         TradingWindow tw = new TradingWindow("BTCUSDT", 100, 100, 100.0D);
-        OrderInfo buyOrder = new OrderInfo(ExchangeEnum.BINANCE, "BTCUSDT", OrderSide.BUY, 100.0D, 100.0D);
+        OrderInfo buyOrder = new OrderInfo(ExchangeEnum.BINANCE, "BTCUSDT", OrderSide.BUY, OrderType.MARKET, 100.0D, 100.0D);
         buyOrder.setFeeCurrency("BNB");
         buyOrder.setFeePaid(10.0D);
         buyOrder.setAmountExecuted(100.0D);

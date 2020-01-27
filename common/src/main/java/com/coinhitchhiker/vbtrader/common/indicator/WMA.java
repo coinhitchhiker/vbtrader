@@ -21,11 +21,6 @@ public class WMA implements Indicator<Double> {
     }
 
     @Override
-    public IndicatorType getIndicatorType() {
-        return IndicatorType.WMA;
-    }
-
-    @Override
     public String getName() {
         return this.name;
     }

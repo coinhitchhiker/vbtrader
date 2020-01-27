@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.common.strategy.vb;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
 import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;

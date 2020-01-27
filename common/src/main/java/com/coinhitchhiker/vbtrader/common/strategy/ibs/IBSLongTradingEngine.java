@@ -2,10 +2,12 @@ package com.coinhitchhiker.vbtrader.common.strategy.ibs;
 
 import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
 import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 
 import java.util.List;
 
@@ -191,7 +193,16 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
     }
 
     @Override
+    @EventListener
     public void onTradeEvent(TradeEvent e) {
         super.updateTrailingStopPrice(e.getPrice());
+    }
+
+    public void printStrategyParams() {
+        LOGGERBUYSELL.info("IBS_LOWER_THRESHOLD {}", this.IBS_LOWER_THRESHOLD);
+        LOGGERBUYSELL.info("IBS_UPPER_THRESHOLD {}", this.IBS_UPPER_THRESHOLD);
+        LOGGERBUYSELL.info("STOP_LOSS_PCT {}", this.STOP_LOSS_PCT);
+        LOGGERBUYSELL.info("TS_TRIGGER_PCT {}", this.TS_TRIGGER_PCT);
+        LOGGERBUYSELL.info("TS_PCT {}", this.TS_PCT);
     }
 }

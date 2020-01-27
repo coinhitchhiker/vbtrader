@@ -178,7 +178,7 @@ public class OKExExchange implements Exchange {
     }
 
     @Override
-    public OrderInfo placeOrder(OrderInfo orderInfo, boolean makerOrder) {
+    public OrderInfo placeOrder(OrderInfo orderInfo) {
         if(this.MODE.equals(TradingMode.SHORT)) {
             return placeOrderShort(orderInfo);
         } else {

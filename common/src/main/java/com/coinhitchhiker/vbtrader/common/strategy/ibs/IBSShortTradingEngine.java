@@ -2,10 +2,12 @@ package com.coinhitchhiker.vbtrader.common.strategy.ibs;
 
 import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
 import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.event.EventListener;
 
 import java.util.List;
 
@@ -137,6 +139,7 @@ public class IBSShortTradingEngine extends AbstractTradingEngine implements Trad
     }
 
     @Override
+    @EventListener
     public void onTradeEvent(TradeEvent e) {
         super.updateTrailingStopPrice(e.getPrice());
     }

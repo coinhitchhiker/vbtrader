@@ -1,6 +1,7 @@
 package com.coinhitchhiker.vbtrader.common.strategy.vb;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
 import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -9,7 +10,6 @@ import org.springframework.context.event.EventListener;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static com.coinhitchhiker.vbtrader.common.Util.getClosestMin;
 import static org.joda.time.DateTimeZone.UTC;
@@ -205,4 +205,10 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
         LOGGER.debug("refreshingTradingWindows is set to FALSE");
     }
 
+    public void printStrategyParams() {
+        LOGGERBUYSELL.info("TRADING_WINDOW_SIZE_IN_MIN {}", this.TRADING_WINDOW_SIZE);
+        LOGGERBUYSELL.info("TRADING_WINDOW_LOOK_BEHIND {}", this.TRADING_WINDOW_LOOK_BEHIND);
+        LOGGERBUYSELL.info("PRICE_MA_WEIGHT {}", this.PRICE_MA_WEIGHT);
+        LOGGERBUYSELL.info("VOLUME_MA_WEIGHT {}", this.VOLUME_MA_WEIGHT);
+    }
 }
