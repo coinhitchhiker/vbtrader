@@ -27,7 +27,7 @@ public class Chart {
     public void addIndicator(Indicator indicator) {
         String indiName = indicator.getName();
         if(getIndicatorByName(indiName) != null) {
-            throw new RuntimeException("Dupulicate indicator name : " + indiName);
+            throw new RuntimeException("Duplicate indicator name : " + indiName);
         }
         this.indicators.add(indicator);
     }
@@ -36,7 +36,6 @@ public class Chart {
         DateTime timestamp = new DateTime(curTimestamp, DateTimeZone.UTC);
         long open = timestamp.minuteOfDay().roundFloorCopy().getMillis();
         long close = open + timeframe.toSeconds() * 1000 - 1;
-        // public Candle(String symbol, String interval, long openTime, long closeTime, double openPrice, double highPrice, double lowPrice, double closePrice, double volume) {
         return new Candle(symbol, timeframe.toString(), open, close, curPrice, curPrice, curPrice, curPrice, curVol);
     }
 

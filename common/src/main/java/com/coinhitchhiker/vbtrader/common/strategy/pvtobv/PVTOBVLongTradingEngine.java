@@ -71,7 +71,7 @@ public class PVTOBVLongTradingEngine extends AbstractTradingEngine implements Tr
 
     @EventListener
     public void onTradeEvent(TradeEvent e) {
-        this.updateTrailingStopPrice(e.getPrice());
+        this.updateTrailingStopPrice(e.getPrice(), e.getTradeTime());
     }
 
     @Override

@@ -179,7 +179,7 @@ public class VBLongTradingEngine extends AbstractTradingEngine implements Tradin
             pendingVol += e.getAmount();
         } else {
             if(this.currentTradingWindow != null) {
-                this.updateTrailingStopPrice(e.getPrice());
+                this.updateTrailingStopPrice(e.getPrice(), e.getTradeTime());
                 double curVol = this.currentTradingWindow.getVolume();
                 this.currentTradingWindow.setVolume(curVol + pendingVol + e.getAmount());
                 pendingVol = 0;

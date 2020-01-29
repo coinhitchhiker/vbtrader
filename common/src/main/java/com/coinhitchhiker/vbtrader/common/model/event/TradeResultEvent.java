@@ -13,8 +13,9 @@ public class TradeResultEvent {
     private double buyPrice;
     private double amountExecuted;
     private double fee;
+    private long timestamp;
 
-    public TradeResultEvent(ExchangeEnum exchange, String symbol, String quoteCurrency, double netProfit, double profit, double sellPrice, double buyPrice, double amountExecuted, double fee) {
+    public TradeResultEvent(ExchangeEnum exchange, String symbol, String quoteCurrency, double netProfit, double profit, double sellPrice, double buyPrice, double amountExecuted, double fee, long timestamp) {
         this.exchange = exchange;
         this.symbol = symbol;
         this.quoteCurrency = quoteCurrency;
@@ -24,6 +25,7 @@ public class TradeResultEvent {
         this.fee = fee;
         this.netProfit = netProfit;
         this.profit = profit;
+        this.timestamp = timestamp;
     }
 
     public ExchangeEnum getExchange() {
@@ -60,5 +62,9 @@ public class TradeResultEvent {
 
     public String getQuoteCurrency() {
         return quoteCurrency;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
     }
 }

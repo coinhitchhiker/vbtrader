@@ -203,7 +203,7 @@ public class OrderInfo implements Comparable<OrderInfo> {
                 ", price=" + price +
                 ", amount=" + amount +
                 ", externalOrderId='" + externalOrderId + '\'' +
-                ", execTimestamp=" + execTimestamp +
+                ", execTimestamp=" + new DateTime(execTimestamp, UTC) +
                 ", orderStatus=" + orderStatus +
                 ", amountExecuted=" + amountExecuted +
                 ", priceExecuted=" + priceExecuted +
