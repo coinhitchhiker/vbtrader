@@ -141,7 +141,7 @@ public class IBSShortTradingEngine extends AbstractTradingEngine implements Trad
     @Override
     @EventListener
     public void onTradeEvent(TradeEvent e) {
-        super.updateTrailingStopPrice(e.getPrice());
+        super.updateTrailingStopPrice(e.getPrice(), e.getTradeTime());
     }
 
     private void refreshTradingWindows(long curTimestamp) {

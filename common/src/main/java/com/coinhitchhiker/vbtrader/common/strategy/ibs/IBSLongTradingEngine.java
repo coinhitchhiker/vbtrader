@@ -195,7 +195,7 @@ public class IBSLongTradingEngine extends AbstractTradingEngine implements Tradi
     @Override
     @EventListener
     public void onTradeEvent(TradeEvent e) {
-        super.updateTrailingStopPrice(e.getPrice());
+        super.updateTrailingStopPrice(e.getPrice(), e.getTradeTime());
     }
 
     public void printStrategyParams() {

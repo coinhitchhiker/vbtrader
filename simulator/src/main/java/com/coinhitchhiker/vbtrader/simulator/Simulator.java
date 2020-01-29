@@ -26,10 +26,13 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
+import static org.joda.time.DateTimeZone.UTC;
+
 public class Simulator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(Simulator.class);
     private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
+    private static final Logger LOGTRADE = LoggerFactory.getLogger("TRADELOGGER");
 
     private final long SIMUL_START;
     private final long SIMUL_END;
@@ -119,20 +122,20 @@ public class Simulator {
     private void tradeWith(double curPrice, long curTimestamp, double curVol, TradingEngine tradingEngine) {
         this.exchange.setTimestampAndPrice(curTimestamp, curPrice, curVol);
 
-//        TradeResult tradeResult = tradingEngine.trade(curPrice, curTimestamp, curVol);
-//        if(tradeResult != null) {
-//            Balance balance = this.exchange.getBalance().get(QUOTE_CURRRENCY);
-//            balance.setAvailableForTrade(balance.getAvailableForTrade() + tradeResult.getNetProfit());
-//            this.exchange.getBalance().put(QUOTE_CURRRENCY, balance);
-//
-//            if(tradeResult.getNetProfit() > 0) {
-//                win++;
-//                this.profit += tradeResult.getNetProfit();
-//            } else {
-//                lose++;
-//                this.loss += tradeResult.getNetProfit();
-//            }
-//        }
+        TradeResult tradeResult = tradingEngine.trade(curPrice, curTimestamp, curVol);
+        if(tradeResult != null) {
+            Balance balance = this.exchange.getBalance().get(QUOTE_CURRRENCY);
+            balance.setAvailableForTrade(balance.getAvailableForTrade() + tradeResult.getNetProfit());
+            this.exchange.getBalance().put(QUOTE_CURRRENCY, balance);
+
+            if(tradeResult.getNetProfit() > 0) {
+                win++;
+                this.profit += tradeResult.getNetProfit();
+            } else {
+                lose++;
+                this.loss += tradeResult.getNetProfit();
+            }
+        }
     }
 
     @EventListener
@@ -140,6 +143,8 @@ public class Simulator {
         Balance balance = this.exchange.getBalance().get(QUOTE_CURRRENCY);
         balance.setAvailableForTrade(balance.getAvailableForTrade() + event.getNetProfit());
         this.exchange.getBalance().put(QUOTE_CURRRENCY, balance);
+
+        LOGTRADE.info("{},{}", new DateTime(event.getTimestamp(), UTC), balance.getAvailableForTrade());
 
         if(event.getNetProfit() > 0) {
             win++;
@@ -153,8 +158,8 @@ public class Simulator {
     public SimulResult collectSimulResult() {
         LOGGERBUYSELL.info("----------------------------------------------------------------");
         LOGGERBUYSELL.info("STRATEGY {}", this.tradingEngine.getStrategy());
-        LOGGERBUYSELL.info("SIMUL_START {}", new DateTime(SIMUL_START, DateTimeZone.UTC));
-        LOGGERBUYSELL.info("SIMUL_END {}", new DateTime(SIMUL_END, DateTimeZone.UTC));
+        LOGGERBUYSELL.info("SIMUL_START {}", new DateTime(SIMUL_START, UTC));
+        LOGGERBUYSELL.info("SIMUL_END {}", new DateTime(SIMUL_END, UTC));
         LOGGERBUYSELL.info("MODE {}", MODE);
         LOGGERBUYSELL.info("START_USD_BALANCE {}", exchange.getSTART_BALANCE());
         LOGGERBUYSELL.info("END_USD_BALANCE {}", exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
@@ -181,16 +186,16 @@ public class Simulator {
 
         Integer id = simulatorDAO.getPeriodId(this.EXCHANGE.name(),
                 this.SYMBOL,
-                DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_START, DateTimeZone.UTC)),
-                DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, DateTimeZone.UTC)));
+                DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_START, UTC)),
+                DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, UTC)));
 
         result.setPeriodId(id);
 
 //        result.setSTRATEGY(STRATEGY);
         result.setSTART_USD_BALANCE(exchange.getSTART_BALANCE());
         result.setSLIPPAGE(this.SLIPPAGE);
-        result.setSIMUL_START(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_START, DateTimeZone.UTC)));
-        result.setSIMUL_END(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, DateTimeZone.UTC)));
+        result.setSIMUL_START(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_START, UTC)));
+        result.setSIMUL_END(DateTimeFormat.forPattern("yyyyMMdd").print(new DateTime(this.SIMUL_END, UTC)));
         result.setEND_USD_BALANCE(exchange.getBalance().get(QUOTE_CURRRENCY).getAvailableForTrade());
         result.setWINNING_RATE((win*1.0 / (win+lose)) * 100.0);
         result.setPL_RATIO(Math.abs(profit / (loss+0.00001)));

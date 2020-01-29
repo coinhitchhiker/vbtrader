@@ -2,10 +2,12 @@ package com.coinhitchhiker.vbtrader.simulator;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
+import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -24,7 +26,7 @@ public class SimulatorExchange implements Exchange {
     private Map<String, Balance> balanceMap = new HashMap<>();
     private double START_BALANCE = 10000;
 
-    private Map<String, OrderInfo> limitOrders = new HashMap<>();
+    private Map<String, OrderInfo> limitOrders = new LinkedHashMap<>();
 
     public SimulatorExchange(double SLIPPAGE) {
         this.SLIPPAGE = SLIPPAGE;
@@ -50,19 +52,23 @@ public class SimulatorExchange implements Exchange {
     }
 
     public void setTimestampAndPrice(long curTimestamp, double curPrice, double curVol) {
+
+        this.curTimestamp = curTimestamp;
+        this.curPrice = curPrice;
+
         for(Map.Entry<String, OrderInfo> entry : this.limitOrders.entrySet()) {
             OrderInfo limitOrder = entry.getValue();
             if(!limitOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
                 OrderSide side = limitOrder.getOrderSide();
                 if(side.equals(OrderSide.BUY)) {
-                    if(curPrice >= limitOrder.getPrice()) {
+                    if(curPrice <= limitOrder.getPrice()) {
                         limitOrder.setPriceExecuted(limitOrder.getPrice());
                         limitOrder.setAmountExecuted(limitOrder.getAmount());
                         limitOrder.setOrderStatus(OrderStatus.COMPLETE);
                         limitOrder.setExecTimestamp(this.curTimestamp);
                     }
                 } else {
-                    if(curPrice <= limitOrder.getPrice()) {
+                    if(curPrice >= limitOrder.getPrice()) {
                         limitOrder.setPriceExecuted(limitOrder.getPrice());
                         limitOrder.setAmountExecuted(limitOrder.getAmount());
                         limitOrder.setOrderStatus(OrderStatus.COMPLETE);
@@ -72,19 +78,30 @@ public class SimulatorExchange implements Exchange {
             }
         }
 
-        this.curTimestamp = curTimestamp;
-        this.curPrice = curPrice;
+        repository.setCurrentTimestamp(this.curTimestamp);
+        orderBookCache.setCurPrice(this.curPrice);
+        this.orderBookCache.onTradeEvent(this.curPrice, this.curTimestamp, curVol);
 
-        repository.setCurrentTimestamp(curTimestamp);
-        orderBookCache.setCurPrice(curPrice);
-        this.orderBookCache.onTradeEvent(curPrice, curTimestamp, curVol);
     }
 
     @Override
     public OrderInfo placeOrder(OrderInfo orderInfo) {
         if(orderInfo.getOrderType().equals(OrderType.LIMIT_MAKER) ||
                 orderInfo.getOrderType().equals(OrderType.LIMIT)) {
-            orderInfo.setExternalOrderId(String.valueOf(Math.random() * 1000000));
+
+            orderInfo.setExternalOrderId(String.valueOf(this.curTimestamp));
+
+            if(orderInfo.getOrderSide().equals(OrderSide.BUY) && this.curPrice < orderInfo.getPrice()) {
+                orderInfo.setPriceExecuted(this.curPrice * (1 + SLIPPAGE));
+                orderInfo.setAmountExecuted(orderInfo.getAmount());
+                orderInfo.setOrderStatus(OrderStatus.COMPLETE);
+                orderInfo.setExecTimestamp(this.curTimestamp);
+            } else if(orderInfo.getOrderSide().equals(OrderSide.SELL) && this.curPrice > orderInfo.getPrice()) {
+                orderInfo.setPriceExecuted(this.curPrice * (1 - SLIPPAGE));
+                orderInfo.setAmountExecuted(orderInfo.getAmount());
+                orderInfo.setOrderStatus(OrderStatus.COMPLETE);
+                orderInfo.setExecTimestamp(this.curTimestamp);
+            }
             this.limitOrders.put(orderInfo.getExternalOrderId(), orderInfo.clone());
             return orderInfo;
         }

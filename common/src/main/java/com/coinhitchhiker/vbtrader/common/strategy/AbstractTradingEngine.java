@@ -1,8 +1,11 @@
 package com.coinhitchhiker.vbtrader.common.strategy;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import static org.joda.time.DateTimeZone.UTC;
 
 public class AbstractTradingEngine {
 
@@ -188,26 +191,6 @@ public class AbstractTradingEngine {
         return new TradeResult(EXCHANGE, SYMBOL, QUOTE_CURRENCY, netProfit, profit, placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), placedBuyOrder.getAmountExecuted(), buyFee + sellFee);
     }
 
-    protected OrderInfo placeBuyOrderLimit(double buyPrice, double buyAmount) {
-        CoinInfo coinInfo = exchange.getCoinInfoBySymbol(SYMBOL);
-        buyPrice = Double.valueOf(coinInfo.getCanonicalPrice(buyPrice));
-        buyAmount = Double.valueOf(coinInfo.getCanonicalAmount(buyAmount));
-
-        OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.LIMIT_MAKER, buyPrice, buyAmount);
-
-        if(!TRADING_ENABLED) {
-            LOGGER.info("-------------------TRADING DISABLED!-------------------");
-            LOGGER.info("[PREPARED BUYORDER] {}", buyOrder.toString());
-            return null;
-        }
-
-        LOGGER.info("[PREPARED BUY ORDER] {} ", buyOrder.toString());
-        OrderInfo placedBuyOrder = exchange.placeOrder(buyOrder);
-        LOGGER.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
-        LOGGERBUYSELL.info("[PLACED BUY ORDER] {}", placedBuyOrder.toString());
-        return placedBuyOrder;
-    }
-
     protected TradeResult placeBuyOrder(double curPrice, double buySignalStrength) {
         if(MODE.equals(TradingMode.LONG)) {
             try {
@@ -256,26 +239,26 @@ public class AbstractTradingEngine {
         }
     }
 
-    protected void updateTrailingStopPrice(double curPrice) {
-        if(MODE.equals(TradingMode.LONG) && this.placedBuyOrder != null) {
+    protected void updateTrailingStopPrice(double curPrice, long curTimestamp) {
+        if(MODE.equals(TradingMode.LONG) && this.placedBuyOrder != null && this.placedBuyOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
             if(this.trailingStopPrice == 0) {
-                if(curPrice > placedBuyOrder.getPriceExecuted() * (100.0 + TS_TRIGGER_PCT)/100) {
-                    LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
+                if(curPrice > placedBuyOrder.getPrice() * (100.0 + TS_TRIGGER_PCT)/100) {
                     this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
+                    LOGGER.info(String.format("[LONG] [%s] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", new DateTime(curTimestamp, UTC), prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
                 }
             } else {
                 if(curPrice > prevPrice) {
                     if(this.trailingStopPrice < curPrice * (100.0 - TS_PCT)/100.0) {
-                        LOGGER.info(String.format("[LONG] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
+                        LOGGER.info(String.format("[LONG] [%s] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", new DateTime(curTimestamp, UTC), prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 - TS_PCT)/100.0));
                         this.trailingStopPrice = curPrice * (100.0 - TS_PCT)/100.0;
                     }
                 }
             }
         }
 
-        if(MODE.equals(TradingMode.SHORT) && this.placedSellOrder != null) {
+        if(MODE.equals(TradingMode.SHORT) && this.placedSellOrder != null && this.placedSellOrder.getPriceExecuted() > 0) {
             if(this.trailingStopPrice == 0) {
-                if(curPrice < placedSellOrder.getPriceExecuted() * (100.0 - TS_TRIGGER_PCT)/100.0) {
+                if(curPrice < placedSellOrder.getPrice() * (100.0 - TS_TRIGGER_PCT)/100.0) {
                     LOGGER.info(String.format("[SHORT] prevPrice=%.2f, curPrice=%.2f, old TS=%.2f, new TS=%.2f", prevPrice, curPrice, this.trailingStopPrice, curPrice * (100.0 + TS_PCT)/100.0));
                     this.trailingStopPrice = curPrice * (100.0 + TS_PCT)/100.0;
                 }
@@ -309,7 +292,7 @@ public class AbstractTradingEngine {
         }
     }
 
-    private void clearOutOrders() {
+    protected void clearOutOrders() {
         this.placedBuyOrder = null;
         this.placedSellOrder = null;
         this.buyFee = 0;
@@ -328,9 +311,9 @@ public class AbstractTradingEngine {
 
     public boolean trailingStopHit(double curPrice) {
         if(MODE.equals(TradingMode.LONG))
-            return TRAILING_STOP_ENABLED && placedBuyOrder != null && curPrice < this.trailingStopPrice && this.trailingStopPrice > 0.0;
+            return TRAILING_STOP_ENABLED && placedBuyOrder != null && placedBuyOrder.getOrderStatus().equals(OrderStatus.COMPLETE) && curPrice < this.trailingStopPrice && this.trailingStopPrice > 0.0;
         else    // SHORT
-            return TRAILING_STOP_ENABLED && placedSellOrder != null && curPrice > this.trailingStopPrice && this.trailingStopPrice > 0.0;
+            return TRAILING_STOP_ENABLED && placedSellOrder != null && placedBuyOrder.getOrderStatus().equals(OrderStatus.COMPLETE) && curPrice > this.trailingStopPrice && this.trailingStopPrice > 0.0;
     }
 
     public double getTrailingStopPrice() {
