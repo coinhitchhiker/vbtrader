@@ -3,6 +3,7 @@ package com.coinhitchhiker.vbtrader.simulator.config;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradeLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.m5scalping.M5ScalpingLongEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.*;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
@@ -73,6 +74,10 @@ public class SimulatorAppConfig {
                     HMA_TRADE_LOOK_BEHIND, true,
                     DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis()
             );
+        } else if(MODE.equals("LONG") && STRATEGY.equals("M5_SCALP")) {
+            return new M5ScalpingLongEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY,
+                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.M5, 20, true,
+                    DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis());
         } else {
             throw new UnsupportedOperationException("Not yet supported");
         }
