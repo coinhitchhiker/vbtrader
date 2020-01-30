@@ -2,7 +2,6 @@ package com.coinhitchhiker.vbtrader.common.strategy.m5scalping;
 
 import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.indicator.EMA;
-import com.coinhitchhiker.vbtrader.common.indicator.HullMovingAverage;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.model.event.CandleOpenEvent;
 import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
@@ -20,34 +19,38 @@ import java.util.Map;
 
 import static org.joda.time.DateTimeZone.UTC;
 
+// https://www.youtube.com/watch?v=zhEukjCzXwM
 public class M5ScalpingLongEngine  extends AbstractTradingEngine implements TradingEngine {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(M5ScalpingLongEngine.class);
     private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
+    public static final String M5_21EMA = "m5_21ema";
+    public static final String M5_13EMA = "m5_13ema";
+    public static final String M5_8EMA = "m5_8ema";
+    public static final String H1_21EMA = "h1_21ema";
+    public static final String H1_8EMA = "h1_8ema";
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
 
-    private Chart chart = null;
-    private final TimeFrame TIME_FRAME;
-    private final int EMA_LENGTH = 9;
+    private Chart m5Chart = null;
+    private Chart h1Chart = null;
+
     private final int TRADING_WINDOW_LOOKBEHIND;
-    private final String INDI_NAME = "ema9";
+
     private final double ORDER_AMT = 0.1;
-    private final int MAX_ORDER_CNT = 20;
+    private final int MAX_ORDER_CNT = 1;
     private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
 
     public M5ScalpingLongEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                      String SYMBOL, String QUOTE_CURRENCY, ExchangeEnum EXCHANGE, double FEE_RATE,
-                                     boolean VERBOSE, TimeFrame TIME_FRAME, int TRADING_WINDOW_LOOKBEHIND,
-                                     boolean SIMUL, long SIMUL_START
+                                     boolean VERBOSE, int TRADING_WINDOW_LOOKBEHIND, boolean SIMUL, long SIMUL_START
     ) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, 0,
                 EXCHANGE, FEE_RATE, true, true, 0.1 + FEE_RATE*2,
                 0.2 * (0.1 + FEE_RATE*2), false, 0, VERBOSE);
 
-        this.TIME_FRAME = TIME_FRAME;
         this.TRADING_WINDOW_LOOKBEHIND = TRADING_WINDOW_LOOKBEHIND;
 
         if(SIMUL) {
@@ -59,19 +62,34 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
     }
 
     private void initChart(long loadBeforeThis) {
-        this.chart = Chart.of(TIME_FRAME, SYMBOL);
-        this.chart.addIndicator(new EMA(INDI_NAME, EMA_LENGTH));
 
-        long closestCandleOpen = Util.getClosestCandleOpen(new DateTime(loadBeforeThis, UTC), TIME_FRAME).getMillis();
-        int backToNCandles = EMA_LENGTH * 2 + TRADING_WINDOW_LOOKBEHIND * 2;
-        long startTime = closestCandleOpen - TIME_FRAME.toSeconds() * 1000 * backToNCandles;
+        this.m5Chart = Chart.of(TimeFrame.M5, SYMBOL);
+        this.m5Chart.addIndicator(new EMA(M5_21EMA, 21));
+        this.m5Chart.addIndicator(new EMA(M5_13EMA, 13));
+        this.m5Chart.addIndicator(new EMA(M5_8EMA, 8));
+
+        this.h1Chart = Chart.of(TimeFrame.H1, SYMBOL);
+        this.h1Chart.addIndicator(new EMA(H1_21EMA, 21));
+        this.h1Chart.addIndicator(new EMA(H1_8EMA, 8));
+
+        // M5 is more granular than H1
+        long closestCandleOpen = Util.getClosestCandleOpen(new DateTime(loadBeforeThis, UTC), TimeFrame.M5).getMillis();
+        // go back to the oldest possible time that this strategy needs
+        int backToNCandles = 21 * 5 + TRADING_WINDOW_LOOKBEHIND * 2;
+
+        long startTime = closestCandleOpen - TimeFrame.H1.toSeconds() * 1000 * backToNCandles;
         List<Candle> pastCandles = repository.getCandles(SYMBOL, startTime, loadBeforeThis);
 
         for(Candle candle : pastCandles) {
-            this.chart.onTick(candle.getOpenPrice(), candle.getOpenTime(), 0);
-            this.chart.onTick(candle.getHighPrice(), candle.getOpenTime() + 20 * 1000, 0);
-            this.chart.onTick(candle.getLowPrice(), candle.getOpenTime() + 40 * 1000, 0);
-            this.chart.onTick(candle.getClosePrice(), candle.getCloseTime(), candle.getVolume());
+            this.m5Chart.onTick(candle.getOpenPrice(), candle.getOpenTime(), 0);
+            this.m5Chart.onTick(candle.getHighPrice(), candle.getOpenTime() + 20 * 1000, 0);
+            this.m5Chart.onTick(candle.getLowPrice(), candle.getOpenTime() + 40 * 1000, 0);
+            this.m5Chart.onTick(candle.getClosePrice(), candle.getCloseTime(), candle.getVolume());
+
+            this.h1Chart.onTick(candle.getOpenPrice(), candle.getOpenTime(), 0);
+            this.h1Chart.onTick(candle.getHighPrice(), candle.getOpenTime() + 20 * 1000, 0);
+            this.h1Chart.onTick(candle.getLowPrice(), candle.getOpenTime() + 40 * 1000, 0);
+            this.h1Chart.onTick(candle.getClosePrice(), candle.getCloseTime(), candle.getVolume());
         }
     }
 
@@ -83,6 +101,7 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
 
     @Override
     public double buySignalStrength(double curPrice, long curTimestamp) {
+        
         return 0;
     }
 
@@ -94,11 +113,18 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
     @Override
     @EventListener
     public void onTradeEvent(TradeEvent e) {
-        if(this.chart != null) {
+        if(this.m5Chart != null && this.h1Chart != null) {
             this.updateTrailingStopPrice(e.getPrice(), e.getTradeTime());
-            Candle newCandle = this.chart.onTick(e.getPrice(), e.getTradeTime(), e.getAmount());
-            if(newCandle != null) {
-                this.eventPublisher.publishEvent(new CandleOpenEvent(this.TIME_FRAME, newCandle));
+
+            // ORDER MATTERS!!! H1 Chart Confirmation should happen first!!!!
+            Candle h1newCandle = this.h1Chart.onTick(e.getPrice(), e.getTradeTime(), e.getAmount());
+            if(h1newCandle != null) {
+                this.eventPublisher.publishEvent(new CandleOpenEvent(TimeFrame.H1, h1newCandle));
+            }
+
+            Candle m5newCandle = this.m5Chart.onTick(e.getPrice(), e.getTradeTime(), e.getAmount());
+            if(m5newCandle != null) {
+                this.eventPublisher.publishEvent(new CandleOpenEvent(TimeFrame.M5, m5newCandle));
             }
         }
     }
@@ -108,23 +134,24 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
 
         TimeFrame timeFrame = e.getTimeFrame();
 
-        if (!timeFrame.equals(this.TIME_FRAME)) {
+        if (timeFrame.equals(TimeFrame.H1)) {
+            LOGGER.info("New H1 candle is received. Checking the trend....");
             return;
         }
 
-        EMA ema9 = (EMA)this.chart.getIndicatorByName(INDI_NAME);
-        double ema_1 = ema9.getValueReverse(1);
-        double ema_2 = ema9.getValueReverse(2);
-
+        if (timeFrame.equals(TimeFrame.M5)) {
+            LOGGER.info("New M5 candle is received. Checking the trend and trade opportunity...");
+            return;
+        }
     }
 
     @Override
     public StrategyEnum getStrategy() {
-        return null;
+        return StrategyEnum.M5SCALPING;
     }
 
     @Override
     public void printStrategyParams() {
-
+        return;
     }
 }

@@ -1,5 +1,5 @@
 package com.coinhitchhiker.vbtrader.common.model;
 
 public enum StrategyEnum {
-    VB, PVTOBV, IBS, HMA_TRADE;
+    VB, PVTOBV, IBS, HMA_TRADE, M5SCALPING;
 }

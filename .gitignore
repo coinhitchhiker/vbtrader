@@ -38,3 +38,5 @@ simulator/blackbox/OKEX*
 /simulator/blackbox/BITMEX*
 trader/log*
 
+log*.txt
+simulator/BINANCE-BTCUSDT*

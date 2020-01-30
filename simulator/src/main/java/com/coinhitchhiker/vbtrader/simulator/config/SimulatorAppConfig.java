@@ -76,7 +76,7 @@ public class SimulatorAppConfig {
             );
         } else if(MODE.equals("LONG") && STRATEGY.equals("M5_SCALP")) {
             return new M5ScalpingLongEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY,
-                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.M5, 20, true,
+                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, 20, true,
                     DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis());
         } else {
             throw new UnsupportedOperationException("Not yet supported");

@@ -36,7 +36,7 @@ public class EMA implements Indicator<Double> {
         long curTimestamp = candles.get(size-1).getOpenTime();
 
         int lastBar = size - 1;
-        int firstBar = lastBar - 5*length + 1;
+        int firstBar = lastBar - (int)(4.6*(length + 1));   // 99.99% accuracy
         if(firstBar < 0) return;
 
         double ema = candles.get(firstBar).getClosePrice();
