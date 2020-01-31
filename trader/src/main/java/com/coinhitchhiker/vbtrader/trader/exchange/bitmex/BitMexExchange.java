@@ -223,4 +223,9 @@ public class BitMexExchange implements Exchange {
         }
         return result.length() == 0 ? result : "?" + result.substring(0, result.length()-1);
     }
+
+    @Override
+    public ExchangeEnum getExchangeEnum() {
+        return ExchangeEnum.BITMEX;
+    }
 }

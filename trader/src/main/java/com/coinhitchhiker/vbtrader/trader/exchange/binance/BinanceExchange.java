@@ -289,4 +289,9 @@ public class BinanceExchange implements Exchange {
         return balance;
     }
 
+    @Override
+    public ExchangeEnum getExchangeEnum() {
+        return ExchangeEnum.BINANCE;
+    }
+
 }

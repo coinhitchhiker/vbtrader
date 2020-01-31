@@ -58,21 +58,43 @@ public class SimulatorExchange implements Exchange {
 
         for(Map.Entry<String, OrderInfo> entry : this.limitOrders.entrySet()) {
             OrderInfo limitOrder = entry.getValue();
-            if(!limitOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
-                OrderSide side = limitOrder.getOrderSide();
-                if(side.equals(OrderSide.BUY)) {
-                    if(curPrice <= limitOrder.getPrice()) {
-                        limitOrder.setPriceExecuted(limitOrder.getPrice());
-                        limitOrder.setAmountExecuted(limitOrder.getAmount());
-                        limitOrder.setOrderStatus(OrderStatus.COMPLETE);
-                        limitOrder.setExecTimestamp(this.curTimestamp);
+
+            if(limitOrder.getOrderType().equals(OrderType.STOP_LIMIT)) {
+                if(!limitOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
+                    OrderSide side = limitOrder.getOrderSide();
+                    if(side.equals(OrderSide.BUY)) {
+                        if(curPrice >= limitOrder.getPrice()) {
+                            limitOrder.setPriceExecuted(limitOrder.getPrice());
+                            limitOrder.setAmountExecuted(limitOrder.getAmount());
+                            limitOrder.setOrderStatus(OrderStatus.COMPLETE);
+                            limitOrder.setExecTimestamp(this.curTimestamp);
+                        }
+                    } else {
+                        if(curPrice <= limitOrder.getPrice()) {
+                            limitOrder.setPriceExecuted(limitOrder.getPrice());
+                            limitOrder.setAmountExecuted(limitOrder.getAmount());
+                            limitOrder.setOrderStatus(OrderStatus.COMPLETE);
+                            limitOrder.setExecTimestamp(this.curTimestamp);
+                        }
                     }
-                } else {
-                    if(curPrice >= limitOrder.getPrice()) {
-                        limitOrder.setPriceExecuted(limitOrder.getPrice());
-                        limitOrder.setAmountExecuted(limitOrder.getAmount());
-                        limitOrder.setOrderStatus(OrderStatus.COMPLETE);
-                        limitOrder.setExecTimestamp(this.curTimestamp);
+                }
+            } else {
+                if(!limitOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
+                    OrderSide side = limitOrder.getOrderSide();
+                    if(side.equals(OrderSide.BUY)) {
+                        if(curPrice <= limitOrder.getPrice()) {
+                            limitOrder.setPriceExecuted(limitOrder.getPrice());
+                            limitOrder.setAmountExecuted(limitOrder.getAmount());
+                            limitOrder.setOrderStatus(OrderStatus.COMPLETE);
+                            limitOrder.setExecTimestamp(this.curTimestamp);
+                        }
+                    } else {
+                        if(curPrice >= limitOrder.getPrice()) {
+                            limitOrder.setPriceExecuted(limitOrder.getPrice());
+                            limitOrder.setAmountExecuted(limitOrder.getAmount());
+                            limitOrder.setOrderStatus(OrderStatus.COMPLETE);
+                            limitOrder.setExecTimestamp(this.curTimestamp);
+                        }
                     }
                 }
             }
@@ -86,8 +108,9 @@ public class SimulatorExchange implements Exchange {
 
     @Override
     public OrderInfo placeOrder(OrderInfo orderInfo) {
-        if(orderInfo.getOrderType().equals(OrderType.LIMIT_MAKER) ||
-                orderInfo.getOrderType().equals(OrderType.LIMIT)) {
+        OrderType orderType = orderInfo.getOrderType();
+
+        if(orderType.equals(OrderType.LIMIT_MAKER) || orderType.equals(OrderType.LIMIT)) {
 
             orderInfo.setExternalOrderId(String.valueOf(this.curTimestamp));
 
@@ -102,6 +125,10 @@ public class SimulatorExchange implements Exchange {
                 orderInfo.setOrderStatus(OrderStatus.COMPLETE);
                 orderInfo.setExecTimestamp(this.curTimestamp);
             }
+            this.limitOrders.put(orderInfo.getExternalOrderId(), orderInfo.clone());
+            return orderInfo;
+        } else if(orderType.equals(OrderType.STOP_LIMIT)) {
+            orderInfo.setExternalOrderId(String.valueOf(this.curTimestamp));
             this.limitOrders.put(orderInfo.getExternalOrderId(), orderInfo.clone());
             return orderInfo;
         }
@@ -221,5 +248,10 @@ public class SimulatorExchange implements Exchange {
 
     public void setTradingEngine(TradingEngine tradingEngine) {
         this.tradingEngine = tradingEngine;
+    }
+
+    @Override
+    public ExchangeEnum getExchangeEnum() {
+        return ExchangeEnum.SIMULATOR;
     }
 }

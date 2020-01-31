@@ -1,4 +1,4 @@
-package com.coinhitchhiker.vbtrader.common.strategy.m5scalping;
+package com.coinhitchhiker.vbtrader.common.strategy.m5scalping.longside;
 
 import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.indicator.EMA;
@@ -30,19 +30,15 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
     public static final String H1_21EMA = "h1_21ema";
     public static final String H1_8EMA = "h1_8ema";
 
-    @Autowired
-    private ApplicationEventPublisher eventPublisher;
+    private final ApplicationEventPublisher eventPublisher;
 
     private Chart m5Chart = null;
     private Chart h1Chart = null;
+    private State curState;
 
     private final int TRADING_WINDOW_LOOKBEHIND;
 
-    private final double ORDER_AMT = 0.1;
-    private final int MAX_ORDER_CNT = 1;
-    private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
-
-    public M5ScalpingLongEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
+    public M5ScalpingLongEngine(ApplicationEventPublisher eventPublisher, Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                      String SYMBOL, String QUOTE_CURRENCY, ExchangeEnum EXCHANGE, double FEE_RATE,
                                      boolean VERBOSE, int TRADING_WINDOW_LOOKBEHIND, boolean SIMUL, long SIMUL_START
     ) {
@@ -52,6 +48,7 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
                 0.2 * (0.1 + FEE_RATE*2), false, 0, VERBOSE);
 
         this.TRADING_WINDOW_LOOKBEHIND = TRADING_WINDOW_LOOKBEHIND;
+        this.eventPublisher = eventPublisher;
 
         if(SIMUL) {
             initChart(SIMUL_START);
@@ -59,6 +56,7 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
             initChart(DateTime.now(UTC).getMillis());
         }
 
+        this.curState = new StateINIT(this, eventPublisher);
     }
 
     private void initChart(long loadBeforeThis) {
@@ -96,14 +94,19 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
 
     @Override
     public TradeResult trade(double curPrice, long curTimestamp, double curVol) {
+        State newState = this.curState.nextState(curPrice, curTimestamp, curVol);
+        if(!curState.getStateEnum().equals(newState.getStateEnum())) {
+            newState.enter(this.exchange, this.SYMBOL);
+            this.curState = newState;
+        }
         return null;
     }
 
     @Override
     public double buySignalStrength(double curPrice, long curTimestamp) {
-        
         return 0;
     }
+
 
     @Override
     public double sellSignalStrength(double curPrice, long curTimestamp) {
@@ -131,17 +134,14 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
 
     @EventListener
     public void onCandleOpenEvent(CandleOpenEvent e) {
+        double curPrice = e.getNewCandle().getClosePrice();
+        long curTimestamp = e.getNewCandle().getOpenTime();
+        double curVol = e.getNewCandle().getVolume();
 
-        TimeFrame timeFrame = e.getTimeFrame();
-
-        if (timeFrame.equals(TimeFrame.H1)) {
-            LOGGER.info("New H1 candle is received. Checking the trend....");
-            return;
-        }
-
-        if (timeFrame.equals(TimeFrame.M5)) {
-            LOGGER.info("New M5 candle is received. Checking the trend and trade opportunity...");
-            return;
+        State newState = this.curState.nextState(curPrice, curTimestamp, curVol);
+        if(!curState.getStateEnum().equals(newState.getStateEnum())) {
+            newState.enter(this.exchange, this.SYMBOL);
+            this.curState = newState;
         }
     }
 
@@ -153,5 +153,21 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
     @Override
     public void printStrategyParams() {
         return;
+    }
+
+    public Chart getM5Chart() {
+        return m5Chart;
+    }
+
+    public Chart getH1Chart() {
+        return h1Chart;
+    }
+
+    public Exchange getExchange() {
+        return this.exchange;
+    }
+
+    public String getSymbol() {
+        return this.SYMBOL;
     }
 }

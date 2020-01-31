@@ -3,7 +3,7 @@ package com.coinhitchhiker.vbtrader.simulator.config;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradeLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
-import com.coinhitchhiker.vbtrader.common.strategy.m5scalping.M5ScalpingLongEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.m5scalping.longside.M5ScalpingLongEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.*;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
@@ -12,6 +12,7 @@ import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -20,6 +21,9 @@ public class SimulatorAppConfig {
 
     @Autowired
     private SimulatorDAO simulatorDAO;
+
+    @Autowired
+    private ApplicationEventPublisher eventPublisher;
 
     @Value("${trading.enabled}") boolean TRADING_ENABLED;
     @Value("${trading.exchange}") String EXCHANGE;
@@ -75,7 +79,7 @@ public class SimulatorAppConfig {
                     DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis()
             );
         } else if(MODE.equals("LONG") && STRATEGY.equals("M5_SCALP")) {
-            return new M5ScalpingLongEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY,
+            return new M5ScalpingLongEngine(eventPublisher, repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY,
                     ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, 20, true,
                     DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis());
         } else {

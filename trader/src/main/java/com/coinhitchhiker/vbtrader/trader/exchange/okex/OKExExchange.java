@@ -429,4 +429,9 @@ public class OKExExchange implements Exchange {
     public void setMODE(TradingMode MODE) {
         this.MODE = MODE;
     }
+
+    @Override
+    public ExchangeEnum getExchangeEnum() {
+        return ExchangeEnum.OKEX;
+    }
 }

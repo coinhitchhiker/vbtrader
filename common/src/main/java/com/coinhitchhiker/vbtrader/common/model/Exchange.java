@@ -19,4 +19,6 @@ public interface Exchange {
 
     Map<String, Balance> getBalance();
 
+    ExchangeEnum getExchangeEnum();
+
 }
