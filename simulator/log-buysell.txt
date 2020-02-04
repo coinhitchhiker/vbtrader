@@ -1,0 +1,854 @@
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-09T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -17.110259259257873 < 0.2 * (hma1 - hma2) 0.989918518518607 
+[2019-12-09T12:00:00.000Z] sell price 7616.7245444 buy price 7369.36 order amt 1.0 net profit 240.62080635502033
+[2019-12-13T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7221.9, amount=1.0, externalOrderId='1576238400000', execTimestamp=2019-12-13T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7221.29, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -29.636074074074713 < 0.2 * (hma1 - hma2) 2.2627111111110936 
+[2019-12-15T00:00:00.000Z] sell price 7306.272561 buy price 7221.29 order amt 1.0 net profit 78.44515784754981
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-22T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -30.19937037037016 < 0.2 * (hma1 - hma2) 0.22148148148153268 
+[2019-12-22T00:00:00.000Z] sell price 7377.195600000001 buy price 7277.83 order amt 1.0 net profit 92.77083848000099
+[2019-12-23T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7501.44, amount=1.0, externalOrderId='1577059200000', execTimestamp=2019-12-23T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7500.71, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-25T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -39.38774074073899 < 0.2 * (hma1 - hma2) 4.940933333333124 
+[2019-12-25T00:00:00.000Z] sell price 7692.4557556 buy price 7500.71 order amt 1.0 net profit 184.90883100997993
+[2019-12-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7254.74, amount=1.0, externalOrderId='1577491200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-31T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -24.223444444445704 < 0.2 * (hma1 - hma2) 3.101044444444415 
+[2019-12-31T00:00:00.000Z] sell price 7525.589189 buy price 7254.74 order amt 1.0 net profit 264.1980408649505
+[2020-01-03T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7340.46, amount=1.0, externalOrderId='1578052800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-09T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -22.020111111112783 < 0.2 * (hma1 - hma2) 24.592748148148168 
+[2020-01-09T12:00:00.000Z] sell price 8451.787100000001 buy price 7340.46 order amt 1.0 net profit 1104.2205888050014
+[2020-01-11T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8045.95, amount=1.0, externalOrderId='1578744000000', execTimestamp=2020-01-11T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8045.89, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-14T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -3.1494074074062155 < 0.2 * (hma1 - hma2) 2.9807555555555156 
+[2020-01-14T00:00:00.000Z] sell price 8283.1911908 buy price 8045.89 order amt 1.0 net profit 229.95310426413985
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-17T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -6.61062962962751 < 0.2 * (hma1 - hma2) 0.1610518518515164 
+[2020-01-17T12:00:00.000Z] sell price 9038.214173 buy price 8526.87 order amt 1.0 net profit 503.4398851221495
+[2020-01-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8913.28, amount=1.0, externalOrderId='1579305600000', execTimestamp=2020-01-18T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8913.27, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-19T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -36.02825925925936 < 0.2 * (hma1 - hma2) 4.389614814814559 
+[2020-01-19T12:00:00.000Z] sell price 9195.4843876 buy price 8913.27 order amt 1.0 net profit 274.0654481255791
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-23T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -47.65522222222171 < 0.2 * (hma1 - hma2) 4.761214814814593 
+[2020-01-23T12:00:00.000Z] sell price 8814.64916 buy price 8736.03 order amt 1.0 net profit 70.7213543780002
+[2020-01-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8479.15, amount=1.0, externalOrderId='1580040000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-31T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -12.135370370369856 < 0.2 * (hma1 - hma2) 7.766903703703793 
+[2020-01-31T12:00:00.000Z] sell price 9574.36036 buy price 8479.15 order amt 1.0 net profit 1087.086280338001
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.808185185183902 < 0.2 * (hma1 - hma2) 0.5401111111110367 
+[2020-02-03T00:00:00.000Z] sell price 9473.428728600002 buy price 9435.54 order amt 1.0 net profit 29.37969267213083
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-12-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 14159.810028262502
+WINNING RATE 100.00 (w 12 / l 0)
+P/L RATIO 415981002.83 (P 4159.81 / L 0.00)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-09T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -17.110259259257873 < 0.2 * (hma1 - hma2) 0.989918518518607 
+[2019-12-09T12:00:00.000Z] sell price 7616.7245444 buy price 7369.36 order amt 1.0 net profit 240.62080635502033
+[2019-12-13T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7221.9, amount=1.0, externalOrderId='1576238400000', execTimestamp=2019-12-13T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7221.29, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -29.636074074074713 < 0.2 * (hma1 - hma2) 2.2627111111110936 
+[2019-12-15T00:00:00.000Z] sell price 7306.272561 buy price 7221.29 order amt 1.0 net profit 78.44515784754981
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-22T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -30.19937037037016 < 0.2 * (hma1 - hma2) 0.22148148148153268 
+[2019-12-22T00:00:00.000Z] sell price 7377.195600000001 buy price 7277.83 order amt 1.0 net profit 92.77083848000099
+[2019-12-23T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7501.44, amount=1.0, externalOrderId='1577059200000', execTimestamp=2019-12-23T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7500.71, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-25T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -39.38774074073899 < 0.2 * (hma1 - hma2) 4.940933333333124 
+[2019-12-25T00:00:00.000Z] sell price 7692.4557556 buy price 7500.71 order amt 1.0 net profit 184.90883100997993
+[2019-12-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7254.74, amount=1.0, externalOrderId='1577491200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-31T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -24.223444444445704 < 0.2 * (hma1 - hma2) 3.101044444444415 
+[2019-12-31T00:00:00.000Z] sell price 7525.589189 buy price 7254.74 order amt 1.0 net profit 264.1980408649505
+[2020-01-03T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7340.46, amount=1.0, externalOrderId='1578052800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-09T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -22.020111111112783 < 0.2 * (hma1 - hma2) 24.592748148148168 
+[2020-01-09T12:00:00.000Z] sell price 8451.787100000001 buy price 7340.46 order amt 1.0 net profit 1104.2205888050014
+[2020-01-11T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8045.95, amount=1.0, externalOrderId='1578744000000', execTimestamp=2020-01-11T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8045.89, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-14T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -3.1494074074062155 < 0.2 * (hma1 - hma2) 2.9807555555555156 
+[2020-01-14T00:00:00.000Z] sell price 8283.1911908 buy price 8045.89 order amt 1.0 net profit 229.95310426413985
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-17T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -6.61062962962751 < 0.2 * (hma1 - hma2) 0.1610518518515164 
+[2020-01-17T12:00:00.000Z] sell price 9038.214173 buy price 8526.87 order amt 1.0 net profit 503.4398851221495
+[2020-01-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8913.28, amount=1.0, externalOrderId='1579305600000', execTimestamp=2020-01-18T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8913.27, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-19T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -36.02825925925936 < 0.2 * (hma1 - hma2) 4.389614814814559 
+[2020-01-19T12:00:00.000Z] sell price 9195.4843876 buy price 8913.27 order amt 1.0 net profit 274.0654481255791
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-23T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -47.65522222222171 < 0.2 * (hma1 - hma2) 4.761214814814593 
+[2020-01-23T12:00:00.000Z] sell price 8814.64916 buy price 8736.03 order amt 1.0 net profit 70.7213543780002
+[2020-01-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8479.15, amount=1.0, externalOrderId='1580040000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-31T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -12.135370370369856 < 0.2 * (hma1 - hma2) 7.766903703703793 
+[2020-01-31T12:00:00.000Z] sell price 9574.36036 buy price 8479.15 order amt 1.0 net profit 1087.086280338001
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.808185185183902 < 0.2 * (hma1 - hma2) 0.5401111111110367 
+[2020-02-03T00:00:00.000Z] sell price 9473.428728600002 buy price 9435.54 order amt 1.0 net profit 29.37969267213083
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-12-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 14159.810028262502
+WINNING RATE 100.00 (w 12 / l 0)
+P/L RATIO 415981002.83 (P 4159.81 / L 0.00)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-09T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -17.110259259257873 < 0.2 * (hma1 - hma2) 0.989918518518607 
+[2019-12-09T12:00:00.000Z] sell price 7471.24 buy price 7369.36 order amt 1.0 net profit 95.20173000000011
+[2019-12-13T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7221.9, amount=1.0, externalOrderId='1576238400000', execTimestamp=2019-12-13T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7221.29, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -29.636074074074713 < 0.2 * (hma1 - hma2) 2.2627111111110936 
+[2019-12-15T00:00:00.000Z] sell price 7064.14 buy price 7221.29 order amt 1.0 net profit -163.57844349999965
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-22T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -30.19937037037016 < 0.2 * (hma1 - hma2) 0.22148148148153268 
+[2019-12-22T00:00:00.000Z] sell price 7131.59 buy price 7277.83 order amt 1.0 net profit -152.72423899999978
+[2019-12-23T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7501.44, amount=1.0, externalOrderId='1577059200000', execTimestamp=2019-12-23T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7500.71, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-25T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -39.38774074073899 < 0.2 * (hma1 - hma2) 4.940933333333124 
+[2019-12-25T00:00:00.000Z] sell price 7255.77 buy price 7500.71 order amt 1.0 net profit -251.5804159999996
+[2019-12-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7254.74, amount=1.0, externalOrderId='1577491200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-31T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -24.223444444445704 < 0.2 * (hma1 - hma2) 3.101044444444415 
+[2019-12-31T00:00:00.000Z] sell price 7246.0 buy price 7254.74 order amt 1.0 net profit -15.265332999999782
+[2020-01-03T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7340.46, amount=1.0, externalOrderId='1578052800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-09T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -22.020111111112783 < 0.2 * (hma1 - hma2) 24.592748148148168 
+[2020-01-09T12:00:00.000Z] sell price 7878.02 buy price 7340.46 order amt 1.0 net profit 530.7116840000004
+[2020-01-11T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8045.95, amount=1.0, externalOrderId='1578744000000', execTimestamp=2020-01-11T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8045.89, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-14T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -3.1494074074062155 < 0.2 * (hma1 - hma2) 2.9807555555555156 
+[2020-01-14T00:00:00.000Z] sell price 8110.34 buy price 8045.89 order amt 1.0 net profit 57.17969649999982
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-17T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -6.61062962962751 < 0.2 * (hma1 - hma2) 0.1610518518515164 
+[2020-01-17T12:00:00.000Z] sell price 8903.53 buy price 8526.87 order amt 1.0 net profit 368.81631999999985
+[2020-01-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8913.28, amount=1.0, externalOrderId='1579305600000', execTimestamp=2020-01-18T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8913.27, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-19T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -36.02825925925936 < 0.2 * (hma1 - hma2) 4.389614814814559 
+[2020-01-19T12:00:00.000Z] sell price 8681.16 buy price 8913.27 order amt 1.0 net profit -240.0274935000006
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-23T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -47.65522222222171 < 0.2 * (hma1 - hma2) 4.761214814814593 
+[2020-01-23T12:00:00.000Z] sell price 8422.98 buy price 8736.03 order amt 1.0 net profit -320.7715545000011
+[2020-01-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8479.15, amount=1.0, externalOrderId='1580040000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-31T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -12.135370370369856 < 0.2 * (hma1 - hma2) 7.766903703703793 
+[2020-01-31T12:00:00.000Z] sell price 9328.39 buy price 8479.15 order amt 1.0 net profit 841.2266069999998
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.808185185183902 < 0.2 * (hma1 - hma2) 0.5401111111110367 
+[2020-02-03T00:00:00.000Z] sell price 9331.59 buy price 9435.54 order amt 1.0 net profit -112.39520850000073
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-12-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10636.793349500002
+WINNING RATE 41.67 (w 5 / l 7)
+P/L RATIO 1.51 (P 1893.14 / L -1256.34)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-12-07T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7527.47, amount=1.0, externalOrderId='1575676800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-11T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -62.12162962962975 < 0.2 * (hma1 - hma2) 3.3729185185189636 
+[2019-12-11T00:00:00.000Z] sell price 7224.15 buy price 7527.47 order amt 1.0 net profit -309.95822900000064
+[2019-12-20T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7150.3, amount=1.0, externalOrderId='1576800000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-26T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -38.600074074075565 < 0.2 * (hma1 - hma2) 4.238007407407713 
+[2019-12-26T00:00:00.000Z] sell price 7205.01 buy price 7150.3 order amt 1.0 net profit 48.250110500000034
+[2019-12-30T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7388.24, amount=1.0, externalOrderId='1577664000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-01T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -10.208037037037684 < 0.2 * (hma1 - hma2) 4.684822222222102 
+[2020-01-01T00:00:00.000Z] sell price 7195.24 buy price 7388.24 order amt 1.0 net profit -199.562566
+[2020-01-05T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7354.11, amount=1.0, externalOrderId='1578182400000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-14T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -10.08359259259214 < 0.2 * (hma1 - hma2) 1.5049851851848872 
+[2020-01-14T00:00:00.000Z] sell price 8110.34 buy price 7354.11 order amt 1.0 net profit 749.2709975000005
+[2020-01-15T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8810.01, amount=1.0, externalOrderId='1579046400000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-20T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -21.372740740740483 < 0.2 * (hma1 - hma2) 18.82469629629595 
+[2020-01-20T00:00:00.000Z] sell price 8701.72 buy price 8810.01 order amt 1.0 net profit -116.17027850000088
+[2020-01-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8907.57, amount=1.0, externalOrderId='1580169600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -52.325555555555184 < 0.2 * (hma1 - hma2) 7.9041111111109785 
+[2020-02-03T00:00:00.000Z] sell price 9331.59 buy price 8907.57 order amt 1.0 net profit 415.8123780000004
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-12-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10587.642412499998
+WINNING RATE 50.00 (w 3 / l 3)
+P/L RATIO 1.94 (P 1213.33 / L -625.69)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame D1
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7396.738171 > curPrice 7382.66
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-05T12:01:39.999Z] sell price 7396.738171 buy price 7369.36 order amt 1.0 net profit 20.733426823050294
+[2019-12-13T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7221.9, amount=1.0, externalOrderId='1576238400000', execTimestamp=2019-12-13T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7221.29, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7232.9204454 > curPrice 7229.0
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-13T13:15:39.999Z] sell price 7232.9204454 buy price 7221.29 order amt 1.0 net profit 5.126050699570099
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7315.619008 > curPrice 7292.93
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-19T00:01:39.999Z] sell price 7315.619008 buy price 7277.83 order amt 1.0 net profit 31.22195594639974
+[2019-12-23T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7501.44, amount=1.0, externalOrderId='1577059200000', execTimestamp=2019-12-23T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7500.71, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7530.137460000001 > curPrice 7500.36
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-23T00:00:39.999Z] sell price 7530.137460000001 buy price 7500.71 order amt 1.0 net profit 22.66357864300079
+[2019-12-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7254.74, amount=1.0, externalOrderId='1577491200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7266.087837 > curPrice 7262.34
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-28T00:28:39.999Z] sell price 7266.087837 buy price 7254.74 order amt 1.0 net profit 4.813464473350255
+[2020-01-03T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7340.46, amount=1.0, externalOrderId='1578052800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7354.4142602 > curPrice 7339.72
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-03T13:54:39.999Z] sell price 7354.4142602 buy price 7340.46 order amt 1.0 net profit 7.341566782910135
+[2020-01-11T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8045.95, amount=1.0, externalOrderId='1578744000000', execTimestamp=2020-01-11T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8045.89, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8061.9153076 > curPrice 8055.31
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-11T12:20:39.999Z] sell price 8061.9153076 buy price 8045.89 order amt 1.0 net profit 8.776795211579905
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8551.7391038 > curPrice 8529.98
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-14T12:02:39.999Z] sell price 8551.7391038 buy price 8526.87 order amt 1.0 net profit 17.18372970328972
+[2020-01-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8913.28, amount=1.0, externalOrderId='1579305600000', execTimestamp=2020-01-18T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8913.27, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8929.0856576 > curPrice 8927.88
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-18T00:12:39.999Z] sell price 8929.0856576 buy price 8913.27 order amt 1.0 net profit 7.786597554080123
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8753.6623438 > curPrice 8739.02
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-22T00:10:39.999Z] sell price 8753.6623438 buy price 8736.03 order amt 1.0 net profit 9.761982245289943
+[2020-01-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8479.15, amount=1.0, externalOrderId='1580040000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8495.77038 > curPrice 8475.0
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-26T16:42:39.999Z] sell price 8495.77038 buy price 8479.15 order amt 1.0 net profit 8.981665829000296
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 9471.399500000001 > curPrice 9449.99
+---------------LONG TRAILING STOP HIT------------------------
+[2020-02-02T12:19:39.999Z] sell price 9471.399500000001 buy price 9435.54 order amt 1.0 net profit 27.35137722500048
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-12-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10171.742191136522
+WINNING RATE 100.00 (w 12 / l 0)
+P/L RATIO 17174219.11 (P 171.74 / L 0.00)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7464.8422816 > curPrice 7425.64
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-05T12:23:39.999Z] sell price 7464.8422816 buy price 7369.36 order amt 1.0 net profit 88.80689057328053
+[2019-12-13T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7221.9, amount=1.0, externalOrderId='1576238400000', execTimestamp=2019-12-13T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7221.29, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7306.272561 > curPrice 7287.96
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-13T16:43:39.999Z] sell price 7306.272561 buy price 7221.29 order amt 1.0 net profit 78.44515784754981
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7377.195600000001 > curPrice 7306.71
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-19T00:02:39.999Z] sell price 7377.195600000001 buy price 7277.83 order amt 1.0 net profit 92.77083848000099
+[2019-12-23T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7501.44, amount=1.0, externalOrderId='1577059200000', execTimestamp=2019-12-23T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7500.71, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7593.113520000001 > curPrice 7563.31
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-23T00:05:39.999Z] sell price 7593.113520000001 buy price 7500.71 order amt 1.0 net profit 85.61129941600075
+[2019-12-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7254.74, amount=1.0, externalOrderId='1577491200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7337.210800000001 > curPrice 7317.58
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-28T01:01:39.999Z] sell price 7337.210800000001 buy price 7254.74 order amt 1.0 net profit 75.90442214000096
+[2020-01-03T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7340.46, amount=1.0, externalOrderId='1578052800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7441.1912724 > curPrice 7396.79
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-05T01:17:39.999Z] sell price 7441.1912724 buy price 7340.46 order amt 1.0 net profit 94.0795293274203
+[2020-01-11T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8045.95, amount=1.0, externalOrderId='1578744000000', execTimestamp=2020-01-11T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8045.89, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8131.9087 > curPrice 8101.76
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-11T14:19:39.999Z] sell price 8131.9087 buy price 8045.89 order amt 1.0 net profit 78.73869058499963
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8622.092359400001 > curPrice 8587.12
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-14T12:35:39.999Z] sell price 8622.092359400001 buy price 8526.87 order amt 1.0 net profit 87.50532633827063
+[2020-01-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8913.28, amount=1.0, externalOrderId='1579305600000', execTimestamp=2020-01-18T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8913.27, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 9056.5572 > curPrice 8999.99
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-19T01:01:39.999Z] sell price 9056.5572 buy price 8913.27 order amt 1.0 net profit 135.20077775999886
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-23T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -47.65522222222171 < 0.2 * (hma1 - hma2) 4.761214814814593 
+[2020-01-23T12:00:00.000Z] sell price 8422.98 buy price 8736.03 order amt 1.0 net profit -320.7715545000011
+[2020-01-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8479.15, amount=1.0, externalOrderId='1580040000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8586.7358 > curPrice 8555.23
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-26T17:09:39.999Z] sell price 8586.7358 buy price 8479.15 order amt 1.0 net profit 99.90615139000074
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.808185185183902 < 0.2 * (hma1 - hma2) 0.5401111111110367 
+[2020-02-03T00:00:00.000Z] sell price 9331.59 buy price 9435.54 order amt 1.0 net profit -112.39520850000073
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-12-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10483.802320857523
+WINNING RATE 83.33 (w 10 / l 2)
+P/L RATIO 2.12 (P 916.97 / L -433.17)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7569.182617200001 > curPrice 7433.67
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-06T17:53:39.999Z] sell price 7569.182617200001 buy price 7369.36 order amt 1.0 net profit 193.10027302226132
+[2019-12-13T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7221.9, amount=1.0, externalOrderId='1576238400000', execTimestamp=2019-12-13T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7221.29, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -29.636074074074713 < 0.2 * (hma1 - hma2) 2.2627111111110936 
+[2019-12-15T00:00:00.000Z] sell price 7064.14 buy price 7221.29 order amt 1.0 net profit -163.57844349999965
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-22T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -30.19937037037016 < 0.2 * (hma1 - hma2) 0.22148148148153268 
+[2019-12-22T00:00:00.000Z] sell price 7131.59 buy price 7277.83 order amt 1.0 net profit -152.72423899999978
+[2019-12-23T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7501.44, amount=1.0, externalOrderId='1577059200000', execTimestamp=2019-12-23T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7500.71, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7681.080080000001 > curPrice 7641.94
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-23T16:11:39.999Z] sell price 7681.080080000001 buy price 7500.71 order amt 1.0 net profit 173.5382744640006
+[2019-12-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7254.74, amount=1.0, externalOrderId='1577491200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7406.18458 > curPrice 7396.66
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-29T14:05:39.999Z] sell price 7406.18458 buy price 7254.74 order amt 1.0 net profit 144.84716393900032
+[2020-01-03T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7340.46, amount=1.0, externalOrderId='1578052800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7492.151900000001 > curPrice 7483.26
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-05T04:02:39.999Z] sell price 7492.151900000001 buy price 7340.46 order amt 1.0 net profit 145.0172246450007
+[2020-01-11T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8045.95, amount=1.0, externalOrderId='1578744000000', execTimestamp=2020-01-11T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8045.89, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8218.425811 > curPrice 8210.0
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-11T17:31:39.999Z] sell price 8218.425811 buy price 8045.89 order amt 1.0 net profit 165.21686888504883
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8716.6864 > curPrice 8699.99
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-14T14:32:39.999Z] sell price 8716.6864 buy price 8526.87 order amt 1.0 net profit 182.0567996199997
+[2020-01-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8913.28, amount=1.0, externalOrderId='1579305600000', execTimestamp=2020-01-18T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8913.27, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 9116.5344 > curPrice 9080.72
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-19T01:09:39.999Z] sell price 9116.5344 buy price 8913.27 order amt 1.0 net profit 195.15098802000003
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-23T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -47.65522222222171 < 0.2 * (hma1 - hma2) 4.761214814814593 
+[2020-01-23T12:00:00.000Z] sell price 8422.98 buy price 8736.03 order amt 1.0 net profit -320.7715545000011
+[2020-01-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8479.15, amount=1.0, externalOrderId='1580040000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8657.1190442 > curPrice 8632.52
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-27T00:01:39.999Z] sell price 8657.1190442 buy price 8479.15 order amt 1.0 net profit 170.257723130111
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.808185185183902 < 0.2 * (hma1 - hma2) 0.5401111111110367 
+[2020-02-03T00:00:00.000Z] sell price 9331.59 buy price 9435.54 order amt 1.0 net profit -112.39520850000073
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-12-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10619.71587022542
+WINNING RATE 66.67 (w 8 / l 4)
+P/L RATIO 1.83 (P 1369.19 / L -749.47)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7616.7245444 > curPrice 7576.92
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-07T04:52:39.999Z] sell price 7616.7245444 buy price 7369.36 order amt 1.0 net profit 240.62080635502033
+[2019-12-13T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7221.9, amount=1.0, externalOrderId='1576238400000', execTimestamp=2019-12-13T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7221.29, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -29.636074074074713 < 0.2 * (hma1 - hma2) 2.2627111111110936 
+[2019-12-15T00:00:00.000Z] sell price 7064.14 buy price 7221.29 order amt 1.0 net profit -163.57844349999965
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-22T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -30.19937037037016 < 0.2 * (hma1 - hma2) 0.22148148148153268 
+[2019-12-22T00:00:00.000Z] sell price 7131.59 buy price 7277.83 order amt 1.0 net profit -152.72423899999978
+[2019-12-23T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7501.44, amount=1.0, externalOrderId='1577059200000', execTimestamp=2019-12-23T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7500.71, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-25T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -39.38774074073899 < 0.2 * (hma1 - hma2) 4.940933333333124 
+[2019-12-25T00:00:00.000Z] sell price 7255.77 buy price 7500.71 order amt 1.0 net profit -251.5804159999996
+[2019-12-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7254.74, amount=1.0, externalOrderId='1577491200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7477.1576000000005 > curPrice 7471.59
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-29T19:59:39.999Z] sell price 7477.1576000000005 buy price 7254.74 order amt 1.0 net profit 215.78824608000068
+[2020-01-03T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7340.46, amount=1.0, externalOrderId='1578052800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7575.120360000001 > curPrice 7563.03
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-06T03:01:39.999Z] sell price 7575.120360000001 buy price 7340.46 order amt 1.0 net profit 227.94834883800075
+[2020-01-11T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8045.95, amount=1.0, externalOrderId='1578744000000', execTimestamp=2020-01-11T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8045.89, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-14T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -3.1494074074062155 < 0.2 * (hma1 - hma2) 2.9807555555555156 
+[2020-01-14T00:00:00.000Z] sell price 8110.34 buy price 8045.89 order amt 1.0 net profit 57.17969649999982
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8792.997390800001 > curPrice 8765.2
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-14T17:43:39.999Z] sell price 8792.997390800001 buy price 8526.87 order amt 1.0 net profit 258.3334504741403
+[2020-01-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8913.28, amount=1.0, externalOrderId='1579305600000', execTimestamp=2020-01-18T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8913.27, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 9187.9172642 > curPrice 9176.2
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-19T03:28:39.999Z] sell price 9187.9172642 buy price 8913.27 order amt 1.0 net profit 266.50172993110897
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-23T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -47.65522222222171 < 0.2 * (hma1 - hma2) 4.761214814814593 
+[2020-01-23T12:00:00.000Z] sell price 8422.98 buy price 8736.03 order amt 1.0 net profit -320.7715545000011
+[2020-01-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8479.15, amount=1.0, externalOrderId='1580040000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8737.878344 > curPrice 8716.16
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-27T11:53:39.999Z] sell price 8737.878344 buy price 8479.15 order amt 1.0 net profit 250.98068124520103
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.808185185183902 < 0.2 * (hma1 - hma2) 0.5401111111110367 
+[2020-02-03T00:00:00.000Z] sell price 9331.59 buy price 9435.54 order amt 1.0 net profit -112.39520850000073
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-12-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10516.303097923472
+WINNING RATE 58.33 (w 7 / l 5)
+P/L RATIO 1.52 (P 1517.35 / L -1001.05)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-11-02T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9231.61, amount=1.0, externalOrderId='1572652800000', execTimestamp=2019-11-02T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=9231.4, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-04T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -8.382296296298591 < 0.2 * (hma1 - hma2) 2.862288888888725 
+[2019-11-04T00:00:00.000Z] sell price 9196.46 buy price 9231.4 order amt 1.0 net profit -43.232537000000505
+[2019-11-05T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9393.35, amount=1.0, externalOrderId='1572912000000', execTimestamp=2019-11-05T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=9392.4, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-07T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -33.46944444444307 < 0.2 * (hma1 - hma2) 2.673288888888783 
+[2019-11-07T12:00:00.000Z] sell price 9197.53 buy price 9392.4 order amt 1.0 net profit -203.23546849999897
+[2019-11-11T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9039.47, amount=1.0, externalOrderId='1573430400000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-12T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -5.396814814816025 < 0.2 * (hma1 - hma2) 5.055370370370657 
+[2019-11-12T00:00:00.000Z] sell price 8733.36 buy price 9039.47 order amt 1.0 net profit -314.10777349999876
+[2019-11-14T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8777.12, amount=1.0, externalOrderId='1573689600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-14T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -25.140555555557512 < 0.2 * (hma1 - hma2) 0.6790888888892369 
+[2019-11-14T12:00:00.000Z] sell price 8636.12 buy price 8777.12 order amt 1.0 net profit -148.835958
+[2019-11-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8502.4, amount=1.0, externalOrderId='1574035200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-19T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -66.0459629629604 < 0.2 * (hma1 - hma2) 0.17814814814773855 
+[2019-11-19T00:00:00.000Z] sell price 8186.5 buy price 8502.4 order amt 1.0 net profit -323.4100049999996
+[2019-11-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7170.52, amount=1.0, externalOrderId='1574769600000', execTimestamp=2019-11-26T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7170.41, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7440.271622 > curPrice 7320.0
+---------------LONG TRAILING STOP HIT------------------------
+[2019-11-27T16:48:39.999Z] sell price 7440.271622 buy price 7170.41 order amt 1.0 net profit 263.28681527010036
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7616.7245444 > curPrice 7576.92
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-07T04:52:39.999Z] sell price 7616.7245444 buy price 7369.36 order amt 1.0 net profit 240.62080635502033
+[2019-12-13T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7221.9, amount=1.0, externalOrderId='1576238400000', execTimestamp=2019-12-13T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7221.29, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -29.636074074074713 < 0.2 * (hma1 - hma2) 2.2627111111110936 
+[2019-12-15T00:00:00.000Z] sell price 7064.14 buy price 7221.29 order amt 1.0 net profit -163.57844349999965
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-22T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -30.19937037037016 < 0.2 * (hma1 - hma2) 0.22148148148153268 
+[2019-12-22T00:00:00.000Z] sell price 7131.59 buy price 7277.83 order amt 1.0 net profit -152.72423899999978
+[2019-12-23T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7501.44, amount=1.0, externalOrderId='1577059200000', execTimestamp=2019-12-23T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7500.71, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-25T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -39.38774074073899 < 0.2 * (hma1 - hma2) 4.940933333333124 
+[2019-12-25T00:00:00.000Z] sell price 7255.77 buy price 7500.71 order amt 1.0 net profit -251.5804159999996
+[2019-12-28T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7254.74, amount=1.0, externalOrderId='1577491200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7477.1576000000005 > curPrice 7471.59
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-29T19:59:39.999Z] sell price 7477.1576000000005 buy price 7254.74 order amt 1.0 net profit 215.78824608000068
+[2020-01-03T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7340.46, amount=1.0, externalOrderId='1578052800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7575.120360000001 > curPrice 7563.03
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-06T03:01:39.999Z] sell price 7575.120360000001 buy price 7340.46 order amt 1.0 net profit 227.94834883800075
+[2020-01-11T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8045.95, amount=1.0, externalOrderId='1578744000000', execTimestamp=2020-01-11T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8045.89, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-14T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -3.1494074074062155 < 0.2 * (hma1 - hma2) 2.9807555555555156 
+[2020-01-14T00:00:00.000Z] sell price 8110.34 buy price 8045.89 order amt 1.0 net profit 57.17969649999982
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8792.997390800001 > curPrice 8765.2
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-14T17:43:39.999Z] sell price 8792.997390800001 buy price 8526.87 order amt 1.0 net profit 258.3334504741403
+[2020-01-18T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8913.28, amount=1.0, externalOrderId='1579305600000', execTimestamp=2020-01-18T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8913.27, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 9187.9172642 > curPrice 9176.2
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-19T03:28:39.999Z] sell price 9187.9172642 buy price 8913.27 order amt 1.0 net profit 266.50172993110897
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-23T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -47.65522222222171 < 0.2 * (hma1 - hma2) 4.761214814814593 
+[2020-01-23T12:00:00.000Z] sell price 8422.98 buy price 8736.03 order amt 1.0 net profit -320.7715545000011
+[2020-01-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8479.15, amount=1.0, externalOrderId='1580040000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8737.878344 > curPrice 8716.16
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-27T11:53:39.999Z] sell price 8737.878344 buy price 8479.15 order amt 1.0 net profit 250.98068124520103
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.808185185183902 < 0.2 * (hma1 - hma2) 0.5401111111110367 
+[2020-02-03T00:00:00.000Z] sell price 9331.59 buy price 9435.54 order amt 1.0 net profit -112.39520850000073
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-11-01T07:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 9746.768171193577
+WINNING RATE 44.44 (w 8 / l 10)
+P/L RATIO 0.88 (P 1780.64 / L -2033.87)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 9
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-11-03T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9289.52, amount=1.0, externalOrderId='1572739200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-07T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -9.038634259257378 < 0.2 * (hma1 - hma2) 3.4692277777776326 
+[2019-11-07T12:00:00.000Z] sell price 9197.53 buy price 9289.52 order amt 1.0 net profit -100.30917249999979
+[2019-11-13T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8821.94, amount=1.0, externalOrderId='1573603200000', execTimestamp=2019-11-13T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8821.91, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-14T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -17.271657407409293 < 0.2 * (hma1 - hma2) 2.1349194444446766 
+[2019-11-14T12:00:00.000Z] sell price 8636.12 buy price 8821.91 order amt 1.0 net profit -193.64611349999905
+[2019-11-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7170.52, amount=1.0, externalOrderId='1574769600000', execTimestamp=2019-11-26T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7170.41, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-01T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -27.23338888888884 < 0.2 * (hma1 - hma2) 9.572024074074035 
+[2019-12-01T12:00:00.000Z] sell price 7314.98 buy price 7170.41 order amt 1.0 net profit 138.0515744999997
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-10T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -25.4986388888874 < 0.2 * (hma1 - hma2) 2.2212842592593005 
+[2019-12-10T00:00:00.000Z] sell price 7338.64 buy price 7369.36 order amt 1.0 net profit -37.338599999999346
+[2019-12-14T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7258.48, amount=1.0, externalOrderId='1576281600000', execTimestamp=2019-12-14T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7257.37, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -14.291444444444096 < 0.2 * (hma1 - hma2) 0.9406648148147725 
+[2019-12-15T00:00:00.000Z] sell price 7064.14 buy price 7257.37 order amt 1.0 net profit -199.67467949999957
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-25T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -10.114296296296743 < 0.2 * (hma1 - hma2) 5.011795370370601 
+[2019-12-25T00:00:00.000Z] sell price 7255.77 buy price 7277.83 order amt 1.0 net profit -28.600119999999492
+[2019-12-28T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7308.28, amount=1.0, externalOrderId='1577534400000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-31T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -8.746620370369783 < 0.2 * (hma1 - hma2) 1.9372342592587302 
+[2019-12-31T12:00:00.000Z] sell price 7243.64 buy price 7308.28 order amt 1.0 net profit -71.18836399999941
+[2020-01-04T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7344.96, amount=1.0, externalOrderId='1578096000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-10T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -17.68057870370467 < 0.2 * (hma1 - hma2) 10.749454629629145 
+[2020-01-10T00:00:00.000Z] sell price 7817.74 buy price 7344.96 order amt 1.0 net profit 465.95678499999974
+[2020-01-13T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8184.98, amount=1.0, externalOrderId='1578873600000', execTimestamp=2020-01-13T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8184.97, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-19T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -41.88646759259427 < 0.2 * (hma1 - hma2) 0.6812962962962047 
+[2020-01-19T12:00:00.000Z] sell price 8681.16 buy price 8184.97 order amt 1.0 net profit 488.6002414999996
+[2020-01-27T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8615.0, amount=1.0, externalOrderId='1580083200000', execTimestamp=2020-01-27T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8614.39, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-01T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -24.50430555555431 < 0.2 * (hma1 - hma2) 1.2221851851849352 
+[2020-02-01T12:00:00.000Z] sell price 9354.65 buy price 8614.39 order amt 1.0 net profit 732.1739320000003
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-11-01T07:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 11194.025483500003
+WINNING RATE 40.00 (w 4 / l 6)
+P/L RATIO 2.89 (P 1824.78 / L -630.76)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 15
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-11-03T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9289.52, amount=1.0, externalOrderId='1572739200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 9446.409 > curPrice 9364.05
+---------------LONG TRAILING STOP HIT------------------------
+[2019-11-04T20:19:39.999Z] sell price 9446.409 buy price 9289.52 order amt 1.0 net profit 148.45783194999922
+[2019-11-13T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8821.94, amount=1.0, externalOrderId='1573603200000', execTimestamp=2019-11-13T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8821.91, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-14T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -17.271657407409293 < 0.2 * (hma1 - hma2) 2.1349194444446766 
+[2019-11-14T12:00:00.000Z] sell price 8636.12 buy price 8821.91 order amt 1.0 net profit -193.64611349999905
+[2019-11-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7170.52, amount=1.0, externalOrderId='1574769600000', execTimestamp=2019-11-26T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7170.41, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7259.4003792 > curPrice 7173.83
+---------------LONG TRAILING STOP HIT------------------------
+[2019-11-27T12:03:39.999Z] sell price 7259.4003792 buy price 7170.41 order amt 1.0 net profit 82.49696452936047
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7464.8422816 > curPrice 7425.64
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-05T12:23:39.999Z] sell price 7464.8422816 buy price 7369.36 order amt 1.0 net profit 88.80689057328053
+[2019-12-14T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7258.48, amount=1.0, externalOrderId='1576281600000', execTimestamp=2019-12-14T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7257.37, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -14.291444444444096 < 0.2 * (hma1 - hma2) 0.9406648148147725 
+[2019-12-15T00:00:00.000Z] sell price 7064.14 buy price 7257.37 order amt 1.0 net profit -199.67467949999957
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7377.195600000001 > curPrice 7306.71
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-19T00:02:39.999Z] sell price 7377.195600000001 buy price 7277.83 order amt 1.0 net profit 92.77083848000099
+[2019-12-28T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7308.28, amount=1.0, externalOrderId='1577534400000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7390.7104624 > curPrice 7380.0
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-29T13:23:39.999Z] sell price 7390.7104624 buy price 7308.28 order amt 1.0 net profit 75.81591669192058
+[2020-01-04T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7344.96, amount=1.0, externalOrderId='1578096000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7441.1912724 > curPrice 7396.79
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-05T01:17:39.999Z] sell price 7441.1912724 buy price 7344.96 order amt 1.0 net profit 89.57750432742031
+[2020-01-13T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8184.98, amount=1.0, externalOrderId='1578873600000', execTimestamp=2020-01-13T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8184.97, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8281.101985000001 > curPrice 8265.0
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-14T00:47:39.999Z] sell price 8281.101985000001 buy price 8184.97 order amt 1.0 net profit 88.7222526067509
+[2020-01-27T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8615.0, amount=1.0, externalOrderId='1580083200000', execTimestamp=2020-01-27T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8614.39, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8730.711068600001 > curPrice 8679.9
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-27T11:51:39.999Z] sell price 8730.711068600001 buy price 8614.39 order amt 1.0 net profit 108.51577311913204
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-11-01T07:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10381.843179277867
+WINNING RATE 80.00 (w 8 / l 2)
+P/L RATIO 1.97 (P 775.16 / L -393.32)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 15
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-11-03T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9289.52, amount=1.0, externalOrderId='1572739200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 9490.78152 > curPrice 9350.01
+---------------LONG TRAILING STOP HIT------------------------
+[2019-11-04T20:20:39.999Z] sell price 9490.78152 buy price 9289.52 order amt 1.0 net profit 192.810384316
+[2019-11-13T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8821.94, amount=1.0, externalOrderId='1573603200000', execTimestamp=2019-11-13T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8821.91, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-14T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -17.271657407409293 < 0.2 * (hma1 - hma2) 2.1349194444446766 
+[2019-11-14T12:00:00.000Z] sell price 8636.12 buy price 8821.91 order amt 1.0 net profit -193.64611349999905
+[2019-11-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7170.52, amount=1.0, externalOrderId='1574769600000', execTimestamp=2019-11-26T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7170.41, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7329.815103600001 > curPrice 7262.16
+---------------LONG TRAILING STOP HIT------------------------
+[2019-11-27T12:06:39.999Z] sell price 7329.815103600001 buy price 7170.41 order amt 1.0 net profit 152.880002303381
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7566.305234400002 > curPrice 7433.67
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-06T17:53:39.999Z] sell price 7566.305234400002 buy price 7369.36 order amt 1.0 net profit 190.22418504452193
+[2019-12-14T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7258.48, amount=1.0, externalOrderId='1576281600000', execTimestamp=2019-12-14T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7257.37, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -14.291444444444096 < 0.2 * (hma1 - hma2) 0.9406648148147725 
+[2019-12-15T00:00:00.000Z] sell price 7064.14 buy price 7257.37 order amt 1.0 net profit -199.67467949999957
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7424.3532000000005 > curPrice 7380.98
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-22T18:52:39.999Z] sell price 7424.3532000000005 buy price 7277.83 order amt 1.0 net profit 139.90721756000053
+[2019-12-28T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7308.28, amount=1.0, externalOrderId='1577534400000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7457.178234000001 > curPrice 7454.09
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-29T19:53:39.999Z] sell price 7457.178234000001 buy price 7308.28 order amt 1.0 net profit 142.25377779470114
+[2020-01-04T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7344.96, amount=1.0, externalOrderId='1578096000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7494.3 > curPrice 7468.0
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-06T02:08:39.999Z] sell price 7494.3 buy price 7344.96 order amt 1.0 net profit 142.66233300000016
+[2020-01-13T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8184.98, amount=1.0, externalOrderId='1578873600000', execTimestamp=2020-01-13T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8184.97, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8373.6012228 > curPrice 8340.77
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-14T01:06:39.999Z] sell price 8373.6012228 buy price 8184.97 order amt 1.0 net profit 181.1798657497397
+[2020-01-27T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8615.0, amount=1.0, externalOrderId='1580083200000', execTimestamp=2020-01-27T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8614.39, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8790.264318000001 > curPrice 8781.52
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-27T15:46:39.999Z] sell price 8790.264318000001 buy price 8614.39 order amt 1.0 net profit 168.04222355690194
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-11-01T07:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10916.639196325252
+WINNING RATE 80.00 (w 8 / l 2)
+P/L RATIO 3.33 (P 1309.96 / L -393.32)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 15
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-11-03T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9289.52, amount=1.0, externalOrderId='1572739200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-07T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -9.038634259257378 < 0.2 * (hma1 - hma2) 3.4692277777776326 
+[2019-11-07T12:00:00.000Z] sell price 9197.53 buy price 9289.52 order amt 1.0 net profit -100.30917249999979
+[2019-11-13T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8821.94, amount=1.0, externalOrderId='1573603200000', execTimestamp=2019-11-13T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8821.91, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-14T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -17.271657407409293 < 0.2 * (hma1 - hma2) 2.1349194444446766 
+[2019-11-14T12:00:00.000Z] sell price 8636.12 buy price 8821.91 order amt 1.0 net profit -193.64611349999905
+[2019-11-26T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7170.52, amount=1.0, externalOrderId='1574769600000', execTimestamp=2019-11-26T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7170.41, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7437.443244 > curPrice 7320.0
+---------------LONG TRAILING STOP HIT------------------------
+[2019-11-27T16:48:39.999Z] sell price 7437.443244 buy price 7170.41 order amt 1.0 net profit 260.4597100402002
+[2019-12-05T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7370.45, amount=1.0, externalOrderId='1575547200000', execTimestamp=2019-12-05T12:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7369.36, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7613.8290888 > curPrice 7576.92
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-07T04:52:39.999Z] sell price 7613.8290888 buy price 7369.36 order amt 1.0 net profit 237.72665371004047
+[2019-12-14T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7258.48, amount=1.0, externalOrderId='1576281600000', execTimestamp=2019-12-14T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7257.37, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-15T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -14.291444444444096 < 0.2 * (hma1 - hma2) 0.9406648148147725 
+[2019-12-15T00:00:00.000Z] sell price 7064.14 buy price 7257.37 order amt 1.0 net profit -199.67467949999957
+[2019-12-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7277.83, amount=1.0, externalOrderId='1576713600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7512.8259096 > curPrice 7477.01
+---------------LONG TRAILING STOP HIT------------------------
+[2019-12-22T23:50:39.999Z] sell price 7512.8259096 buy price 7277.83 order amt 1.0 net profit 228.34011444068022
+[2019-12-28T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7308.28, amount=1.0, externalOrderId='1577534400000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-31T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -8.746620370369783 < 0.2 * (hma1 - hma2) 1.9372342592587302 
+[2019-12-31T12:00:00.000Z] sell price 7243.64 buy price 7308.28 order amt 1.0 net profit -71.18836399999941
+[2020-01-04T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7344.96, amount=1.0, externalOrderId='1578096000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 7572.240720000001 > curPrice 7563.03
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-06T03:01:39.999Z] sell price 7572.240720000001 buy price 7344.96 order amt 1.0 net profit 220.56797967600065
+[2020-01-13T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8184.98, amount=1.0, externalOrderId='1578873600000', execTimestamp=2020-01-13T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8184.97, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8432.08674 > curPrice 8385.01
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-14T01:36:39.999Z] sell price 8432.08674 buy price 8184.97 order amt 1.0 net profit 239.6390644670004
+[2020-01-27T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8615.0, amount=1.0, externalOrderId='1580083200000', execTimestamp=2020-01-27T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8614.39, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+trailingStopPrice 8881.245120000001 > curPrice 8850.0
+---------------LONG TRAILING STOP HIT------------------------
+[2020-01-27T18:59:39.999Z] sell price 8881.245120000001 buy price 8614.39 order amt 1.0 net profit 258.982084196002
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-11-01T07:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10880.897277029928
+WINNING RATE 60.00 (w 6 / l 4)
+P/L RATIO 2.56 (P 1445.72 / L -564.82)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 15
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2019-11-05T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9393.35, amount=1.0, externalOrderId='1572912000000', execTimestamp=2019-11-05T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=9392.4, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-08T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -8.924948484849665 < 0.2 * (hma1 - hma2) 0.7265791341989826 
+[2019-11-08T00:00:00.000Z] sell price 9214.0 buy price 9392.4 order amt 1.0 net profit -186.77287999999965
+[2019-11-14T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8777.12, amount=1.0, externalOrderId='1573689600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-11-14T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.983870562771699 < 0.2 * (hma1 - hma2) 1.0508954978355178 
+[2019-11-14T12:00:00.000Z] sell price 8636.12 buy price 8777.12 order amt 1.0 net profit -148.835958
+[2019-11-27T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7156.14, amount=1.0, externalOrderId='1574812800000', execTimestamp=2019-11-27T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7154.75, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-02T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -5.954409523808863 < 0.2 * (hma1 - hma2) 6.092065281385112 
+[2019-12-02T00:00:00.000Z] sell price 7391.5 buy price 7154.75 order amt 1.0 net profit 230.2041875
+[2019-12-06T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7338.66, amount=1.0, externalOrderId='1575633600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-10T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -14.083169264069511 < 0.2 * (hma1 - hma2) 1.3725242424243334 
+[2019-12-10T12:00:00.000Z] sell price 7341.75 buy price 7338.66 order amt 1.0 net profit -3.516184499999854
+[2019-12-19T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7150.0, amount=1.0, externalOrderId='1576756800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2019-12-25T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -11.598793506494076 < 0.2 * (hma1 - hma2) 2.4339153246755814 
+[2019-12-25T12:00:00.000Z] sell price 7216.92 buy price 7150.0 order amt 1.0 net profit 60.45488600000007
+[2019-12-29T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7345.83, amount=1.0, externalOrderId='1577620800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-01T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -9.493176623375803 < 0.2 * (hma1 - hma2) 0.6944115151516599 
+[2020-01-01T00:00:00.000Z] sell price 7195.24 buy price 7345.83 order amt 1.0 net profit -157.13348150000016
+[2020-01-04T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7344.96, amount=1.0, externalOrderId='1578096000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-10T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -0.8085519480546282 < 0.2 * (hma1 - hma2) 7.379847272727602 
+[2020-01-10T12:00:00.000Z] sell price 7841.03 buy price 7344.96 order amt 1.0 net profit 489.23630449999973
+[2020-01-11T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8197.02, amount=1.0, externalOrderId='1578700800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-12T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -2.638938095236881 < 0.2 * (hma1 - hma2) 1.9750346320346581 
+[2020-01-12T00:00:00.000Z] sell price 8020.01 buy price 8197.02 order amt 1.0 net profit -184.30766350000022
+[2020-01-14T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8526.87, amount=1.0, externalOrderId='1579003200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-19T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -5.687606060606413 < 0.2 * (hma1 - hma2) 8.628995411255529 
+[2020-01-19T12:00:00.000Z] sell price 8681.16 buy price 8526.87 order amt 1.0 net profit 146.54638649999904
+[2020-01-27T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8615.0, amount=1.0, externalOrderId='1580083200000', execTimestamp=2020-01-27T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8614.39, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-02T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -5.998784848485229 < 0.2 * (hma1 - hma2) 0.8556745454545308 
+[2020-02-02T12:00:00.000Z] sell price 9435.79 buy price 8614.39 order amt 1.0 net profit 813.2774190000015
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2019-11-01T07:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 11059.153015999998
+WINNING RATE 50.00 (w 5 / l 5)
+P/L RATIO 2.56 (P 1739.72 / L -680.57)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H12
+HMA_LENGTH 20
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2020-01-03T08:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7203.21, amount=1.0, externalOrderId='1578038400000', execTimestamp=2020-01-03T08:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7202.28, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-04T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -9.614395604396123 < 0.2 * (hma1 - hma2) 2.7747893772893804 
+[2020-01-04T12:00:00.000Z] sell price 7336.75 buy price 7202.28 order amt 1.0 net profit 127.92743650000025
+[2020-01-05T04:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7475.99, amount=1.0, externalOrderId='1578196800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-06T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -14.85382173382186 < 0.2 * (hma1 - hma2) 2.600545177045024 
+[2020-01-06T00:00:00.000Z] sell price 7357.64 buy price 7475.99 order amt 1.0 net profit -125.02513349999946
+[2020-01-06T04:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7540.9, amount=1.0, externalOrderId='1578283200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-08T20:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -52.048659951160516 < 0.2 * (hma1 - hma2) 11.373451770452085 
+[2020-01-08T20:00:00.000Z] sell price 7963.56 buy price 7540.9 order amt 1.0 net profit 415.68299300000075
+[2020-01-10T16:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8066.6, amount=1.0, externalOrderId='1578672000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-11T16:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -15.840192307692632 < 0.2 * (hma1 - hma2) 1.203237484737474 
+[2020-01-11T16:00:00.000Z] sell price 8099.16 buy price 8066.6 order amt 1.0 net profit 25.285407999999492
+[2020-01-12T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8114.08, amount=1.0, externalOrderId='1578830400000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-13T08:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -11.69458485958512 < 0.2 * (hma1 - hma2) 1.5720085470084086 
+[2020-01-13T08:00:00.000Z] sell price 8075.26 buy price 8114.08 order amt 1.0 net profit -46.10520299999971
+[2020-01-14T04:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8461.84, amount=1.0, externalOrderId='1578974400000', execTimestamp=2020-01-14T04:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8461.83, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-15T08:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -12.29755494505298 < 0.2 * (hma1 - hma2) 10.891525030525372 
+[2020-01-15T08:00:00.000Z] sell price 8626.8 buy price 8461.83 order amt 1.0 net profit 157.28011649999934
+[2020-01-16T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8821.41, amount=1.0, externalOrderId='1579132800000', execTimestamp=2020-01-16T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8820.01, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-16T04:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -21.58018009767875 < 0.2 * (hma1 - hma2) 0.2002338217334909 
+[2020-01-16T04:00:00.000Z] sell price 8640.01 buy price 8820.01 order amt 1.0 net profit -187.857009
+[2020-01-17T04:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8786.43, amount=1.0, externalOrderId='1579233600000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-18T08:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -13.902390109889893 < 0.2 * (hma1 - hma2) 2.452863858363708 
+[2020-01-18T08:00:00.000Z] sell price 8843.63 buy price 8786.43 order amt 1.0 net profit 49.26647299999891
+[2020-01-19T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8915.96, amount=1.0, externalOrderId='1579392000000', execTimestamp=2020-01-19T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8915.09, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-19T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -26.723708791208992 < 0.2 * (hma1 - hma2) 13.334014041514093 
+[2020-01-19T12:00:00.000Z] sell price 8681.16 buy price 8915.09 order amt 1.0 net profit -241.8483125000003
+[2020-01-20T16:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8675.38, amount=1.0, externalOrderId='1579536000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-21T16:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -2.888974358975247 < 0.2 * (hma1 - hma2) 0.6904963369965117 
+[2020-01-21T16:00:00.000Z] sell price 8645.1 buy price 8675.38 order amt 1.0 net profit -38.074215999998835
+[2020-01-22T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8736.03, amount=1.0, externalOrderId='1579651200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-22T20:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -4.863623321123669 < 0.2 * (hma1 - hma2) 0.0529517704519094 
+[2020-01-22T20:00:00.000Z] sell price 8670.0 buy price 8736.03 order amt 1.0 net profit -73.86271350000065
+[2020-01-24T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8412.77, amount=1.0, externalOrderId='1579867200000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-25T04:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -8.845308302808917 < 0.2 * (hma1 - hma2) 8.03401831501833 
+[2020-01-25T04:00:00.000Z] sell price 8298.08 buy price 8412.77 order amt 1.0 net profit -122.2098825000005
+[2020-01-26T04:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=8368.82, amount=1.0, externalOrderId='1580011200000', execTimestamp=2020-01-26T04:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=8368.21, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-28T20:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -9.730015262517554 < 0.2 * (hma1 - hma2) 3.86672222222187 
+[2020-01-28T20:00:00.000Z] sell price 9010.23 buy price 8368.21 order amt 1.0 net profit 634.1997020000005
+[2020-01-29T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9374.21, amount=1.0, externalOrderId='1580256000000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-30T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -11.941013431014653 < 0.2 * (hma1 - hma2) 3.42862881562869 
+[2020-01-30T00:00:00.000Z] sell price 9301.57 buy price 9374.21 order amt 1.0 net profit -81.04410099999942
+[2020-01-30T16:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9386.88, amount=1.0, externalOrderId='1580400000000', execTimestamp=2020-01-30T16:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=9385.41, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-31T08:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -1.9795726495722192 < 0.2 * (hma1 - hma2) 7.1432295482300106 
+[2020-01-31T08:00:00.000Z] sell price 9375.5 buy price 9385.41 order amt 1.0 net profit -18.352409499999855
+[2020-02-01T04:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9432.33, amount=1.0, externalOrderId='1580529600000', execTimestamp=2020-02-01T04:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=9431.75, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-01T20:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -0.867942612941988 < 0.2 * (hma1 - hma2) 0.28029059829095787 
+[2020-02-01T20:00:00.000Z] sell price 9367.76 buy price 9431.75 order amt 1.0 net profit -72.44977949999978
+[2020-02-02T00:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9384.61, amount=1.0, externalOrderId='1580601600000', execTimestamp=2020-02-02T00:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=9384.41, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-02T04:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -23.289130036631832 < 0.2 * (hma1 - hma2) 0.3121623931623617 
+[2020-02-02T04:00:00.000Z] sell price 9266.79 buy price 9384.41 order amt 1.0 net profit -126.01303999999898
+[2020-02-02T12:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=9435.54, amount=1.0, externalOrderId='1580644800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-02-03T04:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -3.657274114773827 < 0.2 * (hma1 - hma2) 0.26700549450506517 
+[2020-02-03T04:00:00.000Z] sell price 9386.24 buy price 9435.54 order amt 1.0 net profit -57.769801000001095
+----------------------------------------------------------------
+STRATEGY HMA_TRADE
+SIMUL_START 2020-01-01T08:00:00.000Z
+SIMUL_END 2020-02-03T08:00:00.000Z
+MODE LONG
+START_USD_BALANCE 10000.0
+END_USD_BALANCE 10219.030528000001
+WINNING RATE 33.33 (w 6 / l 12)
+P/L RATIO 1.18 (P 1409.64 / L -1190.61)
+MA_MIN 3
+SLIPPAGE 1.0E-4
+TS_TRIGGER_PCT 0.19
+TS_PCT 0.038
+timeFrame H4
+HMA_LENGTH 12
+TRADING_WINDOW_LOOK_BEHIND 18
+----------------------------------------------------------------
+[2020-01-03T08:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7203.21, amount=1.0, externalOrderId='1578038400000', execTimestamp=2020-01-03T08:00:00.000Z, orderStatus=COMPLETE, amountExecuted=1.0, priceExecuted=7202.28, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-04T12:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -9.614395604396123 < 0.2 * (hma1 - hma2) 2.7747893772893804 
+[2020-01-04T12:00:00.000Z] sell price 7336.75 buy price 7202.28 order amt 1.0 net profit 127.92743650000025
+[2020-01-05T04:00:00.000Z] [PLACED BUYORDER] OrderInfo{exchange=BINANCE, symbol='BTCUSDT', orderSide=BUY, orderType=LIMIT, stopPrice=0.0, price=7475.99, amount=1.0, externalOrderId='1578196800000', execTimestamp=1970-01-01T00:00:00.000Z, orderStatus=PENDING, amountExecuted=0.0, priceExecuted=0.0, feePaid=0.0, feeCurrency='null', borrow_id='null', clientOid='null'}
+[2020-01-06T00:00:00.000Z] [CLOSING ORDERS] hma0 - hma1 -14.85382173382186 < 0.2 * (hma1 - hma2) 2.600545177045024 
+[2020-01-06T00:00:00.000Z] sell price 7357.64 buy price 7475.99 order amt 1.0 net profit -125.02513349999946
