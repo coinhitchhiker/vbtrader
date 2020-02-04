@@ -43,7 +43,9 @@ public class Util {
         int mm = now.getMinuteOfHour();
 
         if(timeFrame.equals(TimeFrame.M5)) {
-            mm = ((int)mm / 5) * 5;
+            mm = ((int) mm / 5) * 5;
+        } else if(timeFrame.equals(TimeFrame.M3)) {
+            mm = ((int)mm/3) * 3;
         } else if(timeFrame.equals(TimeFrame.M15)) {
             mm = ((int)mm / 15) * 15;
         } else if(timeFrame.equals(TimeFrame.M30)) {
@@ -53,6 +55,9 @@ public class Util {
         } else if(timeFrame.equals(TimeFrame.H4)) {
             mm = 0;
             h = ((int)h / 4) * 4;
+        } else if(timeFrame.equals(TimeFrame.H12)) {
+            mm = 0;
+            h = ((int)h / 12) * 12;
         } else if(timeFrame.equals(TimeFrame.D1)) {
             mm = 0;
             h = 0;

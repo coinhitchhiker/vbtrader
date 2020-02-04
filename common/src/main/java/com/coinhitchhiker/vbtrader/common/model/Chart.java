@@ -79,4 +79,8 @@ public class Chart {
     public List<Candle> getCandles() {
         return candles;
     }
+
+    public Candle getValueReverse(int index) {
+        return this.candles.get(this.candles.size() - index - 1);
+    }
 }

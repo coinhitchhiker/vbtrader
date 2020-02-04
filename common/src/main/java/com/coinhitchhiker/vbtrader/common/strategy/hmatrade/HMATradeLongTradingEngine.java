@@ -37,7 +37,7 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
     private final int HMA_LENGTH;
     private final int TRADING_WINDOW_LOOKBEHIND;
     private final String HMA_INDI_NAME = "hma9";
-    private final double ORDER_AMT = 0.1;
+    private final double ORDER_AMT = 1;
     private final int MAX_ORDER_CNT = 20;
     private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
 
@@ -48,7 +48,7 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
                                      ) {
 
         super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, 0, EXCHANGE, FEE_RATE,
-                true, true, 0.1 + FEE_RATE*2, 0.2 * (0.1 + FEE_RATE*2), false, 0, VERBOSE);
+                true, false, 3 + FEE_RATE*2, 0.4 * (0.1 + FEE_RATE*2), false, 0, VERBOSE);
 
         this.timeFrame = timeFrame;
         this.HMA_LENGTH = HMA_LENGTH;
@@ -84,6 +84,7 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
         syncPlacedOrderStatus();
 //        Close order
 
+
         if(trailingStopHit(curPrice)) {
             double prevTSPrice = super.trailingStopPrice;
             LOGGERBUYSELL.info("trailingStopPrice {} > curPrice {}", prevTSPrice, curPrice);
@@ -91,7 +92,6 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
             this.closeAllOrders();
             return null;
         }
-
         return null;
     }
 
@@ -161,7 +161,10 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
     @EventListener
     public void onTradeEvent(TradeEvent e) {
         if(this.chart != null) {
-            this.updateTrailingStopPrice(e.getPrice(), e.getTradeTime());
+            if(TRAILING_STOP_ENABLED) {
+                this.updateTrailingStopPrice(e.getPrice(), e.getTradeTime());
+            }
+
             Candle newCandle = this.chart.onTick(e.getPrice(), e.getTradeTime(), e.getAmount());
             if(newCandle != null) {
                 this.eventPublisher.publishEvent(new CandleOpenEvent(this.timeFrame, newCandle));
@@ -184,34 +187,55 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
         double hma2 = hma.getValueReverse(3);
         long timestamp = e.getNewCandle().getOpenTime();
 
+        boolean hamConditionConfirmed = hma0 - hma1 > 0 && hma1 - hma2 < 0 ? true : false;
 
-        boolean hmaGoingUp = hma1 < hma0;
+        double candleOpenPrice = this.chart.getValueReverse(1).getOpenPrice();
+        double candleClosePrice = this.chart.getValueReverse(1).getClosePrice();
+        double candleHighPrice = this.chart.getValueReverse(1).getHighPrice();
+        double candleLowPrice = this.chart.getValueReverse(1).getLowPrice();
+
+        boolean isUpTrendCandle = candleClosePrice - candleOpenPrice > 0;
+
 //        Open order
 //        ABS( (HMA0 - HMA1) * 5 ) / HMA1 > (기대수익 0.1 + 수수료x2 ) 일 경우 다음 연장된 HMA값인 HMA0+(HMA0 - HMA1) 가격으로 주문,
         // TODO: 5배가 아니라 최적값을 찾아야 함
-        if(hmaGoingUp) {
-            if (Math.abs(hma0 - hma1) * 5 / hma1 * 100 > 0.1 + FEE_RATE * 2) {
+        if(hamConditionConfirmed) {
+//            if (Math.abs(hma0 - hma1) * 5 / hma1 * 100 > 0.1 + FEE_RATE * 2) {
+
+//            double triggerPoint = ((hma0 - candleLowPrice)/candleLowPrice)*100D;
+//            boolean inflectionPointTailSize = (candleClosePrice - candleLowPrice) > (candleHighPrice - candleLowPrice)*0.3D;
+
+//            if(triggerPoint > 0.4 && inflectionPointTailSize ){
 
                 if(this.placedOrders.size() >= MAX_ORDER_CNT) {
                     LOGGER.info("Max orders {} reached", MAX_ORDER_CNT);
                     return;
                 }
 
-                double limitBuyPrice = hma0 + (hma0 - hma1);
+//                double limitBuyPrice = hma0 + (hma0 - hma1);
+                double limitBuyPrice = this.chart.getValueReverse(1).getClosePrice();
                 OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.LIMIT, limitBuyPrice, ORDER_AMT);
                 OrderInfo placedBuyOrder = this.exchange.placeOrder(buyOrder);
                 this.placedOrders.put(String.valueOf(timestamp), placedBuyOrder);
                 this.trailingStopPrice = 0;     // init trailing stop price
                 this.placedBuyOrder = placedBuyOrder;       // set last buyOrder to track trailing stop
                 LOGGERBUYSELL.info("[{}] [PLACED BUYORDER] {}", new DateTime(timestamp, UTC), placedBuyOrder.toString());
+                LOGGER.info("---------------------------------------------------------------");
+                LOGGER.info("BUY SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
+                LOGGER.info("---------------------------------------------------------------");
                 return;
-            }
+//            }
         }
 
         // TODO: 0.2를 적정값 찾기.... ㅠㅠㅠㅠ
         // 직전 두개 HMA 상승폭이 하나 더 전의 HMA상승폭의 20%보다 작으면 기존 주문들 모두 청산 (하락 또는 상승폭 급격 둔화)
-        if(hma0 - hma1 < 0.2 * (hma1 - hma2) && this.placedOrders.size() > 0) {
+//        if(hma0 - hma1 < 0.2 * (hma1 - hma2) && this.placedOrders.size() > 0) {
+//        if(this.chart.getValueReverse(1).getClosePrice() < hma0 && this.placedOrders.size() > 0) {
+        if(hma0 - hma1 < 0 && hma1 - hma2 > 0 && this.placedOrders.size() > 0){
             LOGGERBUYSELL.info("[{}] [CLOSING ORDERS] hma0 - hma1 {} < 0.2 * (hma1 - hma2) {} ", new DateTime(timestamp, UTC), hma0-hma1, 0.2*(hma1-hma2));
+            LOGGER.info("---------------------------------------------------------------");
+            LOGGER.info("SELL SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
+            LOGGER.info("---------------------------------------------------------------");
             this.closeAllOrders();
         }
     }

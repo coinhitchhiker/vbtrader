@@ -69,7 +69,7 @@ public class SimulatorAppConfig {
                     STOP_LOSS_ENABLED, STOP_LOSS_PCT, IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD, true);
         } else if(MODE.equals("LONG") && STRATEGY.equals("HMA_TRADE")) {
             return new HMATradeLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRRENCY,
-                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.M5, HMA_LENGTH,
+                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.H4, HMA_LENGTH,
                     HMA_TRADE_LOOK_BEHIND, true,
                     DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis()
             );
