@@ -1,5 +1,6 @@
 package com.coinhitchhiker.vbtrader.common.model;
 
+import com.coinhitchhiker.vbtrader.common.Util;
 import com.coinhitchhiker.vbtrader.common.indicator.Indicator;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
@@ -76,15 +77,36 @@ public class Chart {
         return null;
     }
 
-    public List<Candle> getCandles() {
-        return candles;
-    }
-
     public Candle getCandleReverse(int index) {
         return this.candles.get(this.candles.size() - index - 1);
     }
 
-    public Candle getCandle(int index) {
-        return this.candles.get(index);
+    public boolean isNBullishCandles(int startIndex, int lastNCandles) {
+        boolean result = true;
+        for(int i = startIndex; i <= lastNCandles; i++ ) {
+            result &= getCandleReverse(i).isBullishCandle();
+        }
+        return result;
     }
+
+    public double getLocalSwingHigh(int startIndex, int lastNCandles) {
+        double result = 0;
+        for(int i = startIndex; i <= lastNCandles; i++ ) {
+            result = Util.greatest(result, getCandleReverse(i).getHighPrice());
+        }
+        return result;
+    }
+
+    public boolean isBullishEngulfer() {
+        Candle prev1 = getCandleReverse(1);
+        Candle prev2 = getCandleReverse(2);
+
+        if((prev2.isBearishCandle() && prev1.isBullishCandle()) &&
+            (prev2.getOpenPrice() < prev1.getClosePrice()) &&
+            (prev2.getBodyLength() < prev1.getBodyLength() * 0.7)) {
+            return true;
+        }
+        return false;
+    }
+
 }

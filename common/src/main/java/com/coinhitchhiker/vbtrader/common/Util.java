@@ -121,4 +121,12 @@ public class Util {
         return result;
     }
 
+    public static double greatest(double d1, double d2) {
+        return d1>d2 ? d1 : d2;
+    }
+
+    public static double least(double d1, double d2) {
+        return d1<d2 ? d1 : d2;
+    }
+
 }

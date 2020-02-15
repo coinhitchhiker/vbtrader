@@ -36,6 +36,9 @@ public class StateORDERFILLED implements State {
 
         if(stopLossHit(curPrice)) {
             OrderInfo stopLossOrder = exchange.placeOrder(new OrderInfo(exchangeEnum, symbol, OrderSide.SELL, OrderType.MARKET, 0, filledBuyOrder.getAmountExecuted()));
+            engine.setStopLossPrice(0);
+            engine.setTrailingStopPrice(0);
+
             LOGGER.info("[STOP LOSS HIT]");
             LOGGER.info("[STOP LOSS HIT] {}", stopLossOrder);
             LOGGER.info("[STOP LOSS HIT]");
@@ -51,6 +54,9 @@ public class StateORDERFILLED implements State {
 
         if(tp1Hit(curPrice)) {
             OrderInfo tp1Order = exchange.placeOrder(new OrderInfo(exchangeEnum, symbol, OrderSide.SELL, OrderType.MARKET, 0, filledBuyOrder.getAmountExecuted()/2));
+            engine.setTrailingStopPrice(0);
+            engine.setStopLossPrice(0);
+
             LOGGER.info("[TP1 ORDER]");
             LOGGER.info("[TP1 ORDER] {}", tp1Order);
             LOGGER.info("[TP1 ORDER]");

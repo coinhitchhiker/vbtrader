@@ -18,7 +18,7 @@ public class StateORDERPLACED implements State {
 
     private final Candle triggerM5Bar;
     private final List<Candle> prev5Candles;
-    private final double THRESHOLD_PRICE = 3;       // 5 dollars?
+    private final double THRESHOLD_PRICE = 5;       // 5 dollars?
     private final double ORDER_AMT = 0.1;
     private final M5ScalpingLongEngine engine;
     private final ApplicationEventPublisher publisher;
@@ -99,11 +99,11 @@ public class StateORDERPLACED implements State {
             if(highestPrice < candle.getHighPrice()) highestPrice = candle.getHighPrice();
         }
 
-//        double limitBuyPrice = highestPrice + THRESHOLD_PRICE;
-        double limitBuyPrice = triggerM5Bar.getHighPrice();
+        double limitBuyPrice = highestPrice + THRESHOLD_PRICE;
+//        double limitBuyPrice = triggerM5Bar.getHighPrice();
         double stopLossPrice = triggerM5Bar.getLowPrice() - THRESHOLD_PRICE;
-        double tp1Price = limitBuyPrice + (limitBuyPrice - stopLossPrice);
-        double tp2Price = tp1Price + (limitBuyPrice - stopLossPrice);
+        double tp1Price = limitBuyPrice + (limitBuyPrice - stopLossPrice) * 0.5;
+        double tp2Price = tp1Price + (limitBuyPrice - stopLossPrice) * 0.5;
 
         OrderInfo limitBuy = new OrderInfo(exchange.getExchangeEnum(),symbol, OrderSide.BUY, OrderType.STOP_LIMIT, limitBuyPrice, ORDER_AMT);
         try {
@@ -115,6 +115,7 @@ public class StateORDERPLACED implements State {
             this.tp1Price = tp1Price;
             this.tp2Price = tp2Price;
             this.placedLimitBuy = placedLimitBuy;
+            engine.setStopLossPrice(stopLossPrice);
         } catch(Exception e) {
             LOGGER.error("[ORDER ERROR] ", e);
         }

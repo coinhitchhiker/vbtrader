@@ -1,5 +1,6 @@
 package com.coinhitchhiker.vbtrader.common.model;
 
+import com.coinhitchhiker.vbtrader.common.Util;
 import org.joda.time.DateTime;
 
 import java.io.Serializable;
@@ -74,6 +75,35 @@ public class Candle implements Serializable {
 
     public Candle clone() {
         return new Candle(this.symbol, this.interval, this.openTime, this.closeTime, this.openPrice, this.highPrice, this.lowPrice, this.closePrice, this.volume);
+    }
+
+    public boolean isBullishCandle() {
+        return this.closePrice > this.openPrice;
+    }
+
+    public boolean isBearishCandle() {
+        return this.closePrice < this.openPrice;
+    }
+
+    public double getBodyLength() {
+        return Math.abs(this.closePrice - this.openPrice);
+    }
+
+    // https://priceaction.com/price-action-university/strategies/pin-bar/
+    public CandlePattern getSingleBarPattern() {
+        double length = this.highPrice - this.lowPrice;
+        double body = Math.abs(this.closePrice - this.openPrice);
+
+        double upperWick = (this.highPrice - Util.greatest(this.closePrice, this.openPrice)) / length;
+        double lowerWick = (Util.least(this.closePrice, this.openPrice) - this.lowPrice) / length;
+
+        if(upperWick > 0.7) {
+            return CandlePattern.BEARISH_PINBAR;
+        } else  if(lowerWick > 0.7) {
+            return CandlePattern.BULLISH_PINBAR;
+        }
+
+        return CandlePattern.ORDINARY_BAR;
     }
 
     //-----------------------------------------------------

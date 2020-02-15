@@ -7,6 +7,7 @@ import com.coinhitchhiker.vbtrader.common.model.event.CandleOpenEvent;
 import com.coinhitchhiker.vbtrader.common.model.event.TradeEvent;
 import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -169,5 +170,81 @@ public class M5ScalpingLongEngine  extends AbstractTradingEngine implements Trad
 
     public String getSymbol() {
         return this.SYMBOL;
+    }
+
+    public void setTrailingStopPrice(double price) {
+        this.trailingStopPrice = price;
+    }
+
+    public void setStopLossPrice(double price) {
+        this.stopLossPrice = price;
+    }
+
+    public boolean isH1LongTrending() {
+        Double ema8_1 = ((EMA)h1Chart.getIndicatorByName(H1_8EMA)).getValueReverse(1);
+        Double ema21_1 = ((EMA)h1Chart.getIndicatorByName(H1_21EMA)).getValueReverse(1);
+        double prev1_diff = ema8_1 - ema21_1;
+
+        Double ema8_2 = ((EMA)h1Chart.getIndicatorByName(H1_8EMA)).getValueReverse(2);
+        Double ema21_2 = ((EMA)h1Chart.getIndicatorByName(H1_21EMA)).getValueReverse(2);
+        double prev2_diff = ema8_2 - ema21_2;
+
+        Double ema8_3 = ((EMA)h1Chart.getIndicatorByName(H1_8EMA)).getValueReverse(3);
+        Double ema21_3 = ((EMA)h1Chart.getIndicatorByName(H1_21EMA)).getValueReverse(3);
+        double prev3_diff = ema8_3 - ema21_3;
+
+        double EMA8_INCREASE_PCT1 = 0.1;
+        double EMA8_INCREASE_PCT2 = 0.11;
+        if(prev1_diff > prev2_diff && prev2_diff > prev3_diff &&        // 8,21ema 값의 차이가 3연속  증가
+                (ema8_1 - ema8_2)/ema8_2*100 > EMA8_INCREASE_PCT1
+                && (ema8_2 - ema8_3)/ema8_3*100 > EMA8_INCREASE_PCT2
+        ) {
+            Candle prev1 = h1Chart.getCandleReverse(1);
+            Candle prev2 = h1Chart.getCandleReverse(2);
+            Candle prev3 = h1Chart.getCandleReverse(3);
+
+            if(prev1.getOpenPrice() > ema8_1 && prev1.getClosePrice() > ema8_1 &&
+                    prev2.getOpenPrice() > ema8_2 && prev2.getClosePrice() > ema8_2 &&
+                    prev3.getOpenPrice() > ema8_3 && prev3.getClosePrice() > ema8_3
+            ) {
+                LOGGER.info("[CheckH1TradeSetup] curTimestamp {}", new DateTime(h1Chart.getCandleReverse(0).getOpenTime(), DateTimeZone.UTC));
+                LOGGER.info("[CheckH1TradeSetup] cur Candle {}", h1Chart.getCandleReverse(0));
+                LOGGER.info("[CheckH1TradeSetup]");
+                return true;
+            } else {
+                LOGGER.info("[checkH1TradeSetup invalidated]");
+                LOGGER.info("[checkH1TradeSetup invalidated]\ncur candle {}", h1Chart.getCandleReverse(0));
+                LOGGER.info("[checkH1TradeSetup invalidated]");
+            }
+        }
+
+        return false;
+    }
+
+    public boolean m5PullbackDetected() {
+
+        EMA m5_8ema = (EMA)m5Chart.getIndicatorByName(M5_8EMA);
+        EMA m5_13ema = (EMA)m5Chart.getIndicatorByName(M5_13EMA);
+        EMA m5_21ema = (EMA)m5Chart.getIndicatorByName(M5_21EMA);
+
+        boolean ema_cond1 = m5_8ema.getValueReverse(1) > m5_13ema.getValueReverse(1)  &&
+                m5_13ema.getValueReverse(1) > m5_21ema.getValueReverse(1);
+
+        boolean ema_cond2 = m5_8ema.getValueReverse(2) > m5_13ema.getValueReverse(2)  &&
+                m5_13ema.getValueReverse(2) > m5_21ema.getValueReverse(2);
+
+        boolean ema_cond3 = m5_8ema.getValueReverse(3) > m5_13ema.getValueReverse(3)  &&
+                m5_13ema.getValueReverse(3) > m5_21ema.getValueReverse(3);
+
+        boolean ema_cond4 = m5_8ema.getValueReverse(4) > m5_13ema.getValueReverse(4)  &&
+                m5_13ema.getValueReverse(4) > m5_21ema.getValueReverse(4);
+
+        Candle prev1_candle = m5Chart.getCandleReverse(1);
+
+        boolean pullback_candle = prev1_candle.getOpenPrice() > prev1_candle.getClosePrice() && // negative candle
+                m5_8ema.getValueReverse(1)  > prev1_candle.getLowPrice() &&
+                prev1_candle.getClosePrice() > m5_21ema.getValueReverse(1);
+
+        return ema_cond1 && ema_cond2 && ema_cond3 && ema_cond4 && pullback_candle;
     }
 }

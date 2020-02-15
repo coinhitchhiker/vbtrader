@@ -18,7 +18,7 @@ public class StateTP1REALIZED implements State {
     private final double remainigAmount;
 
     private final double FEE_RATE = 0.045;
-    private final double THRESHOLD_PRICE = 3;   // 3 dollar?
+    private final double THRESHOLD_PRICE = 5;   // 3 dollar?
     private final double breakEvenPrice;
     private double trailingStopPrice;
 
@@ -28,6 +28,8 @@ public class StateTP1REALIZED implements State {
         this.remainigAmount = remainingAmount;
         this.breakEvenPrice = breakEvenPrice;
         this.trailingStopPrice = breakEvenPrice;
+        this.engine.setTrailingStopPrice(breakEvenPrice);
+        this.engine.setStopLossPrice(breakEvenPrice);
     }
 
     @Override
@@ -39,6 +41,8 @@ public class StateTP1REALIZED implements State {
 
         if(curPrice <= breakEvenPrice) {
             OrderInfo breakEvenOrder = exchange.placeOrder(new OrderInfo(exchangeEnum, symbol, OrderSide.SELL, OrderType.MARKET, 0, remainigAmount));
+            engine.setStopLossPrice(0);
+            engine.setTrailingStopPrice(0);
             LOGGER.info("[BREAK EVEN HIT]");
             LOGGER.info("[BREAK EVEN HIT] {}", breakEvenOrder);
             LOGGER.info("[BREAK EVEN HIT]");
@@ -48,6 +52,8 @@ public class StateTP1REALIZED implements State {
             return new StateINIT(engine, publisher);
         } else if(curPrice <= trailingStopPrice) {
             OrderInfo tsOrder = exchange.placeOrder(new OrderInfo(exchangeEnum, symbol, OrderSide.SELL, OrderType.MARKET, 0, remainigAmount));
+            engine.setStopLossPrice(0);
+            engine.setTrailingStopPrice(0);
             LOGGER.info("[TRAILING STOP HIT]");
             LOGGER.info("[TRAILING STOP HIT] {}", tsOrder);
             LOGGER.info("[TRAILING STOP HIT]");
@@ -67,10 +73,10 @@ public class StateTP1REALIZED implements State {
             if(newTrailingStopPrice > least(prev3.getOpenPrice(), prev3.getClosePrice())) newTrailingStopPrice = least(prev3.getOpenPrice(), prev3.getClosePrice());
 
             if(trailingStopPrice < newTrailingStopPrice -  THRESHOLD_PRICE) {
-                LOGGER.info("[NEW TRAILING STOP PRICE] curTimestamp {} {}->{}", new DateTime(curTimestamp, UTC), breakEvenPrice, newTrailingStopPrice - THRESHOLD_PRICE);
+                LOGGER.info("[NEW TRAILING STOP PRICE] curTimestamp {} {}->{}", new DateTime(curTimestamp, UTC), trailingStopPrice, newTrailingStopPrice - THRESHOLD_PRICE);
                 trailingStopPrice = newTrailingStopPrice - THRESHOLD_PRICE;
+                engine.setTrailingStopPrice(trailingStopPrice);
             }
-
         }
 
 //        if(curPrice >= tp2Price) {
@@ -88,7 +94,7 @@ public class StateTP1REALIZED implements State {
     }
 
     private double least(double d1, double d2) {
-        return d1 > d2 ? d1 : d2;
+        return d1 > d2 ? d2 : d1;
     }
 
     @Override
