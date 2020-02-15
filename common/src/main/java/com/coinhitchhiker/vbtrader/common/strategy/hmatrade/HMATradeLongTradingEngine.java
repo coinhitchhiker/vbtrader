@@ -38,11 +38,13 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
     private final int TRADING_WINDOW_LOOKBEHIND;
     private final String HMA_INDI_NAME = "hma9";
     private final double ORDER_AMT = 0.1;
-    private final double ORDER_AMT_INC_RATE = 1.125;
+    private final double ORDER_AMT_INC_RATE = 1;
     private final double EXPECTED_PROFIT = 0.1;
-    private final int MAX_ORDER_CNT = 68;
+    private final int MAX_ORDER_CNT = 100;
     private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
     private int longTriggerPointCnt = 0;
+    private int scaleTradingCnt = 0;
+    private double orderAmtIncRateApplied = 0;
 
     public HMATradeLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                      String SYMBOL, String QUOTE_CURRENCY, ExchangeEnum EXCHANGE, double FEE_RATE,
@@ -165,7 +167,10 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
 
         removedKeys.forEach(key -> this.placedOrders.remove(key));
 
+        //reset vars
         this.longTriggerPointCnt = 0;
+        this.scaleTradingCnt = 0;
+        this.orderAmtIncRateApplied = 0;
 
         this.clearOutOrders();
     }
@@ -230,9 +235,22 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
                 return;
             }
 
+            if(orderAmtIncRateApplied == 0){
+                orderAmtIncRateApplied = ORDER_AMT;
+            }else{
+
+                if(this.scaleTradingCnt > 0 && (this.scaleTradingCnt % 2 == 0)){
+                    orderAmtIncRateApplied = orderAmtIncRateApplied*ORDER_AMT_INC_RATE;
+                }
+
+            }
+
             double limitBuyPrice = this.chart.getValueReverse(1).getClosePrice();
-            OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.MARKET, limitBuyPrice, ORDER_AMT);
+            OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.MARKET, limitBuyPrice, orderAmtIncRateApplied);
             OrderInfo placedBuyOrder = this.exchange.placeOrder(buyOrder);
+
+            this.scaleTradingCnt++;
+
             this.placedOrders.put(String.valueOf(timestamp), placedBuyOrder);
             this.trailingStopPrice = 0;     // init trailing stop price
             this.placedBuyOrder = placedBuyOrder;       // set last buyOrder to track trailing stop
