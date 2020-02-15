@@ -37,9 +37,12 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
     private final int HMA_LENGTH;
     private final int TRADING_WINDOW_LOOKBEHIND;
     private final String HMA_INDI_NAME = "hma9";
-    private final double ORDER_AMT = 1;
-    private final int MAX_ORDER_CNT = 20;
+    private final double ORDER_AMT = 0.1;
+    private final double ORDER_AMT_INC_RATE = 1.125;
+    private final double EXPECTED_PROFIT = 0.1;
+    private final int MAX_ORDER_CNT = 68;
     private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
+    private int longTriggerPointCnt = 0;
 
     public HMATradeLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                                      String SYMBOL, String QUOTE_CURRENCY, ExchangeEnum EXCHANGE, double FEE_RATE,
@@ -113,7 +116,38 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
     }
 
     private void closeAllOrders() {
+
         List<String> removedKeys = new ArrayList<>();
+
+        double expectedProfit = 0D;
+        double profitGained = 0D;
+
+        //calculate profit
+        for (Map.Entry<String, OrderInfo> entry : this.placedOrders.entrySet()) {
+
+            OrderInfo placedBuyOrder = this.exchange.getOrder(entry.getValue());
+            if (placedBuyOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
+
+                OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, OrderType.MARKET, 0, placedBuyOrder.getAmount());
+                OrderInfo placedSellOrder = this.exchange.placeOrder(sellOrder);
+
+                profitGained = profitGained + (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * placedBuyOrder.getAmount();
+                double fee = placedSellOrder.getPriceExecuted() * placedSellOrder.getAmount() * FEE_RATE / 100 + placedBuyOrder.getPriceExecuted() * placedBuyOrder.getAmount() * FEE_RATE / 100;
+
+                profitGained = profitGained - fee;
+
+                expectedProfit = expectedProfit + placedBuyOrder.getAmount() * placedBuyOrder.getPriceExecuted() * EXPECTED_PROFIT / 100;
+            }
+
+        }
+
+        if(profitGained == 0){
+            return;
+        }
+
+        if(profitGained < expectedProfit ){
+            return;
+        }
 
         for (Map.Entry<String, OrderInfo> entry : this.placedOrders.entrySet()) {
             OrderInfo placedBuyOrder = this.exchange.getOrder(entry.getValue());
@@ -125,24 +159,13 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
                 TradeResultEvent event = new TradeResultEvent(EXCHANGE, SYMBOL, QUOTE_CURRENCY, profit - fee, profit, placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), ORDER_AMT, fee, placedSellOrder.getExecTimestamp());
                 LOGGERBUYSELL.info("[{}] sell price {} buy price {} order amt {} net profit {}", new DateTime(placedSellOrder.getExecTimestamp(), UTC), placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), ORDER_AMT, profit - fee);
                 this.eventPublisher.publishEvent(event);
-            } else if (placedBuyOrder.getOrderStatus().equals(OrderStatus.PENDING)) {
-                this.exchange.cancelOrder(placedBuyOrder);
-                LOGGERBUYSELL.info("[{}] [CANCEL PENDING ORDER] {}", new DateTime(placedBuyOrder.getExecTimestamp(), UTC), placedBuyOrder.toString());
-            } else if(placedBuyOrder.getOrderStatus().equals(OrderStatus.PARTIALLY_FILLED)) {
-                double amountExecuted = placedBuyOrder.getAmountExecuted();
-                OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, OrderType.MARKET, 0, amountExecuted);
-                OrderInfo placedSellOrder = this.exchange.placeOrder(sellOrder);
-                double profit = (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * amountExecuted;
-                double fee = placedSellOrder.getPriceExecuted() * amountExecuted * FEE_RATE / 100 + placedBuyOrder.getPriceExecuted() * amountExecuted * FEE_RATE / 100;
-                TradeResultEvent event = new TradeResultEvent(EXCHANGE, SYMBOL, QUOTE_CURRENCY, profit - fee, profit, placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), amountExecuted, fee, placedSellOrder.getExecTimestamp());
-                LOGGERBUYSELL.info("[{}] sell price {} buy price {} order amt {} net profit {}", new DateTime(placedSellOrder.getExecTimestamp(), UTC), placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), amountExecuted, profit - fee);
-                this.exchange.cancelOrder(placedBuyOrder);
-                this.eventPublisher.publishEvent(event);
             }
             removedKeys.add(entry.getKey());
         }
 
         removedKeys.forEach(key -> this.placedOrders.remove(key));
+
+        this.longTriggerPointCnt = 0;
 
         this.clearOutOrders();
     }
@@ -187,52 +210,42 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
         double hma2 = hma.getValueReverse(3);
         long timestamp = e.getNewCandle().getOpenTime();
 
-        boolean hamConditionConfirmed = hma0 - hma1 > 0 && hma1 - hma2 < 0 ? true : false;
+        boolean hamLongConditionConfirmed = hma0 - hma1 > 0 && hma1 - hma2 < 0 ? true : false;
+        boolean hamShortConditionConfirmed = hma0 - hma1 < 0 && hma1 - hma2 > 0  ? true : false;
 
-        double candleOpenPrice = this.chart.getValueReverse(1).getOpenPrice();
-        double candleClosePrice = this.chart.getValueReverse(1).getClosePrice();
-        double candleHighPrice = this.chart.getValueReverse(1).getHighPrice();
-        double candleLowPrice = this.chart.getValueReverse(1).getLowPrice();
+//        double candleOpenPrice = this.chart.getValueReverse(1).getOpenPrice();
+//        double candleClosePrice = this.chart.getValueReverse(1).getClosePrice();
+//        double candleHighPrice = this.chart.getValueReverse(1).getHighPrice();
+//        double candleLowPrice = this.chart.getValueReverse(1).getLowPrice();
 
-        boolean isUpTrendCandle = candleClosePrice - candleOpenPrice > 0;
-
-//        Open order
-//        ABS( (HMA0 - HMA1) * 5 ) / HMA1 > (기대수익 0.1 + 수수료x2 ) 일 경우 다음 연장된 HMA값인 HMA0+(HMA0 - HMA1) 가격으로 주문,
-        // TODO: 5배가 아니라 최적값을 찾아야 함
-        if(hamConditionConfirmed) {
-//            if (Math.abs(hma0 - hma1) * 5 / hma1 * 100 > 0.1 + FEE_RATE * 2) {
-
-//            double triggerPoint = ((hma0 - candleLowPrice)/candleLowPrice)*100D;
-//            boolean inflectionPointTailSize = (candleClosePrice - candleLowPrice) > (candleHighPrice - candleLowPrice)*0.3D;
-
-//            if(triggerPoint > 0.4 && inflectionPointTailSize ){
-
-                if(this.placedOrders.size() >= MAX_ORDER_CNT) {
-                    LOGGER.info("Max orders {} reached", MAX_ORDER_CNT);
-                    return;
-                }
-
-//                double limitBuyPrice = hma0 + (hma0 - hma1);
-                double limitBuyPrice = this.chart.getValueReverse(1).getClosePrice();
-                OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.LIMIT, limitBuyPrice, ORDER_AMT);
-                OrderInfo placedBuyOrder = this.exchange.placeOrder(buyOrder);
-                this.placedOrders.put(String.valueOf(timestamp), placedBuyOrder);
-                this.trailingStopPrice = 0;     // init trailing stop price
-                this.placedBuyOrder = placedBuyOrder;       // set last buyOrder to track trailing stop
-                LOGGERBUYSELL.info("[{}] [PLACED BUYORDER] {}", new DateTime(timestamp, UTC), placedBuyOrder.toString());
-                LOGGER.info("---------------------------------------------------------------");
-                LOGGER.info("BUY SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
-                LOGGER.info("---------------------------------------------------------------");
-                return;
-//            }
+        if(hamLongConditionConfirmed){
+            this.longTriggerPointCnt++;
         }
 
-        // TODO: 0.2를 적정값 찾기.... ㅠㅠㅠㅠ
-        // 직전 두개 HMA 상승폭이 하나 더 전의 HMA상승폭의 20%보다 작으면 기존 주문들 모두 청산 (하락 또는 상승폭 급격 둔화)
-//        if(hma0 - hma1 < 0.2 * (hma1 - hma2) && this.placedOrders.size() > 0) {
-//        if(this.chart.getValueReverse(1).getClosePrice() < hma0 && this.placedOrders.size() > 0) {
-        if(hma0 - hma1 < 0 && hma1 - hma2 > 0 && this.placedOrders.size() > 0){
-            LOGGERBUYSELL.info("[{}] [CLOSING ORDERS] hma0 - hma1 {} < 0.2 * (hma1 - hma2) {} ", new DateTime(timestamp, UTC), hma0-hma1, 0.2*(hma1-hma2));
+//        Open order
+        if(hamLongConditionConfirmed && (this.longTriggerPointCnt % 2 > 0 || this.longTriggerPointCnt % 2 < 0)) {
+
+            if(this.placedOrders.size() >= MAX_ORDER_CNT) {
+                LOGGER.info("Max orders {} reached", MAX_ORDER_CNT);
+                return;
+            }
+
+            double limitBuyPrice = this.chart.getValueReverse(1).getClosePrice();
+            OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.MARKET, limitBuyPrice, ORDER_AMT);
+            OrderInfo placedBuyOrder = this.exchange.placeOrder(buyOrder);
+            this.placedOrders.put(String.valueOf(timestamp), placedBuyOrder);
+            this.trailingStopPrice = 0;     // init trailing stop price
+            this.placedBuyOrder = placedBuyOrder;       // set last buyOrder to track trailing stop
+            LOGGERBUYSELL.info("[{}] [PLACED BUYORDER] {}", new DateTime(timestamp, UTC), placedBuyOrder.toString());
+            LOGGER.info("---------------------------------------------------------------");
+            LOGGER.info("BUY SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
+            LOGGER.info("---------------------------------------------------------------");
+            return;
+
+        }
+
+//close order
+        if(hamShortConditionConfirmed && this.placedOrders.size() > 0){
             LOGGER.info("---------------------------------------------------------------");
             LOGGER.info("SELL SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
             LOGGER.info("---------------------------------------------------------------");
