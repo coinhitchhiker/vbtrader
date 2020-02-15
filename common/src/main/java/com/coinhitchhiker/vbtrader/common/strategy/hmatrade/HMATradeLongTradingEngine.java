@@ -37,13 +37,16 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
     private final int HMA_LENGTH;
     private final int TRADING_WINDOW_LOOKBEHIND;
     private final String HMA_INDI_NAME = "hma9";
-    private final double ORDER_AMT = 0.1;
+    private final double ORDER_AMT = 0.05;
     private final double ORDER_AMT_INC_RATE = 1;
     private final double EXPECTED_PROFIT = 0.1;
-    private final int MAX_ORDER_CNT = 100;
+    private int SCALE_TRD_ORD_INRERVAL = 2;
+    private int SCALE_TRD_ORD_AMT_INC_INTERVAL = 0;
+    private final int MAX_ORDER_CNT = 40;
     private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
+
     private int longTriggerPointCnt = 0;
-    private int scaleTradingCnt = 0;
+    private int orderScaleTradeCnt = 0;
     private double orderAmtIncRateApplied = 0;
 
     public HMATradeLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
@@ -169,7 +172,7 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
 
         //reset vars
         this.longTriggerPointCnt = 0;
-        this.scaleTradingCnt = 0;
+        this.orderScaleTradeCnt  = 0;
         this.orderAmtIncRateApplied = 0;
 
         this.clearOutOrders();
@@ -228,18 +231,18 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
         }
 
 //        Open order
-        if(hamLongConditionConfirmed && (this.longTriggerPointCnt % 2 > 0 || this.longTriggerPointCnt % 2 < 0)) {
+        if(hamLongConditionConfirmed && (this.longTriggerPointCnt == 1 || (this.longTriggerPointCnt - 1) % this.SCALE_TRD_ORD_INRERVAL == 0)) {
 
             if(this.placedOrders.size() >= MAX_ORDER_CNT) {
                 LOGGER.info("Max orders {} reached", MAX_ORDER_CNT);
                 return;
             }
 
-            if(orderAmtIncRateApplied == 0){
+            if(orderAmtIncRateApplied == 0 || this.SCALE_TRD_ORD_AMT_INC_INTERVAL == 0){
                 orderAmtIncRateApplied = ORDER_AMT;
             }else{
 
-                if(this.scaleTradingCnt > 0 && (this.scaleTradingCnt % 2 == 0)){
+                if(this.orderScaleTradeCnt > 0 && (this.orderScaleTradeCnt % this.SCALE_TRD_ORD_AMT_INC_INTERVAL == 0)){
                     orderAmtIncRateApplied = orderAmtIncRateApplied*ORDER_AMT_INC_RATE;
                 }
 
@@ -249,7 +252,7 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
             OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.MARKET, limitBuyPrice, orderAmtIncRateApplied);
             OrderInfo placedBuyOrder = this.exchange.placeOrder(buyOrder);
 
-            this.scaleTradingCnt++;
+            this.orderScaleTradeCnt ++;
 
             this.placedOrders.put(String.valueOf(timestamp), placedBuyOrder);
             this.trailingStopPrice = 0;     // init trailing stop price
