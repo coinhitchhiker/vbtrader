@@ -13,6 +13,7 @@ import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 
@@ -37,14 +38,17 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
     private final int HMA_LENGTH;
     private final int TRADING_WINDOW_LOOKBEHIND;
     private final String HMA_INDI_NAME = "hma9";
-    private final double ORDER_AMT = 0.05;
-    private final double ORDER_AMT_INC_RATE = 1;
-    private final double EXPECTED_PROFIT = 0.1;
-    private int SCALE_TRD_ORD_INRERVAL = 2;
-    private int SCALE_TRD_ORD_AMT_INC_INTERVAL = 0;
-    private final int MAX_ORDER_CNT = 40;
-    private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
 
+    //external config params
+
+    @Value("${hma.trading.engine.order.amount}") double ORDER_AMT;
+    @Value("${hma.trading.engine.order.amount.increment.multiplying}") double ORDER_AMT_INC_MULTI;
+    @Value("${hma.trading.engine.expected.profit}") double EXPECTED_PROFIT;
+    @Value("${hma.trading.engine.scale.trade.order.interval}") double SCALE_TRD_ORD_INRERVAL;
+    @Value("${hma.trading.engine.scale.trade.order.amount.increment.interval}") double SCALE_TRD_ORD_AMT_INC_INTERVAL;
+    @Value("${hma.trading.engine.max.order.limit}") double MAX_ORDER_LMT;
+
+    private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
     private int longTriggerPointCnt = 0;
     private int orderScaleTradeCnt = 0;
     private double orderAmtIncRateApplied = 0;
@@ -233,8 +237,8 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
 //        Open order
         if(hamLongConditionConfirmed && (this.longTriggerPointCnt == 1 || (this.longTriggerPointCnt - 1) % this.SCALE_TRD_ORD_INRERVAL == 0)) {
 
-            if(this.placedOrders.size() >= MAX_ORDER_CNT) {
-                LOGGER.info("Max orders {} reached", MAX_ORDER_CNT);
+            if(this.placedOrders.size() >= MAX_ORDER_LMT) {
+                LOGGER.info("Max orders {} reached", MAX_ORDER_LMT);
                 return;
             }
 
@@ -243,7 +247,7 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
             }else{
 
                 if(this.orderScaleTradeCnt > 0 && (this.orderScaleTradeCnt % this.SCALE_TRD_ORD_AMT_INC_INTERVAL == 0)){
-                    orderAmtIncRateApplied = orderAmtIncRateApplied*ORDER_AMT_INC_RATE;
+                    orderAmtIncRateApplied = orderAmtIncRateApplied*ORDER_AMT_INC_MULTI;
                 }
 
             }
