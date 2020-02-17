@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
-import org.springframework.core.annotation.Order;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -47,10 +46,11 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
     @Value("${hma.trading.engine.scale.trade.order.interval}") double SCALE_TRD_ORD_INRERVAL;
     @Value("${hma.trading.engine.scale.trade.order.amount.increment.interval}") double SCALE_TRD_ORD_AMT_INC_INTERVAL;
     @Value("${hma.trading.engine.max.order.limit}") double MAX_ORDER_LMT;
+    @Value("${trading.slippage}") private double SLIPPAGE;
 
     private final TradingMode tradeMode;
     private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
-    private int longTriggerPointCnt = 0;
+    private int triggerTurningPoint = 0;
     private int orderScaleTradeCnt = 0;
     private double orderAmtIncRateApplied = 0;
     private double lastTurningPointHMA = 0;
@@ -141,7 +141,7 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
             if (placedOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
 
                 double closingOrderPrice = this.chart.getValueReverse(0).getOpenPrice();
-
+                closingOrderPrice = tradeMode.equals(TradingMode.LONG) ? closingOrderPrice*(1-SLIPPAGE) : closingOrderPrice*(1+SLIPPAGE);
                 double tradeRawProfit = tradeMode.equals(TradingMode.LONG) ? closingOrderPrice - placedOrder.getPriceExecuted(): placedOrder.getPriceExecuted() - closingOrderPrice;
                 profitGained = profitGained + (tradeRawProfit) * placedOrder.getAmount();
                 double fee = closingOrderPrice * placedOrder.getAmount() * FEE_RATE / 100 + placedOrder.getPriceExecuted() * placedOrder.getAmount() * FEE_RATE / 100;
@@ -185,7 +185,7 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
         removedKeys.forEach(key -> this.placedOrders.remove(key));
 
         //reset vars
-        this.longTriggerPointCnt = 0;
+        this.triggerTurningPoint = 0;
         this.orderScaleTradeCnt  = 0;
         this.orderAmtIncRateApplied = 0;
 
@@ -241,17 +241,17 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 
         if(hamOrderConditionConfirmed){
 
-            this.longTriggerPointCnt++;
+            this.triggerTurningPoint++;
 
             if(SCALE_TRD_ORD_TRND_INRERVAL){
 
-                if(this.longTriggerPointCnt > 1 && this.lastTurningPointHMA < hma1){
+                if(this.triggerTurningPoint > 1 && this.lastTurningPointHMA < hma1){
                     scaleTradingConfirmed = true;
                 }
 
             }else{
 
-                if((this.longTriggerPointCnt - 1) % this.SCALE_TRD_ORD_INRERVAL == 0){
+                if((this.triggerTurningPoint - 1) % this.SCALE_TRD_ORD_INRERVAL == 0){
                     scaleTradingConfirmed = true;
                 }
             }
@@ -261,7 +261,7 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
         }
 
 //        Open order
-        if(hamOrderConditionConfirmed && (this.longTriggerPointCnt == 1 || scaleTradingConfirmed)) {
+        if(hamOrderConditionConfirmed && (this.triggerTurningPoint == 1 || scaleTradingConfirmed)) {
 
             if(this.placedOrders.size() >= MAX_ORDER_LMT) {
                 LOGGER.info("Max orders {} reached", MAX_ORDER_LMT);
