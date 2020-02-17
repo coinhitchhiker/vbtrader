@@ -3,6 +3,9 @@
 
 # Log file
 *.log
+log.txt
+log-buysell.txt
+log-trade.txt
 
 # BlueJ files
 *.ctxt
