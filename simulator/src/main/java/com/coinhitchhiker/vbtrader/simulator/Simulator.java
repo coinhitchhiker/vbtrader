@@ -1,6 +1,6 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
- com.coinhitchhiker.vbtrader.common.indicator.HullMovingAverage;
+import com.coinhitchhiker.vbtrader.common.indicator.HullMovingAverage;
 import com.coinhitchhiker.vbtrader.common.indicator.SMA;
 import com.coinhitchhiker.vbtrader.common.indicator.WMA;
 import com.coinhitchhiker.vbtrader.common.model.*;
