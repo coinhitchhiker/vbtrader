@@ -1,7 +1,7 @@
 package com.coinhitchhiker.vbtrader.trader.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradeLongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.trader.exchange.binance.BinanceExchange;
@@ -13,9 +13,6 @@ import com.coinhitchhiker.vbtrader.trader.exchange.bitmex.BitMexRepository;
 import org.jasypt.encryption.StringEncryptor;
 import org.jasypt.encryption.pbe.PooledPBEStringEncryptor;
 import org.jasypt.encryption.pbe.config.SimpleStringPBEConfig;
-import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
-import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -69,11 +66,12 @@ public class TraderAppConfig {
             return new IBSLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM,
                     ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT,
                     STOP_LOSS_ENABLED, STOP_LOSS_PCT, IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD, true);
-        } else if(MODE.equals("LONG") && STRATEGY.equals("HMA_TRADE")) {
-            return new HMATradeLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY,
+        } else if(STRATEGY.equals("HMA_TRADE")) {
+            return new HMATradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY,
                     ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.M5, HMA_LENGTH,
                     HMA_TRADE_LOOK_BEHIND, false,
-                    0
+                    0,
+                    TradingMode.valueOf(MODE)
             );
         } else {
             throw new UnsupportedOperationException("Not yet supported");

@@ -1,7 +1,7 @@
 package com.coinhitchhiker.vbtrader.simulator.config;
 
 import com.coinhitchhiker.vbtrader.common.model.*;
-import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradeLongTradingEngine;
+import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.*;
@@ -67,11 +67,12 @@ public class SimulatorAppConfig {
             return new IBSLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRENCY, LIMIT_ORDER_PREMIUM,
                     ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, TRADING_ENABLED, TRAILING_STOP_ENABLED, TS_TRIGGER_PCT, TS_PCT,
                     STOP_LOSS_ENABLED, STOP_LOSS_PCT, IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD, true);
-        } else if(MODE.equals("LONG") && STRATEGY.equals("HMA_TRADE")) {
-            return new HMATradeLongTradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRRENCY,
+        } else if(STRATEGY.equals("HMA_TRADE")) {
+            return new HMATradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRRENCY,
                     ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.M3, HMA_LENGTH,
                     HMA_TRADE_LOOK_BEHIND, true,
-                    DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis()
+                    DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
+                    TradingMode.valueOf(MODE)
             );
         } else {
             throw new UnsupportedOperationException("Not yet supported");

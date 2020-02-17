@@ -1,30 +1,18 @@
 package com.coinhitchhiker.vbtrader.simulator;
 
-import com.coinhitchhiker.vbtrader.common.indicator.HullMovingAverage;
-import com.coinhitchhiker.vbtrader.common.indicator.SMA;
-import com.coinhitchhiker.vbtrader.common.indicator.WMA;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.model.event.TradeResultEvent;
-import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradeLongTradingEngine;
-import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
-import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSShortTradingEngine;
-import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBVLongTradingEngine;
-import com.coinhitchhiker.vbtrader.common.strategy.vb.VBLongTradingEngine;
-import com.coinhitchhiker.vbtrader.common.strategy.vb.VBShortTradingEngine;
 import com.coinhitchhiker.vbtrader.simulator.db.SimulatorDAO;
 import com.google.gson.Gson;
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 
 import static org.joda.time.DateTimeZone.UTC;
 

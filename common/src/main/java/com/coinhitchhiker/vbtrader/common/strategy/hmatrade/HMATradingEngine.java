@@ -9,25 +9,24 @@ import com.coinhitchhiker.vbtrader.common.model.event.TradeResultEvent;
 import com.coinhitchhiker.vbtrader.common.strategy.AbstractTradingEngine;
 
 import org.joda.time.DateTime;
-import org.joda.time.DateTimeZone;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
+import org.springframework.core.annotation.Order;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.joda.time.DateTimeZone.UTC;
 
-public class HMATradeLongTradingEngine extends AbstractTradingEngine implements TradingEngine {
+public class HMATradingEngine extends AbstractTradingEngine implements TradingEngine {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HMATradeLongTradingEngine.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(HMATradingEngine.class);
     private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
 
     @Autowired
@@ -44,24 +43,28 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
     @Value("${hma.trading.engine.order.amount}") double ORDER_AMT;
     @Value("${hma.trading.engine.order.amount.increment.multiplying}") double ORDER_AMT_INC_MULTI;
     @Value("${hma.trading.engine.expected.profit}") double EXPECTED_PROFIT;
+    @Value("${hma.trading.engine.scale.trade.order.trend.interval}") boolean SCALE_TRD_ORD_TRND_INRERVAL;
     @Value("${hma.trading.engine.scale.trade.order.interval}") double SCALE_TRD_ORD_INRERVAL;
     @Value("${hma.trading.engine.scale.trade.order.amount.increment.interval}") double SCALE_TRD_ORD_AMT_INC_INTERVAL;
     @Value("${hma.trading.engine.max.order.limit}") double MAX_ORDER_LMT;
 
+    private final TradingMode tradeMode;
     private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
     private int longTriggerPointCnt = 0;
     private int orderScaleTradeCnt = 0;
     private double orderAmtIncRateApplied = 0;
+    private double lastTurningPointHMA = 0;
 
-    public HMATradeLongTradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
-                                     String SYMBOL, String QUOTE_CURRENCY, ExchangeEnum EXCHANGE, double FEE_RATE,
-                                     boolean VERBOSE, TimeFrame timeFrame, int HMA_LENGTH, int TRADING_WINDOW_LOOKBEHIND,
-                                     boolean SIMUL, long SIMUL_START
+    public HMATradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
+                            String SYMBOL, String QUOTE_CURRENCY, ExchangeEnum EXCHANGE, double FEE_RATE,
+                            boolean VERBOSE, TimeFrame timeFrame, int HMA_LENGTH, int TRADING_WINDOW_LOOKBEHIND,
+                            boolean SIMUL, long SIMUL_START, TradingMode TRADE_MODE
                                      ) {
 
-        super(repository, exchange, orderBookCache, TradingMode.LONG, SYMBOL, QUOTE_CURRENCY, 0, EXCHANGE, FEE_RATE,
+        super(repository, exchange, orderBookCache, TRADE_MODE, SYMBOL, QUOTE_CURRENCY, 0, EXCHANGE, FEE_RATE,
                 true, false, 3 + FEE_RATE*2, 0.4 * (0.1 + FEE_RATE*2), false, 0, VERBOSE);
 
+        this.tradeMode = TRADE_MODE;
         this.timeFrame = timeFrame;
         this.HMA_LENGTH = HMA_LENGTH;
         this.TRADING_WINDOW_LOOKBEHIND = TRADING_WINDOW_LOOKBEHIND;
@@ -134,18 +137,18 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
         //calculate profit
         for (Map.Entry<String, OrderInfo> entry : this.placedOrders.entrySet()) {
 
-            OrderInfo placedBuyOrder = this.exchange.getOrder(entry.getValue());
-            if (placedBuyOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
+            OrderInfo placedOrder = this.exchange.getOrder(entry.getValue());
+            if (placedOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
 
-                OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, OrderType.MARKET, 0, placedBuyOrder.getAmount());
-                OrderInfo placedSellOrder = this.exchange.placeOrder(sellOrder);
+                double closingOrderPrice = this.chart.getValueReverse(0).getOpenPrice();
 
-                profitGained = profitGained + (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * placedBuyOrder.getAmount();
-                double fee = placedSellOrder.getPriceExecuted() * placedSellOrder.getAmount() * FEE_RATE / 100 + placedBuyOrder.getPriceExecuted() * placedBuyOrder.getAmount() * FEE_RATE / 100;
+                double tradeRawProfit = tradeMode.equals(TradingMode.LONG) ? closingOrderPrice - placedOrder.getPriceExecuted(): placedOrder.getPriceExecuted() - closingOrderPrice;
+                profitGained = profitGained + (tradeRawProfit) * placedOrder.getAmount();
+                double fee = closingOrderPrice * placedOrder.getAmount() * FEE_RATE / 100 + placedOrder.getPriceExecuted() * placedOrder.getAmount() * FEE_RATE / 100;
 
                 profitGained = profitGained - fee;
 
-                expectedProfit = expectedProfit + placedBuyOrder.getAmount() * placedBuyOrder.getPriceExecuted() * EXPECTED_PROFIT / 100;
+                expectedProfit = expectedProfit + placedOrder.getAmount() * placedOrder.getPriceExecuted() * EXPECTED_PROFIT / 100;
             }
 
         }
@@ -159,14 +162,21 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
         }
 
         for (Map.Entry<String, OrderInfo> entry : this.placedOrders.entrySet()) {
-            OrderInfo placedBuyOrder = this.exchange.getOrder(entry.getValue());
-            if (placedBuyOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
-                OrderInfo sellOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.SELL, OrderType.MARKET, 0, ORDER_AMT);
-                OrderInfo placedSellOrder = this.exchange.placeOrder(sellOrder);
-                double profit = (placedSellOrder.getPriceExecuted() - placedBuyOrder.getPriceExecuted()) * ORDER_AMT;
-                double fee = placedSellOrder.getPriceExecuted() * ORDER_AMT * FEE_RATE / 100 + placedBuyOrder.getPriceExecuted() * ORDER_AMT * FEE_RATE / 100;
-                TradeResultEvent event = new TradeResultEvent(EXCHANGE, SYMBOL, QUOTE_CURRENCY, profit - fee, profit, placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), ORDER_AMT, fee, placedSellOrder.getExecTimestamp());
-                LOGGERBUYSELL.info("[{}] sell price {} buy price {} order amt {} net profit {}", new DateTime(placedSellOrder.getExecTimestamp(), UTC), placedSellOrder.getPriceExecuted(), placedBuyOrder.getPriceExecuted(), ORDER_AMT, profit - fee);
+            OrderInfo placedOrder = this.exchange.getOrder(entry.getValue());
+            if (placedOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
+
+                OrderSide orderSide = tradeMode.equals(TradingMode.LONG) ? OrderSide.SELL : OrderSide.BUY;
+                OrderInfo preparedOrderForClosing = new OrderInfo(EXCHANGE, SYMBOL, orderSide, OrderType.MARKET, 0, placedOrder.getAmount());
+                OrderInfo placedOrderForClosing = this.exchange.placeOrder(preparedOrderForClosing);
+
+                double tradeRawProfit = tradeMode.equals(TradingMode.LONG) ? placedOrderForClosing.getPriceExecuted() - placedOrder.getPriceExecuted(): placedOrder.getPriceExecuted() - placedOrderForClosing.getPriceExecuted();
+                double profit = tradeRawProfit * placedOrder.getAmount();
+                double fee = placedOrderForClosing.getPriceExecuted() * placedOrderForClosing.getAmount() * FEE_RATE / 100 + placedOrder.getPriceExecuted() * placedOrder.getAmount() * FEE_RATE / 100;
+
+                TradeResultEvent event = new TradeResultEvent(EXCHANGE, SYMBOL, QUOTE_CURRENCY, profit - fee, profit, placedOrderForClosing.getPriceExecuted(), placedOrder.getPriceExecuted(), ORDER_AMT, fee, placedOrderForClosing.getExecTimestamp());
+
+                String orderSideStr = tradeMode.equals(TradingMode.LONG) ? "SELL" : "BUY";
+                LOGGERBUYSELL.info("[{}] {} price {} buy price {} order amt {} net profit {}", new DateTime(placedOrderForClosing.getExecTimestamp(), UTC),orderSideStr, placedOrderForClosing.getPriceExecuted(), placedOrder.getPriceExecuted(), ORDER_AMT, profit - fee);
                 this.eventPublisher.publishEvent(event);
             }
             removedKeys.add(entry.getKey());
@@ -222,20 +232,36 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
         double hma2 = hma.getValueReverse(3);
         long timestamp = e.getNewCandle().getOpenTime();
 
-        boolean hamLongConditionConfirmed = hma0 - hma1 > 0 && hma1 - hma2 < 0 ? true : false;
-        boolean hamShortConditionConfirmed = hma0 - hma1 < 0 && hma1 - hma2 > 0  ? true : false;
+        boolean hamOrderConditionConfirmed = this.tradeMode.equals(TradingMode.LONG) ? (hma0 - hma1 > 0 && hma1 - hma2 < 0 ? true : false) : (hma0 - hma1 < 0 && hma1 - hma2 > 0  ? true : false);
+        boolean hamOrderClosingConditionConfirmed = this.tradeMode.equals(TradingMode.LONG) ? (hma0 - hma1 < 0 && hma1 - hma2 > 0  ? true : false) : (hma0 - hma1 > 0 && hma1 - hma2 < 0 ? true : false);
 
-//        double candleOpenPrice = this.chart.getValueReverse(1).getOpenPrice();
-//        double candleClosePrice = this.chart.getValueReverse(1).getClosePrice();
-//        double candleHighPrice = this.chart.getValueReverse(1).getHighPrice();
-//        double candleLowPrice = this.chart.getValueReverse(1).getLowPrice();
+        double candleClosePrice = this.chart.getValueReverse(1).getClosePrice();
 
-        if(hamLongConditionConfirmed){
+        boolean scaleTradingConfirmed = false;
+
+        if(hamOrderConditionConfirmed){
+
             this.longTriggerPointCnt++;
+
+            if(SCALE_TRD_ORD_TRND_INRERVAL){
+
+                if(this.longTriggerPointCnt > 1 && this.lastTurningPointHMA < hma1){
+                    scaleTradingConfirmed = true;
+                }
+
+            }else{
+
+                if((this.longTriggerPointCnt - 1) % this.SCALE_TRD_ORD_INRERVAL == 0){
+                    scaleTradingConfirmed = true;
+                }
+            }
+
+            this.lastTurningPointHMA = hma1;
+
         }
 
 //        Open order
-        if(hamLongConditionConfirmed && (this.longTriggerPointCnt == 1 || (this.longTriggerPointCnt - 1) % this.SCALE_TRD_ORD_INRERVAL == 0)) {
+        if(hamOrderConditionConfirmed && (this.longTriggerPointCnt == 1 || scaleTradingConfirmed)) {
 
             if(this.placedOrders.size() >= MAX_ORDER_LMT) {
                 LOGGER.info("Max orders {} reached", MAX_ORDER_LMT);
@@ -252,7 +278,7 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
 
             }
 
-            double limitBuyPrice = this.chart.getValueReverse(1).getClosePrice();
+            double limitBuyPrice = candleClosePrice;
             OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.MARKET, limitBuyPrice, orderAmtIncRateApplied);
             OrderInfo placedBuyOrder = this.exchange.placeOrder(buyOrder);
 
@@ -270,7 +296,7 @@ public class HMATradeLongTradingEngine extends AbstractTradingEngine implements 
         }
 
 //close order
-        if(hamShortConditionConfirmed && this.placedOrders.size() > 0){
+        if(hamOrderClosingConditionConfirmed && this.placedOrders.size() > 0){
             LOGGER.info("---------------------------------------------------------------");
             LOGGER.info("SELL SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
             LOGGER.info("---------------------------------------------------------------");
