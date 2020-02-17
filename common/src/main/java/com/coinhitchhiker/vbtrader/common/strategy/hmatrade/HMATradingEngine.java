@@ -121,8 +121,14 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
             placedOrder.setPriceExecuted(syncOrder.getPriceExecuted());
             placedOrder.setExecTimestamp(syncOrder.getExecTimestamp());
 
-            if(this.placedBuyOrder.getExternalOrderId().equals(placedOrder.getExternalOrderId())) {
-                this.placedBuyOrder = syncOrder;
+            if(placedOrder.getOrderSide().equals(OrderSide.BUY)) {
+                if (this.placedBuyOrder.getExternalOrderId().equals(placedOrder.getExternalOrderId())) {
+                    this.placedBuyOrder = syncOrder;
+                }
+            }else{
+                if (this.placedSellOrder.getExternalOrderId().equals(placedOrder.getExternalOrderId())) {
+                    this.placedSellOrder = syncOrder;
+                }
             }
         }
     }
@@ -278,18 +284,26 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 
             }
 
-            double limitBuyPrice = candleClosePrice;
-            OrderInfo buyOrder = new OrderInfo(EXCHANGE, SYMBOL, OrderSide.BUY, OrderType.MARKET, limitBuyPrice, orderAmtIncRateApplied);
-            OrderInfo placedBuyOrder = this.exchange.placeOrder(buyOrder);
+            double limitOrderPrice = candleClosePrice;
+            OrderSide orderSide = tradeMode.equals(TradingMode.LONG) ? OrderSide.BUY : OrderSide.SELL;
+            OrderInfo order = new OrderInfo(EXCHANGE, SYMBOL, orderSide, OrderType.MARKET, limitOrderPrice, orderAmtIncRateApplied);
+
+            OrderInfo placedOrder = this.exchange.placeOrder(order);
 
             this.orderScaleTradeCnt ++;
 
-            this.placedOrders.put(String.valueOf(timestamp), placedBuyOrder);
+            this.placedOrders.put(String.valueOf(timestamp), placedOrder);
             this.trailingStopPrice = 0;     // init trailing stop price
-            this.placedBuyOrder = placedBuyOrder;       // set last buyOrder to track trailing stop
-            LOGGERBUYSELL.info("[{}] [PLACED BUYORDER] {}", new DateTime(timestamp, UTC), placedBuyOrder.toString());
+
+            if(tradeMode.equals(TradingMode.LONG)) {
+                this.placedBuyOrder = placedOrder;       // set last buyOrder to track trailing stop
+            }else{
+                this.placedSellOrder = placedOrder;
+            }
+
+            LOGGERBUYSELL.info("[{}] [PLACED {} ORDER] {}", new DateTime(timestamp, UTC), orderSide.name(), orderSide.equals(OrderSide.BUY) ? this.placedBuyOrder.toString() : this.placedSellOrder.toString());
             LOGGER.info("---------------------------------------------------------------");
-            LOGGER.info("BUY SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
+            LOGGER.info("ORDER {} SIGNAL DETECTED AT {}", orderSide.name(), new DateTime(e.getNewCandle().getOpenTime(), UTC));
             LOGGER.info("---------------------------------------------------------------");
             return;
 
@@ -298,7 +312,7 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 //close order
         if(hamOrderClosingConditionConfirmed && this.placedOrders.size() > 0){
             LOGGER.info("---------------------------------------------------------------");
-            LOGGER.info("SELL SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
+            LOGGER.info("ORDER CLOSING SIGNAL DETECTED AT {}", new DateTime(e.getNewCandle().getOpenTime(), UTC));
             LOGGER.info("---------------------------------------------------------------");
             this.closeAllOrders();
         }

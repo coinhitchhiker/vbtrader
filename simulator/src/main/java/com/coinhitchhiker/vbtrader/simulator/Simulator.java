@@ -5,7 +5,6 @@ import com.coinhitchhiker.vbtrader.common.indicator.SMA;
 import com.coinhitchhiker.vbtrader.common.indicator.WMA;
 import com.coinhitchhiker.vbtrader.common.model.*;
 import com.coinhitchhiker.vbtrader.common.model.event.TradeResultEvent;
-import com.coinhitchhiker.vbtrader.common.strategy.hmatrade.HMATradeLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSLongTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.ibs.IBSShortTradingEngine;
 import com.coinhitchhiker.vbtrader.common.strategy.pvtobv.PVTOBVLongTradingEngine;
