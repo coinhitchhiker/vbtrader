@@ -3,9 +3,9 @@
 
 # Log file
 *.log
-log.txt
-log-buysell.txt
-log-trade.txt
+simulator/log.txt
+simulator/log-buysell.txt
+simulator/log-trade.txt
 
 # BlueJ files
 *.ctxt
