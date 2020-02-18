@@ -49,6 +49,27 @@
         </rollingPolicy>
     </appender>
 
+
+    <appender name="EQUITYBALANCE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>log-equitybalance.txt</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>
+                %msg%n
+            </Pattern>
+        </encoder>
+
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>
+                log-equitybalance.%d{yyyy-MM-dd}.%i.txt.zip
+            </fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy
+                    class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>100MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>10</maxHistory>
+        </rollingPolicy>
+    </appender>
+
     <appender name="TRADE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>log-trade.txt</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -75,6 +96,10 @@
 
     <logger name="BUYSELLLOGGER" level="DEBUG" additivity="false">
         <appender-ref ref="BUYSELL"/>
+    </logger>
+
+    <logger name="EQUITYBALANCELOGGER" level="DEBUG" additivity="false">
+        <appender-ref ref="EQUITYBALANCE"/>
     </logger>
 
     <logger name="TRADELOGGER" level="DEBUG" additivity="false">

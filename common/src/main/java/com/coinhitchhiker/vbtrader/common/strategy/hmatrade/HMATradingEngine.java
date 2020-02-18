@@ -27,6 +27,7 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 
     private static final Logger LOGGER = LoggerFactory.getLogger(HMATradingEngine.class);
     private static final Logger LOGGERBUYSELL = LoggerFactory.getLogger("BUYSELLLOGGER");
+    private static final Logger LOGEQUITYBALANCE = LoggerFactory.getLogger("EQUITYBALANCELOGGER");
 
     @Autowired
     private ApplicationEventPublisher eventPublisher;
@@ -137,6 +138,9 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 
         List<String> removedKeys = new ArrayList<>();
 
+        double orderAmountTotal = 0D;
+        double totalCost = 0D;
+
         double expectedProfit = 0D;
         double profitGained = 0D;
 
@@ -154,10 +158,15 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 
                 profitGained = profitGained - fee;
 
+                orderAmountTotal = orderAmountTotal + placedOrder.getAmount();
+                totalCost = totalCost + placedOrder.getAmount()*placedOrder.getPriceExecuted();
+
                 expectedProfit = expectedProfit + placedOrder.getAmount() * placedOrder.getPriceExecuted() * EXPECTED_PROFIT / 100;
             }
 
         }
+
+        LOGEQUITYBALANCE.info("{}\t{}\t{}", new DateTime(this.chart.getValueReverse(0).getOpenTime(), UTC), this.exchange.getBalance().get("USDT").getAvailableForTrade(), this.exchange.getBalance().get("USDT").getAvailableForTrade() - (totalCost - orderAmountTotal*this.chart.getValueReverse(0).getOpenPrice()) );
 
         if(profitGained == 0){
             return;
@@ -181,8 +190,9 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 
                 TradeResultEvent event = new TradeResultEvent(EXCHANGE, SYMBOL, QUOTE_CURRENCY, profit - fee, profit, placedOrderForClosing.getPriceExecuted(), placedOrder.getPriceExecuted(), ORDER_AMT, fee, placedOrderForClosing.getExecTimestamp());
 
-                String orderSideStr = tradeMode.equals(TradingMode.LONG) ? "SELL" : "BUY";
-                LOGGERBUYSELL.info("[{}] {} price {} buy price {} order amt {} net profit {}", new DateTime(placedOrderForClosing.getExecTimestamp(), UTC),orderSideStr, placedOrderForClosing.getPriceExecuted(), placedOrder.getPriceExecuted(), ORDER_AMT, profit - fee);
+                String orderOpenSideStr = tradeMode.equals(TradingMode.LONG) ? "SELL" : "BUY";
+                String orderCloseSideStr = tradeMode.equals(TradingMode.LONG) ? "BUY" : "SELL";
+                LOGGERBUYSELL.info("[{}]\t{} price\t{}\t{} price\t{}\torder amt\t{}\tnet profit\t{}", new DateTime(placedOrderForClosing.getExecTimestamp(), UTC),orderOpenSideStr, placedOrderForClosing.getPriceExecuted(), orderCloseSideStr, placedOrder.getPriceExecuted(), ORDER_AMT, profit - fee);
                 this.eventPublisher.publishEvent(event);
             }
             removedKeys.add(entry.getKey());
