@@ -62,9 +62,9 @@ public class SimulatorAppMain implements CommandLineRunner {
             throw new RuntimeException("Unsupported exchange");
         }
 
-        if(exchange.equals(ExchangeEnum.BINANCE) && !mode.equals(TradingMode.LONG)) {
-            throw new RuntimeException("BINANCE supports long only");
-        }
+//        if(exchange.equals(ExchangeEnum.BINANCE) && !mode.equals(TradingMode.LONG)) {
+//            throw new RuntimeException("BINANCE supports long only");
+//        }
 
 //        Map<String, Double> parsedBBInput = CmdLine.parseBlackboxInput(opts.getBlackboxInput(), opts.getStrategy());
 //

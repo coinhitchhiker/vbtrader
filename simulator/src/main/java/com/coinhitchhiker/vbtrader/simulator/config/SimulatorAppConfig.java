@@ -32,6 +32,7 @@ public class SimulatorAppConfig {
     @Value("${trading.limit.order.premium}") private double LIMIT_ORDER_PREMIUM;
     @Value("${trading.fee.rate}") private double FEE_RATE;
     @Value("${trading.slippage}") private double SLIPPAGE;
+    @Value("${trading.chart.time.frame}") private String TIMEFRAME;
 
     @Value("${trading.ts.enabled}") private boolean TRAILING_STOP_ENABLED;
     @Value("${trading.ts.trigger.pct}") private double TS_TRIGGER_PCT;
@@ -69,7 +70,7 @@ public class SimulatorAppConfig {
                     STOP_LOSS_ENABLED, STOP_LOSS_PCT, IBS_WINDOW_SIZE, IBS_LOWER_THRESHOLD, IBS_UPPER_THRESHOLD, true);
         } else if(STRATEGY.equals("HMA_TRADE")) {
             return new HMATradingEngine(repository(), exchange(), orderBookCache(), SYMBOL, QUOTE_CURRRENCY,
-                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.M3, HMA_LENGTH,
+                    ExchangeEnum.valueOf(EXCHANGE), FEE_RATE, true, TimeFrame.valueOf(TIMEFRAME), HMA_LENGTH,
                     HMA_TRADE_LOOK_BEHIND, true,
                     DateTime.parse(SIMUL_START, DateTimeFormat.forPattern("yyyyMMdd")).withZone(DateTimeZone.UTC).getMillis(),
                     TradingMode.valueOf(MODE)

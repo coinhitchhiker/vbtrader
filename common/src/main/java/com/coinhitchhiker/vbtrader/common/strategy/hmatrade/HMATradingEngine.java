@@ -40,21 +40,25 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 
     //external config params
 
+    @Value("${hma.trading.engine.order.amount.type}") String ORDER_AMT_TYPE;
     @Value("${hma.trading.engine.order.amount}") double ORDER_AMT;
     @Value("${hma.trading.engine.order.amount.increment.multiplying}") double ORDER_AMT_INC_MULTI;
     @Value("${hma.trading.engine.expected.profit}") double EXPECTED_PROFIT;
-    @Value("${hma.trading.engine.scale.trade.order.trend.interval}") boolean SCALE_TRD_ORD_TRND_INRERVAL;
     @Value("${hma.trading.engine.scale.trade.order.interval}") double SCALE_TRD_ORD_INRERVAL;
+    @Value("${hma.trading.engine.scale.trade.order.martingale.number}") int SCALE_TRD_ORD_MARTINGALE_NUM;
     @Value("${hma.trading.engine.scale.trade.order.amount.increment.interval}") double SCALE_TRD_ORD_AMT_INC_INTERVAL;
     @Value("${hma.trading.engine.max.order.limit}") double MAX_ORDER_LMT;
     @Value("${trading.slippage}") private double SLIPPAGE;
+    @Value("${hma.trading.engine.drawdown.allowance}") private double DRAWDOWNALLOWANCE;
 
     private final TradingMode tradeMode;
     private Map<String, OrderInfo> placedOrders = new LinkedHashMap<>();
     private int triggerTurningPoint = 0;
     private int orderScaleTradeCnt = 0;
     private double orderAmtIncRateApplied = 0;
-    private double lastTurningPointHMA = 0;
+    private int triggerTurningPointMartigaleNumCnt = 0;
+    private int lastMartigaleNumUsed = 0;
+    private double lastHMATurningPoint = 0;
 
     public HMATradingEngine(Repository repository, Exchange exchange, OrderBookCache orderBookCache,
                             String SYMBOL, String QUOTE_CURRENCY, ExchangeEnum EXCHANGE, double FEE_RATE,
@@ -134,12 +138,36 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
         }
     }
 
-    private void closeAllOrders() {
-
-        List<String> removedKeys = new ArrayList<>();
+    private boolean isRiskDrawDown(){
 
         double orderAmountTotal = 0D;
         double totalCost = 0D;
+
+        for (Map.Entry<String, OrderInfo> entry : this.placedOrders.entrySet()) {
+
+            OrderInfo placedOrder = this.exchange.getOrder(entry.getValue());
+            if (placedOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
+                orderAmountTotal = orderAmountTotal + placedOrder.getAmount();
+                totalCost = totalCost + placedOrder.getAmount()*placedOrder.getPriceExecuted();
+            }
+
+        }
+
+        double lastBalance = this.exchange.getBalance().get("USDT").getAvailableForTrade();
+        double currentDrawdown = tradeMode.equals(TradingMode.LONG) ? totalCost - orderAmountTotal*this.chart.getValueReverse(0).getOpenPrice() : orderAmountTotal*this.chart.getValueReverse(0).getOpenPrice() - totalCost;
+        double equity = this.exchange.getBalance().get("USDT").getAvailableForTrade() - (currentDrawdown);
+
+        LOGEQUITYBALANCE.info("{}\t{}\t{}", new DateTime(this.chart.getValueReverse(0).getOpenTime(), UTC), lastBalance, equity );
+
+        boolean drawDownRisk = (100 - equity/lastBalance*100) > DRAWDOWNALLOWANCE;
+
+        return drawDownRisk;
+
+    }
+
+    private void closeAllOrders() {
+
+        List<String> removedKeys = new ArrayList<>();
 
         double expectedProfit = 0D;
         double profitGained = 0D;
@@ -157,16 +185,10 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
                 double fee = closingOrderPrice * placedOrder.getAmount() * FEE_RATE / 100 + placedOrder.getPriceExecuted() * placedOrder.getAmount() * FEE_RATE / 100;
 
                 profitGained = profitGained - fee;
-
-                orderAmountTotal = orderAmountTotal + placedOrder.getAmount();
-                totalCost = totalCost + placedOrder.getAmount()*placedOrder.getPriceExecuted();
-
                 expectedProfit = expectedProfit + placedOrder.getAmount() * placedOrder.getPriceExecuted() * EXPECTED_PROFIT / 100;
             }
 
         }
-
-        LOGEQUITYBALANCE.info("{}\t{}\t{}", new DateTime(this.chart.getValueReverse(0).getOpenTime(), UTC), this.exchange.getBalance().get("USDT").getAvailableForTrade(), this.exchange.getBalance().get("USDT").getAvailableForTrade() - (totalCost - orderAmountTotal*this.chart.getValueReverse(0).getOpenPrice()) );
 
         if(profitGained == 0){
             return;
@@ -181,18 +203,18 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
             if (placedOrder.getOrderStatus().equals(OrderStatus.COMPLETE)) {
 
                 OrderSide orderSide = tradeMode.equals(TradingMode.LONG) ? OrderSide.SELL : OrderSide.BUY;
-                OrderInfo preparedOrderForClosing = new OrderInfo(EXCHANGE, SYMBOL, orderSide, OrderType.MARKET, 0, placedOrder.getAmount());
+                double currentOpenPrice = this.chart.getValueReverse(0).getOpenPrice();
+                OrderInfo preparedOrderForClosing = new OrderInfo(EXCHANGE, SYMBOL, orderSide, OrderType.MARKET, currentOpenPrice, placedOrder.getAmount());
                 OrderInfo placedOrderForClosing = this.exchange.placeOrder(preparedOrderForClosing);
 
-                double tradeRawProfit = tradeMode.equals(TradingMode.LONG) ? placedOrderForClosing.getPriceExecuted() - placedOrder.getPriceExecuted(): placedOrder.getPriceExecuted() - placedOrderForClosing.getPriceExecuted();
-                double profit = tradeRawProfit * placedOrder.getAmount();
+                double profit = tradeMode.equals(TradingMode.LONG) ? placedOrderForClosing.getPriceExecuted()*placedOrderForClosing.getAmount() - placedOrder.getPriceExecuted()*placedOrder.getAmount(): placedOrder.getPriceExecuted()*placedOrder.getAmount() - placedOrderForClosing.getPriceExecuted()*placedOrderForClosing.getAmount();
                 double fee = placedOrderForClosing.getPriceExecuted() * placedOrderForClosing.getAmount() * FEE_RATE / 100 + placedOrder.getPriceExecuted() * placedOrder.getAmount() * FEE_RATE / 100;
 
-                TradeResultEvent event = new TradeResultEvent(EXCHANGE, SYMBOL, QUOTE_CURRENCY, profit - fee, profit, placedOrderForClosing.getPriceExecuted(), placedOrder.getPriceExecuted(), ORDER_AMT, fee, placedOrderForClosing.getExecTimestamp());
+                TradeResultEvent event = new TradeResultEvent(EXCHANGE, SYMBOL, QUOTE_CURRENCY, profit - fee, profit, placedOrderForClosing.getPriceExecuted(), placedOrder.getPriceExecuted(), placedOrder.getAmountExecuted(), fee, placedOrderForClosing.getExecTimestamp());
 
                 String orderOpenSideStr = tradeMode.equals(TradingMode.LONG) ? "SELL" : "BUY";
                 String orderCloseSideStr = tradeMode.equals(TradingMode.LONG) ? "BUY" : "SELL";
-                LOGGERBUYSELL.info("[{}]\t{} price\t{}\t{} price\t{}\torder amt\t{}\tnet profit\t{}", new DateTime(placedOrderForClosing.getExecTimestamp(), UTC),orderOpenSideStr, placedOrderForClosing.getPriceExecuted(), orderCloseSideStr, placedOrder.getPriceExecuted(), ORDER_AMT, profit - fee);
+                LOGGERBUYSELL.info("[{}]\t{} price\t{}\t{} price\t{}\torder amt\t{}\tnet profit\t{}", new DateTime(placedOrderForClosing.getExecTimestamp(), UTC),orderOpenSideStr, placedOrderForClosing.getPriceExecuted(), orderCloseSideStr, placedOrder.getPriceExecuted(), placedOrder.getAmountExecuted(), profit - fee);
                 this.eventPublisher.publishEvent(event);
             }
             removedKeys.add(entry.getKey());
@@ -204,6 +226,8 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
         this.triggerTurningPoint = 0;
         this.orderScaleTradeCnt  = 0;
         this.orderAmtIncRateApplied = 0;
+        triggerTurningPointMartigaleNumCnt = 0;
+        lastMartigaleNumUsed = 0;
 
         this.clearOutOrders();
     }
@@ -257,22 +281,29 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
 
         if(hamOrderConditionConfirmed){
 
-            this.triggerTurningPoint++;
-
-            if(SCALE_TRD_ORD_TRND_INRERVAL){
-
-                if(this.triggerTurningPoint > 1 && this.lastTurningPointHMA < hma1){
-                    scaleTradingConfirmed = true;
-                }
-
-            }else{
-
-                if((this.triggerTurningPoint - 1) % this.SCALE_TRD_ORD_INRERVAL == 0){
-                    scaleTradingConfirmed = true;
-                }
+            if(isRiskDrawDown()){
+                return;
             }
 
-            this.lastTurningPointHMA = hma1;
+            this.triggerTurningPoint++;
+            this.triggerTurningPointMartigaleNumCnt++;
+            this.lastHMATurningPoint = hma1;
+
+            if(SCALE_TRD_ORD_MARTINGALE_NUM > 0) {
+
+                if(this.triggerTurningPointMartigaleNumCnt == 1 && this.lastMartigaleNumUsed == 0){
+                    scaleTradingConfirmed = true;
+                    this.lastMartigaleNumUsed++;
+                    this.triggerTurningPointMartigaleNumCnt = 0;
+                }else if(this.triggerTurningPointMartigaleNumCnt == this.lastMartigaleNumUsed*SCALE_TRD_ORD_MARTINGALE_NUM){
+                    scaleTradingConfirmed = true;
+                    this.triggerTurningPointMartigaleNumCnt = 0;
+                    this.lastMartigaleNumUsed = this.lastMartigaleNumUsed*SCALE_TRD_ORD_MARTINGALE_NUM;
+                }
+
+            }else if((this.triggerTurningPoint - 1) % this.SCALE_TRD_ORD_INRERVAL == 0){
+                scaleTradingConfirmed = true;
+            }
 
         }
 
@@ -284,8 +315,8 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
                 return;
             }
 
-            if(orderAmtIncRateApplied == 0 || this.SCALE_TRD_ORD_AMT_INC_INTERVAL == 0){
-                orderAmtIncRateApplied = ORDER_AMT;
+            if(orderAmtIncRateApplied == 0 || this.SCALE_TRD_ORD_AMT_INC_INTERVAL == 0 || this.lastHMATurningPoint < hma1){
+                orderAmtIncRateApplied = getDefaultAmount();
             }else{
 
                 if(this.orderScaleTradeCnt > 0 && (this.orderScaleTradeCnt % this.SCALE_TRD_ORD_AMT_INC_INTERVAL == 0)){
@@ -336,6 +367,20 @@ public class HMATradingEngine extends AbstractTradingEngine implements TradingEn
         LOGGERBUYSELL.info("timeFrame {}", this.timeFrame);
         LOGGERBUYSELL.info("HMA_LENGTH {}", this.HMA_LENGTH);
         LOGGERBUYSELL.info("TRADING_WINDOW_LOOK_BEHIND {}", this.TRADING_WINDOW_LOOKBEHIND);
+    }
+
+    private double getDefaultAmount(){
+
+        if(ORDER_AMT_TYPE.equals("FIAT")){
+
+            return ORDER_AMT/this.chart.getValueReverse(0).getOpenPrice();
+
+        }else if(ORDER_AMT_TYPE.equals("COIN")){
+            return ORDER_AMT;
+        }else{
+            return ORDER_AMT;
+        }
+
     }
 
 }

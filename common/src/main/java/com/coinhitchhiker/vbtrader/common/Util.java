@@ -44,6 +44,10 @@ public class Util {
 
         if(timeFrame.equals(TimeFrame.M5)) {
             mm = ((int) mm / 5) * 5;
+        } else if(timeFrame.equals(TimeFrame.M2)) {
+            mm = ((int)mm/2) * 2;
+        } else if(timeFrame.equals(TimeFrame.M4)) {
+            mm = ((int)mm/4) * 4;
         } else if(timeFrame.equals(TimeFrame.M3)) {
             mm = ((int)mm/3) * 3;
         } else if(timeFrame.equals(TimeFrame.M15)) {
