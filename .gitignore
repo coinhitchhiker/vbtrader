@@ -3,9 +3,10 @@
 
 # Log file
 *.log
-simulator/log.txt
-simulator/log-buysell.txt
-simulator/log-trade.txt
+simulator/log*.txt
+simulator/BINANCE-*
+simulator/*.tmp
+*.bak
 
 # BlueJ files
 *.ctxt
