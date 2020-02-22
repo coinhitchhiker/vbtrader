@@ -4,9 +4,11 @@
 # Log file
 *.log
 simulator/log*.txt
+simulator/log*.zip
 simulator/BINANCE-*
 simulator/*.tmp
 *.bak
+
 
 # BlueJ files
 *.ctxt
