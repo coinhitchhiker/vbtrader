@@ -60,11 +60,15 @@ public class EMA implements Indicator<Double> {
 
     @Override
     public Double getValueReverse(int index) {
+        if(this.values.size() == 0) return 0.0D;
+
         return this.values.get(this.values.size() - index - 1);
     }
 
     @Override
     public Double getValue(int index) {
+        if(this.values.size() == 0) return 0.0D;
+
         return this.values.get(index);
     }
 }
